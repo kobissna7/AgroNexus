@@ -104,7 +104,7 @@ export default function FarmerListings() {
                   <tr key={l.id}>
                     <td>
                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontWeight: 600, color: '#111827' }}>
-                        <CropIcon type={l.crop_type} className="w-4 h-4 flex-shrink-0" />
+                        <CropIcon type={l.crop_type} className="w-4 h-4 shrink-0" />
                         <span style={{ textTransform: 'capitalize' }}>{l.crop_type}</span>
                       </span>
                     </td>

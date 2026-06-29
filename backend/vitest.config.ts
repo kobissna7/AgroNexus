@@ -5,5 +5,8 @@ export default defineConfig({
     environment: 'node',
     globals: true,
     testTimeout: 10000,
+    typecheck: {
+      tsconfig: './tsconfig.test.json',
+    },
   },
 })

@@ -173,13 +173,13 @@ export default function ConsumerBrowse() {
 
                 <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 5, flex: 1 }}>
                   <p style={{ fontSize: 12, color: '#6B8A7A', display: 'flex', alignItems: 'center', gap: 5 }}>
-                    <PackageIcon className="w-3.5 h-3.5 flex-shrink-0" /> {l.quantity_kg} kg available
+                    <PackageIcon className="w-3.5 h-3.5 shrink-0" /> {l.quantity_kg} kg available
                   </p>
                   <p style={{ fontSize: 12, color: '#6B8A7A', display: 'flex', alignItems: 'center', gap: 5 }}>
-                    <MapPinIcon className="w-3.5 h-3.5 flex-shrink-0" /> {l.location}
+                    <MapPinIcon className="w-3.5 h-3.5 shrink-0" /> {l.location}
                   </p>
                   <p style={{ fontSize: 12, color: '#6B8A7A', display: 'flex', alignItems: 'center', gap: 5 }}>
-                    <UserIcon className="w-3.5 h-3.5 flex-shrink-0" /> {(l as ProduceListing & { users?: { full_name: string } }).users?.full_name ?? 'Farmer'}
+                    <UserIcon className="w-3.5 h-3.5 shrink-0" /> {(l as ProduceListing & { users?: { full_name: string } }).users?.full_name ?? 'Farmer'}
                   </p>
                   <p style={{ fontSize: 11, color: '#6B8A7A' }}>From {new Date(l.available_from).toLocaleDateString()}</p>
                 </div>

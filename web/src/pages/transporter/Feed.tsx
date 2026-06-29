@@ -119,10 +119,10 @@ export default function TransporterFeed() {
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                         <p style={{ fontSize: 12, color: '#6B8A7A', display: 'flex', alignItems: 'center', gap: 5 }}>
-                          <PackageIcon className="w-3.5 h-3.5 flex-shrink-0" /> {r.quantity_kg} kg
+                          <PackageIcon className="w-3.5 h-3.5 shrink-0" /> {r.quantity_kg} kg
                         </p>
                         <p style={{ fontSize: 12, color: '#6B8A7A', display: 'flex', alignItems: 'center', gap: 5 }}>
-                          <MapPinIcon className="w-3.5 h-3.5 flex-shrink-0" /> Pickup: {r.pickup_location}
+                          <MapPinIcon className="w-3.5 h-3.5 shrink-0" /> Pickup: {r.pickup_location}
                         </p>
                         <p style={{ fontSize: 11, color: '#6B8A7A' }}>{new Date(r.created_at).toLocaleString()}</p>
                       </div>

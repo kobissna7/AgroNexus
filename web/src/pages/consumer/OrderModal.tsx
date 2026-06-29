@@ -118,7 +118,7 @@ export default function OrderModal({ listing, onClose, onOrdered }: Props) {
             <div>
               <p style={{ fontSize: 15, fontWeight: 700, color: '#111827', textTransform: 'capitalize' }}>{listing.crop_type}</p>
               <p style={{ fontSize: 12, color: '#6B7280', display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
-                <MapPinIcon className="w-3.5 h-3.5 flex-shrink-0" /> {listing.location}
+                <MapPinIcon className="w-3.5 h-3.5 shrink-0" /> {listing.location}
               </p>
             </div>
             {isRetailer && (

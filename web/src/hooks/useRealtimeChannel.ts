@@ -20,13 +20,14 @@ export function useRealtimeChannel(
   useEffect(() => {
     if (!supabase || !channelName) return
 
-    const channel = supabase
+    const client = supabase
+    const channel = client
       .channel(channelName)
       .on('broadcast', { event }, ({ payload }) => {
         handlerRef.current(payload as Record<string, unknown>)
       })
       .subscribe()
 
-    return () => { supabase.removeChannel(channel) }
+    return () => { client.removeChannel(channel) }
   }, [channelName, event])
 }

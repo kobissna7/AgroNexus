@@ -38,11 +38,11 @@ export default function LiveToast() {
       className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium shadow-xl animate-slide-up"
       style={{ backgroundColor: '#0D2B1F', color: '#fff', maxWidth: 320 }}
     >
-      <span className="flex-shrink-0">{toast.icon}</span>
+      <span className="shrink-0">{toast.icon}</span>
       <span>{toast.message}</span>
       <button
         onClick={() => setToast(null)}
-        className="ml-2 opacity-60 hover:opacity-100 flex-shrink-0"
+        className="ml-2 opacity-60 hover:opacity-100 shrink-0"
       >
         <XIcon className="w-4 h-4" />
       </button>
