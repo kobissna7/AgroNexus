@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build output
+dist/
+dist-ssr/
+**/dist/
+*.local
+
+# Environment variables
+.env
+.env.*
+**/.env
+**/.env.*
+
+# Python
+ml/venv/
+ml/__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyo
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+
+# OS
+Thumbs.db

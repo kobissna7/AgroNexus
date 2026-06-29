@@ -1,0 +1,373 @@
+import { ReactNode, useEffect, useRef, useState } from 'react'
+import { NavLink, useNavigate } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
+import { useRealtimeChannel } from '../hooks/useRealtimeChannel'
+import LiveToast, { showToast } from './LiveToast'
+import { CartIcon, TruckIcon as TruckToastIcon, PackageIcon } from './icons'
+import api from '../lib/api'
+
+interface NavItem { label: string; to: string; icon: ReactNode }
+
+const farmerNav: NavItem[] = [
+  { label: 'Dashboard',   to: '/farmer/dashboard', icon: <HomeIcon /> },
+  { label: 'My Listings', to: '/farmer/listings',  icon: <ListIcon /> },
+  { label: 'Orders',      to: '/farmer/orders',    icon: <OrderIcon /> },
+  { label: 'Market',      to: '/market',           icon: <ChartIcon /> },
+  { label: 'Forecasts',   to: '/forecasts',        icon: <ForecastIcon /> },
+]
+const consumerNav: NavItem[] = [
+  { label: 'Browse',    to: '/consumer/browse', icon: <BrowseIcon /> },
+  { label: 'My Orders', to: '/consumer/orders', icon: <OrderIcon /> },
+]
+const transporterNav: NavItem[] = [
+  { label: 'Feed',       to: '/transporter/feed',       icon: <HomeIcon /> },
+  { label: 'Deliveries', to: '/transporter/deliveries', icon: <TruckIcon /> },
+]
+const adminNav: NavItem[] = [
+  { label: 'Overview',  to: '/admin',          icon: <HomeIcon /> },
+  { label: 'Users',     to: '/admin/users',    icon: <UsersIcon /> },
+  { label: 'Listings',  to: '/admin/listings', icon: <ListIcon /> },
+  { label: 'Orders',    to: '/admin/orders',   icon: <OrderIcon /> },
+  { label: 'Market',    to: '/market',         icon: <ChartIcon /> },
+  { label: 'Forecasts', to: '/forecasts',      icon: <ForecastIcon /> },
+]
+
+const navByRole: Record<string, NavItem[]> = {
+  farmer: farmerNav, consumer: consumerNav, retailer: consumerNav, transporter: transporterNav, admin: adminNav,
+}
+
+export default function Layout({ children }: { children: ReactNode }) {
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
+  const [collapsed, setCollapsed] = useState(false)
+  const [unread, setUnread] = useState(0)
+  const [showBell, setShowBell] = useState(false)
+  const [notifications, setNotifications] = useState<{ id: string; message: string; read: boolean; created_at: string }[]>([])
+  const bellRef = useRef<HTMLDivElement>(null)
+  const navItems = navByRole[user?.role ?? ''] ?? []
+
+  const handleLogout = () => { logout(); navigate('/login') }
+
+  useEffect(() => {
+    if (!user) return
+    api.get<{ id: string; message: string; read: boolean; created_at: string }[]>('/api/v1/notifications')
+      .then(({ data }) => { setNotifications(data); setUnread(data.filter(n => !n.read).length) })
+      .catch(() => {})
+  }, [user])
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (bellRef.current && !bellRef.current.contains(e.target as Node)) setShowBell(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  const farmerId    = user?.role === 'farmer'      ? user.id : ''
+  const consumerId  = user?.role === 'consumer'    ? user.id : ''
+  const isTransport = user?.role === 'transporter'
+
+  useRealtimeChannel(`orders:farmer-${farmerId}`, 'new_order', (p) => {
+    if (!farmerId) return
+    const msg = `New order: ${p.quantity_kg}kg of ${p.crop_type}`
+    showToast(msg, <CartIcon className="w-5 h-5" />)
+    setUnread(u => u + 1)
+    setNotifications(prev => [{ id: Date.now().toString(), message: msg, read: false, created_at: new Date().toISOString() }, ...prev])
+  })
+
+  useRealtimeChannel('transport:all', 'new_request', (p) => {
+    if (!isTransport) return
+    showToast(`New delivery job: ${p.quantity_kg}kg of ${p.crop_type}`, <TruckToastIcon className="w-5 h-5" />)
+    setUnread(u => u + 1)
+  })
+
+  useRealtimeChannel(`orders:consumer-${consumerId}`, 'status_update', (p) => {
+    if (!consumerId) return
+    const msg = `Your ${p.crop_type} order is now ${String(p.status).replace('_', ' ')}`
+    showToast(msg, <PackageIcon className="w-5 h-5" />)
+    setUnread(u => u + 1)
+    setNotifications(prev => [{ id: Date.now().toString(), message: msg, read: false, created_at: new Date().toISOString() }, ...prev])
+  })
+
+  const handleBellClick = async () => {
+    setShowBell(v => !v)
+    if (unread > 0) {
+      const unreadIds = notifications.filter(n => !n.read).map(n => n.id)
+      setUnread(0)
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })))
+      api.post('/api/v1/notifications/mark-read', { ids: unreadIds }).catch(() => {})
+    }
+  }
+
+  const initials = user?.full_name?.[0]?.toUpperCase() ?? '?'
+
+  return (
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: '#fff' }}>
+      {/* ── Sidebar ──────────────────────────────────────── */}
+      <aside style={{
+        width: collapsed ? 64 : 220,
+        transition: 'width 0.22s cubic-bezier(0.4,0,0.2,1)',
+        flexShrink: 0,
+        display: 'flex', flexDirection: 'column',
+        background: 'linear-gradient(180deg, #030B07 0%, #050F08 100%)',
+        borderRight: '1px solid rgba(46,125,82,0.12)',
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        {/* subtle glow strip */}
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: 2,
+          background: 'linear-gradient(90deg, transparent, #1A5C38, transparent)',
+        }} />
+
+        {/* Logo */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: collapsed ? '20px 14px' : '20px 16px',
+          borderBottom: '1px solid rgba(46,125,82,0.1)',
+          overflow: 'hidden',
+        }}>
+          <div style={{ width: 34, height: 34, borderRadius: 9, flexShrink: 0, overflow: 'hidden', background: '#fff', boxShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
+            <img src="/logo.png" alt="AgroNexus" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+          </div>
+          {!collapsed && (
+            <div style={{ overflow: 'hidden' }}>
+              <p style={{ color: '#E8F0EB', fontWeight: 700, fontSize: 14, letterSpacing: '-0.2px', lineHeight: '1.2' }}>AgroNexus</p>
+              <p style={{ color: '#4A6B58', fontSize: 10, fontWeight: 500, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Platform</p>
+            </div>
+          )}
+        </div>
+
+        {/* Role pill */}
+        {!collapsed && user?.role && (
+          <div style={{ padding: '10px 16px 4px' }}>
+            <span style={{
+              display: 'inline-block', fontSize: 10, fontWeight: 700,
+              textTransform: 'uppercase', letterSpacing: '0.08em',
+              padding: '3px 10px', borderRadius: 9999,
+              background: 'rgba(46,125,82,0.18)', color: '#4ADE80',
+              border: '1px solid rgba(46,125,82,0.3)',
+            }}>
+              {user.role}
+            </span>
+          </div>
+        )}
+
+        {/* Nav items */}
+        <nav style={{ flex: 1, padding: '8px 10px', display: 'flex', flexDirection: 'column', gap: 2, overflowY: 'auto' }}>
+          {navItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              style={({ isActive }) => ({
+                display: 'flex', alignItems: 'center', gap: 10,
+                padding: collapsed ? '10px 13px' : '10px 12px',
+                borderRadius: 10,
+                textDecoration: 'none',
+                fontSize: 13, fontWeight: 500,
+                transition: 'all 0.15s',
+                color: isActive ? '#E8F0EB' : '#4A6B58',
+                background: isActive
+                  ? 'linear-gradient(135deg, rgba(46,125,82,0.35), rgba(26,92,56,0.25))'
+                  : 'transparent',
+                border: isActive ? '1px solid rgba(46,125,82,0.3)' : '1px solid transparent',
+                boxShadow: isActive ? '0 2px 10px rgba(26,92,56,0.25)' : 'none',
+              })}
+              onMouseEnter={e => {
+                const el = e.currentTarget
+                if (!el.style.background.includes('46,125,82,0.35')) {
+                  el.style.background = 'rgba(46,125,82,0.1)'
+                  el.style.color = '#7BA892'
+                }
+              }}
+              onMouseLeave={e => {
+                const el = e.currentTarget
+                if (!el.style.background.includes('46,125,82,0.35')) {
+                  el.style.background = 'transparent'
+                  el.style.color = '#4A6B58'
+                }
+              }}
+            >
+              <span style={{ width: 18, height: 18, flexShrink: 0 }}>{item.icon}</span>
+              {!collapsed && <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>}
+            </NavLink>
+          ))}
+        </nav>
+
+        {/* User + logout */}
+        <div style={{ padding: '10px', borderTop: '1px solid rgba(46,125,82,0.1)' }}>
+          {!collapsed && (
+            <div style={{
+              padding: '10px 10px 8px',
+              background: 'rgba(255,255,255,0.03)',
+              borderRadius: 10, marginBottom: 6,
+              border: '1px solid rgba(46,125,82,0.1)',
+            }}>
+              <p style={{ color: '#E8F0EB', fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.full_name}</p>
+              <p style={{ color: '#4A6B58', fontSize: 10, marginTop: 2 }}>{user?.email?.slice(0, 22)}{(user?.email?.length ?? 0) > 22 ? '…' : ''}</p>
+            </div>
+          )}
+          <button
+            onClick={handleLogout}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              padding: collapsed ? '9px 13px' : '9px 10px',
+              borderRadius: 9, width: '100%',
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              color: '#4A6B58', fontSize: 12, fontWeight: 500,
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(248,113,113,0.1)'; e.currentTarget.style.color = '#F87171' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#4A6B58' }}
+          >
+            <LogoutIcon />
+            {!collapsed && <span>Sign out</span>}
+          </button>
+        </div>
+      </aside>
+
+      {/* ── Main area ─────────────────────────────────────── */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
+        {/* Topbar */}
+        <header style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0 24px', height: 60, flexShrink: 0,
+          background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)',
+          borderBottom: '1px solid #E8EDEA',
+        }}>
+          {/* Collapse toggle */}
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            style={{
+              padding: '8px', borderRadius: 8, background: 'transparent',
+              border: 'none', cursor: 'pointer', color: '#7BA892',
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(46,125,82,0.1)'; e.currentTarget.style.color = '#1A5C38' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#7BA892' }}
+          >
+            <MenuIcon />
+          </button>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            {/* Bell */}
+            <div ref={bellRef} style={{ position: 'relative' }}>
+              <button
+                onClick={handleBellClick}
+                style={{
+                  position: 'relative', padding: 8, borderRadius: 9, background: 'transparent',
+                  border: 'none', cursor: 'pointer', color: '#7BA892', transition: 'all 0.15s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(46,125,82,0.1)'; e.currentTarget.style.color = '#1A5C38' }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#7BA892' }}
+              >
+                <BellIcon />
+                {unread > 0 && (
+                  <span style={{
+                    position: 'absolute', top: 4, right: 4,
+                    width: 16, height: 16, borderRadius: '50%',
+                    background: 'linear-gradient(135deg,#2E7D52,#1A5C38)',
+                    color: '#fff', fontSize: 9, fontWeight: 700,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 0 0 2px #fff',
+                  }}>
+                    {unread > 9 ? '9+' : unread}
+                  </span>
+                )}
+              </button>
+              {showBell && (
+                <div style={{
+                  position: 'absolute', right: 0, top: 'calc(100% + 8px)',
+                  width: 320, background: '#fff', borderRadius: 14,
+                  border: '1px solid rgba(46,125,82,0.12)',
+                  boxShadow: '0 8px 32px rgba(13,43,31,0.15)', zIndex: 50, overflow: 'hidden',
+                }}>
+                  <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(46,125,82,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <p style={{ fontWeight: 700, fontSize: 13, color: '#111827' }}>Notifications</p>
+                    {unread === 0 && <span className="live-dot" />}
+                  </div>
+                  <div style={{ maxHeight: 280, overflowY: 'auto' }}>
+                    {notifications.length === 0 ? (
+                      <p style={{ fontSize: 13, color: '#9CA3AF', textAlign: 'center', padding: '24px 16px' }}>No notifications yet</p>
+                    ) : (
+                      notifications.slice(0, 10).map((n) => (
+                        <div key={n.id} style={{
+                          padding: '12px 16px',
+                          borderBottom: '1px solid rgba(46,125,82,0.06)',
+                          background: n.read ? '#fff' : 'rgba(26,92,56,0.04)',
+                        }}>
+                          <p style={{ fontSize: 13, color: '#111827' }}>{n.message}</p>
+                          <p style={{ fontSize: 11, color: '#9CA3AF', marginTop: 3 }}>{new Date(n.created_at).toLocaleString()}</p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* User avatar + info */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{
+                width: 34, height: 34, borderRadius: '50%',
+                background: 'linear-gradient(135deg, #2E7D52, #1A5C38)',
+                color: '#fff', fontWeight: 700, fontSize: 13,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 2px 8px rgba(26,92,56,0.3)',
+                flexShrink: 0,
+              }}>
+                {initials}
+              </div>
+              <div style={{ display: 'none' }} className="sm:block" >
+                <p style={{ fontSize: 13, fontWeight: 600, color: '#111827', lineHeight: '1.3' }}>{user?.full_name}</p>
+                <p style={{ fontSize: 11, color: '#7BA892', textTransform: 'capitalize' }}>{user?.role}</p>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Page content */}
+        <main style={{ flex: 1, overflowY: 'auto', padding: 24, background: '#fff' }}>
+          {children}
+        </main>
+      </div>
+
+      <LiveToast />
+    </div>
+  )
+}
+
+/* ── Inline SVG icons ──────────────────────────────────── */
+function HomeIcon() {
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: '100%', height: '100%' }}><path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+}
+function ListIcon() {
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: '100%', height: '100%' }}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+}
+function OrderIcon() {
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: '100%', height: '100%' }}><path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+}
+function ChartIcon() {
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: '100%', height: '100%' }}><path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+}
+function BrowseIcon() {
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: '100%', height: '100%' }}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
+}
+function TruckIcon() {
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: '100%', height: '100%' }}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg>
+}
+function ForecastIcon() {
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: '100%', height: '100%' }}><path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+}
+function UsersIcon() {
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: '100%', height: '100%' }}><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+}
+function LogoutIcon() {
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: 16, height: 16, flexShrink: 0 }}><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+}
+function MenuIcon() {
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: 20, height: 20 }}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+}
+function BellIcon() {
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: 20, height: 20 }}><path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+}

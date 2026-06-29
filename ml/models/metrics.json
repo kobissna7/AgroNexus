@@ -1,0 +1,16 @@
+{
+  "gbm": {
+    "mape": 6.04,
+    "rmse": 32.36
+  },
+  "mlp": {
+    "mape": 5.87,
+    "rmse": 29.21
+  },
+  "primary_model": "mlp",
+  "train_rows": 4554,
+  "test_rows": 1890,
+  "train_cutoff": "2023-01-01",
+  "target_mape_pct": 25.0,
+  "achieved": true
+}
