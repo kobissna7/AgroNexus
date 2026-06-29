@@ -16,7 +16,17 @@ import usersRouter from './routes/users'
 
 const app = express()
 
-app.use(cors({ origin: process.env.CORS_ORIGIN ?? 'http://localhost:3000', credentials: true }))
+const allowedOrigins = (process.env.CORS_ORIGIN ?? 'http://localhost:3000')
+  .split(',')
+  .map(o => o.trim())
+
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin || allowedOrigins.includes(origin)) return cb(null, true)
+    cb(new Error(`CORS: ${origin} not allowed`))
+  },
+  credentials: true,
+}))
 app.use(express.json())
 
 app.use('/api/v1/health', healthRouter)
