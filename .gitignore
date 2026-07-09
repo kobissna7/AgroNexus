@@ -21,6 +21,9 @@ ml/__pycache__/
 *.py[cod]
 *.pyo
 
+# Generated from live platform data (backend: npm run export:demand)
+ml/data/platform_demand.csv
+
 # Logs
 *.log
 logs/

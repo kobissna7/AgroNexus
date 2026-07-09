@@ -7,6 +7,7 @@
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
+    "export:demand": "tsx src/scripts/export-demand.ts",
     "test": "NODE_ENV=test vitest run --reporter=verbose"
   },
   "keywords": [],

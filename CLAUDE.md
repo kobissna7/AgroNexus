@@ -292,6 +292,7 @@ Attach to prompts:
 - Target MAPE: ≤ 20% (≤ 25% acceptable for prototype)
 - Artifacts: `model.h5`, `scaler_X.pkl`, `scaler_y.pkl`
 - Fallback: gradient boosting model if `model.h5` missing
+- Retraining on real orders: `cd backend && npm run export:demand` writes the `demand_weekly` view to `ml/data/platform_demand.csv` (gitignored); `train.py` blends it automatically when present, platform rows winning on overlap
 
 ---
 

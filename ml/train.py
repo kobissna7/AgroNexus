@@ -54,6 +54,17 @@ def load_data() -> pd.DataFrame:
         on=['date', 'crop_type', 'region'],
         how='left',
     )
+
+    # Real marketplace demand exported from the demand_weekly view
+    # (backend: npm run export:demand). Platform rows win on overlap.
+    platform_path = DATA_DIR / 'platform_demand.csv'
+    if platform_path.exists():
+        platform = pd.read_csv(platform_path, parse_dates=['date'])
+        platform = platform[['date', 'crop_type', 'region', 'demand_kg', 'festival_flag', 'price_per_kg']]
+        df = pd.concat([df, platform], ignore_index=True)
+        df = df.drop_duplicates(subset=['date', 'crop_type', 'region'], keep='last')
+        print(f"Blended {len(platform)} platform demand rows from {platform_path.name}")
+
     df = df.sort_values(['crop_type', 'region', 'date']).reset_index(drop=True)
     return df
 
