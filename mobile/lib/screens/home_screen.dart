@@ -284,8 +284,8 @@ class _RolesSection extends StatelessWidget {
     const roles = [
       _RoleData('👨‍🌾', 'Farmer', AppColors.brand, AppColors.brandLight,
           ['Post produce listings', 'Track orders in real time', 'View AI demand forecasts'], '/register'),
-      _RoleData('🛒', 'Consumer', AppColors.accentGold, Color(0xFFFEF9EC),
-          ['Browse fresh produce by region', 'Place orders with one tap', 'Track delivery status live'], '/register'),
+      _RoleData('🛒', 'Buyer', AppColors.accentGold, Color(0xFFFEF9EC),
+          ['Wholesaler, retailer or consumer', 'Browse produce by region', 'Track delivery status live'], '/register'),
       _RoleData('🚚', 'Transporter', AppColors.brandMid, AppColors.brandLight,
           ['See open delivery requests', 'Accept & manage runs', 'Update status on the go'], '/register'),
     ];

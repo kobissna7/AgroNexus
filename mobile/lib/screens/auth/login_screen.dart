@@ -33,9 +33,10 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _loading = false);
     if (success) {
       final role = auth.user!.role;
-      if (role == 'farmer')      context.go('/farmer');
-      else if (role == 'consumer') context.go('/consumer');
-      else                          context.go('/transporter');
+      const buyerRoles = ['consumer', 'wholesaler', 'retailer', 'direct_consumer'];
+      if (role == 'farmer')                context.go('/farmer');
+      else if (buyerRoles.contains(role))  context.go('/consumer');
+      else                                 context.go('/transporter');
     }
   }
 

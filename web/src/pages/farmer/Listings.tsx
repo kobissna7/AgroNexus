@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import Layout from '../../components/Layout'
 import StatusBadge from '../../components/StatusBadge'
 import ListingModal from './ListingModal'
+import AllocationModal from './AllocationModal'
 import { CropIcon } from '../../components/CropIcon'
 import { SeedlingIcon } from '../../components/icons'
 import api from '../../lib/api'
@@ -12,6 +13,7 @@ export default function FarmerListings() {
   const [loading, setLoading]   = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editItem, setEditItem]   = useState<ProduceListing | null>(null)
+  const [allocItem, setAllocItem] = useState<ProduceListing | null>(null)
   const [error, setError]         = useState<string | null>(null)
 
   const fetchListings = useCallback(async () => {
@@ -119,6 +121,12 @@ export default function FarmerListings() {
                           onClick={() => { setEditItem(l); setShowModal(true) }}
                           style={{ fontSize: 12, padding: '5px 12px', borderRadius: 9999, border: '1px solid #D1E0D8', background: 'transparent', color: '#2E7D52', cursor: 'pointer' }}
                         >Edit</button>
+                        {l.status === 'active' && (
+                          <button
+                            onClick={() => setAllocItem(l)}
+                            style={{ fontSize: 12, padding: '5px 12px', borderRadius: 9999, border: '1px solid #E5D9B8', background: 'transparent', color: '#92621A', cursor: 'pointer' }}
+                          >Allocate</button>
+                        )}
                         <button
                           onClick={() => handleDelete(l.id)}
                           style={{ fontSize: 12, padding: '5px 12px', borderRadius: 9999, border: 'none', background: 'transparent', color: '#F87171', cursor: 'pointer' }}
@@ -138,6 +146,14 @@ export default function FarmerListings() {
           listing={editItem}
           onClose={() => setShowModal(false)}
           onSaved={() => { setShowModal(false); fetchListings() }}
+        />
+      )}
+
+      {allocItem && (
+        <AllocationModal
+          listing={allocItem}
+          onClose={() => setAllocItem(null)}
+          onSaved={() => { setAllocItem(null); fetchListings() }}
         />
       )}
     </Layout>

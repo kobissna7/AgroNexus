@@ -3,7 +3,7 @@ import Layout from '../../components/Layout'
 import MetricCard from '../../components/MetricCard'
 import OrderModal from './OrderModal'
 import { CropIcon } from '../../components/CropIcon'
-import { WheatIcon, PackageIcon, MapPinIcon, UserIcon, CheckIcon, XIcon } from '../../components/icons'
+import { WheatIcon, PackageIcon, MapPinIcon, CheckIcon, XIcon } from '../../components/icons'
 import api from '../../lib/api'
 import type { ProduceListing, Order } from '../../types'
 
@@ -177,9 +177,6 @@ export default function ConsumerBrowse() {
                   </p>
                   <p style={{ fontSize: 12, color: '#6B8A7A', display: 'flex', alignItems: 'center', gap: 5 }}>
                     <MapPinIcon className="w-3.5 h-3.5 shrink-0" /> {l.location}
-                  </p>
-                  <p style={{ fontSize: 12, color: '#6B8A7A', display: 'flex', alignItems: 'center', gap: 5 }}>
-                    <UserIcon className="w-3.5 h-3.5 shrink-0" /> {(l as ProduceListing & { users?: { full_name: string } }).users?.full_name ?? 'Farmer'}
                   </p>
                   <p style={{ fontSize: 11, color: '#6B8A7A' }}>From {new Date(l.available_from).toLocaleDateString()}</p>
                 </div>

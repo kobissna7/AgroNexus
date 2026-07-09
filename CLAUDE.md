@@ -33,13 +33,20 @@ agronexus/
 
 ## Database Schema
 
-**Tables:** `users`, `produce_listings`, `orders`, `transport_requests`, `price_records`
+Base schema: `supabase_setup.sql`. Then run `migration_v2_roles_and_market.sql` (idempotent) in the Supabase SQL Editor — it adds buyer roles, auto-location, allocations, the anonymized marketplace view, and demand-signal capture.
 
-- `users`: id, email, role (farmer/consumer/transporter), full_name, region, phone
+**Roles:** `farmer`, `wholesaler`, `retailer`, `direct_consumer`, `transporter`, `admin`. (`consumer` is legacy — pre-v2 JWTs still validate, but no new users get it.)
+
+**Tables:** `users`, `produce_listings`, `orders`, `transport_requests`, `price_records`, `listing_allocations`, `notifications`
+
+- `users`: id, email, role, full_name, region, phone, location_lat, location_lng, region_source (gps/ip/manual/unknown) — region is auto-derived from coordinates by a DB trigger (nearest centroid of Tarkwa/Bogoso/Prestea), never typed by the user
 - `produce_listings`: id, farmer_id, crop_type, quantity_kg, price_per_kg, location, available_from, status (active/sold/expired)
-- `orders`: id, listing_id, consumer_id, quantity_kg, status (pending/confirmed/in_transit/delivered/cancelled)
+- `orders`: id, listing_id, consumer_id, quantity_kg, status (pending/confirmed/in_transit/delivered/cancelled), buyer_role, region, unit_price — the last three are stamped by a trigger on insert (demand signal for ML retraining)
 - `transport_requests`: id, order_id, transporter_id, pickup_location, delivery_location, crop_type, quantity_kg, status (open/accepted/in_transit/delivered)
 - `price_records`: id, crop_type, region, price_per_kg, recorded_date, source
+- `listing_allocations`: id, listing_id, region, allocated_kg — farmer splits a listing across regions; a trigger rejects totals exceeding the listing quantity
+
+**Views:** `marketplace_listings` (active listings without farmer identity — buyers must never see farmer_id/name/phone), `demand_weekly` + `supply_weekly` (week × crop × region aggregates feeding ML retraining).
 
 Row Level Security enabled on all tables.
 
@@ -105,20 +112,37 @@ VITE_SUPABASE_ANON_KEY=
 ## API Routes
 
 ### Auth
-- `POST /api/v1/auth/register` — { email, password, full_name, role, region, phone }
+- `POST /api/v1/auth/register` — { email, password, full_name, role, phone, location_lat?, location_lng? } — no region field; it's derived from coordinates server-side
 - `POST /api/v1/auth/login` — { email, password } → { token, user }
+
+### Users
+- `PUT /api/v1/users/location` — { lat, lng } — updates coordinates; DB trigger re-derives region
 
 ### Listings
 - `POST /api/v1/listings` — farmer only
-- `GET /api/v1/listings` — all authenticated, supports `?crop_type=&region=&min_price=&max_price=&available_from=`
+- `GET /api/v1/listings` — all authenticated, supports `?crop_type=&region=&min_price=&max_price=&available_from=`; returns anonymized columns only (no farmer identity)
 - `GET /api/v1/listings/mine` — farmer's own listings
+- `GET /api/v1/listings/orders` — farmer: orders placed on their listings
+- `GET /api/v1/listings/:id/allocations` — regional allocations for a listing
+- `PUT /api/v1/listings/:id/allocations` — farmer owner only; replaces allocation set, sum must not exceed quantity_kg
 - `PUT /api/v1/listings/:id` — farmer owner only
 - `DELETE /api/v1/listings/:id` — soft-delete (status → expired)
 
 ### Orders
-- `POST /api/v1/orders` — consumer only; auto-creates transport_request
-- `GET /api/v1/orders/mine` — consumer's orders
+- `POST /api/v1/orders` — buyer roles (wholesaler/retailer/direct_consumer) only; auto-creates transport_request
+- `GET /api/v1/orders/mine` — buyer's orders
 - `GET /api/v1/orders/:id` — single order
+
+### Notifications
+- `GET /api/v1/notifications` — current user's notifications
+- `POST /api/v1/notifications/mark-read` — { ids: string[] }
+
+### Admin (all under `requireRole('admin')`)
+- `GET /api/v1/admin/stats` · `GET /api/v1/admin/users` · `PATCH /api/v1/admin/users/:id/role` · `DELETE /api/v1/admin/users/:id`
+- `GET /api/v1/admin/listings` · `PATCH /api/v1/admin/listings/:id/status` · `GET /api/v1/admin/orders` · `GET /api/v1/admin/locations`
+
+### Prices
+- `GET /api/v1/prices/moa` · `GET /api/v1/prices/moa/:crop` — Ministry of Agriculture reference prices
 
 ### Transport
 - `GET /api/v1/transport` — transporter only, filtered by region
@@ -254,7 +278,7 @@ Attach to prompts:
 
 **Tracked crops:** maize, tomatoes, plantain, cassava, pepper, rice
 
-**Regions (Western Region, Ghana):** Tarkwa, Bogoso, Prestea
+**Regions (Western Region, Ghana):** Tarkwa, Bogoso, Prestea — assigned automatically from GPS/IP coordinates via the `derive_region` DB function; never ask the user to pick a region
 
 **Seasonal flags:** Christmas, Easter, Homowo (binary features for ML model)
 

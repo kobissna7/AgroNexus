@@ -1,9 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../../config/constants.dart';
 import '../../config/theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/location_service.dart';
+
+const _roleLabels = <String, String>{
+  'farmer':          'Farmer',
+  'wholesaler':      'Wholesaler',
+  'retailer':        'Retailer',
+  'direct_consumer': 'Consumer',
+  'transporter':     'Transporter',
+};
+
+const _buyerRoles = ['wholesaler', 'retailer', 'direct_consumer'];
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -19,8 +30,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _password = TextEditingController();
   final _phone    = TextEditingController();
   String _role    = 'farmer';
-  String _region  = 'Tarkwa';
   bool _loading   = false;
+
+  Position? _position;
+  bool _locating = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _detectLocation();
+  }
+
+  // Location is captured automatically — the backend derives the user's
+  // region from it, so there is no manual region input.
+  Future<void> _detectLocation() async {
+    setState(() => _locating = true);
+    final pos = await LocationService.getPosition();
+    if (!mounted) return;
+    setState(() { _position = pos; _locating = false; });
+  }
 
   @override
   void dispose() {
@@ -37,15 +65,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
       password: _password.text,
       fullName: _name.text.trim(),
       role:     _role,
-      region:   _region,
       phone:    _phone.text.isNotEmpty ? _phone.text.trim() : null,
+      locationLat: _position?.latitude,
+      locationLng: _position?.longitude,
     );
     if (!mounted) return;
     setState(() => _loading = false);
     if (success) {
-      if (_role == 'farmer')      context.go('/farmer');
-      else if (_role == 'consumer') context.go('/consumer');
-      else                          context.go('/transporter');
+      if (_role == 'farmer')                     context.go('/farmer');
+      else if (_buyerRoles.contains(_role))      context.go('/consumer');
+      else                                       context.go('/transporter');
     }
   }
 
@@ -93,24 +122,50 @@ class _RegisterScreenState extends State<RegisterScreen> {
               // Role
               const Text('I am a', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
               const SizedBox(height: 8),
-              Row(children: ['farmer', 'consumer', 'transporter'].map((r) => Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: ChoiceChip(
-                    label: Text(r, style: TextStyle(fontSize: 12, color: _role == r ? Colors.white : AppColors.textSecond)),
-                    selected: _role == r,
-                    selectedColor: AppColors.brand,
-                    onSelected: (_) => setState(() => _role = r),
-                  ),
-                ),
-              )).toList()),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: _roleLabels.entries.map((e) => ChoiceChip(
+                  label: Text(e.value, style: TextStyle(fontSize: 12, color: _role == e.key ? Colors.white : AppColors.textSecond)),
+                  selected: _role == e.key,
+                  selectedColor: AppColors.brand,
+                  onSelected: (_) => setState(() => _role = e.key),
+                )).toList(),
+              ),
               const SizedBox(height: 16),
-              // Region
-              DropdownButtonFormField<String>(
-                value: _region,
-                decoration: const InputDecoration(labelText: 'Region', prefixIcon: Icon(Icons.location_on_outlined)),
-                items: AppConstants.regions.map((r) => DropdownMenuItem(value: r, child: Text(r))).toList(),
-                onChanged: (v) => setState(() => _region = v!),
+              // Location — detected automatically; region is derived server-side
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: _position != null ? AppColors.brandLight : AppColors.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: _position != null ? AppColors.brand : AppColors.border),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.location_on_outlined, size: 18,
+                      color: _position != null ? AppColors.brand : AppColors.textMuted),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _locating
+                          ? 'Detecting your location…'
+                          : _position != null
+                            ? 'Location detected — your region is set automatically'
+                            : 'Location unavailable — you can still register',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: _position != null ? AppColors.brand : AppColors.textSecond,
+                        ),
+                      ),
+                    ),
+                    if (!_locating && _position == null)
+                      TextButton(
+                        onPressed: _detectLocation,
+                        child: const Text('Retry', style: TextStyle(fontSize: 12)),
+                      ),
+                  ],
+                ),
               ),
               // Error
               Consumer<AuthProvider>(

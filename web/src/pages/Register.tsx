@@ -1,15 +1,15 @@
 // /home/ekko-7/AgroNexus/web/src/pages/Register.tsx
-import { useState, FormEvent } from 'react'
+import { useState, useEffect, FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import api from '../lib/api'
 import type { AuthUser, UserRole } from '../types'
 
-const REGIONS = ['Tarkwa', 'Bogoso', 'Prestea', 'Takoradi', 'Cape Coast', 'Other']
 const ROLES: { value: UserRole; label: string; desc: string }[] = [
   { value: 'farmer', label: 'Farmer', desc: 'List and sell produce' },
-  { value: 'consumer', label: 'Direct Consumer', desc: 'Buy produce for personal/household use' },
-  { value: 'retailer', label: 'Retailer', desc: 'Buy in bulk for resale or distribution' },
+  { value: 'wholesaler', label: 'Wholesaler', desc: 'Buy in large volumes for distribution' },
+  { value: 'retailer', label: 'Retailer', desc: 'Buy in bulk for resale' },
+  { value: 'direct_consumer', label: 'Direct Consumer', desc: 'Buy produce for personal/household use' },
   { value: 'transporter', label: 'Transporter', desc: 'Accept and deliver orders' },
 ]
 
@@ -18,7 +18,7 @@ export default function Register() {
   const navigate = useNavigate()
   const [form, setForm] = useState({
     email: '', password: '', full_name: '', role: '' as UserRole | '',
-    region: '', phone: '',
+    phone: '',
   })
   const [coords, setCoords]         = useState<{ lat: number; lng: number } | null>(null)
   const [locLoading, setLocLoading] = useState(false)
@@ -26,7 +26,7 @@ export default function Register() {
   const [error, setError]           = useState('')
   const [loading, setLoading]       = useState(false)
 
-  const shareLocation = () => {
+  const detectLocation = () => {
     if (!navigator.geolocation) { setLocError('Geolocation not supported by your browser'); return }
     setLocLoading(true)
     setLocError('')
@@ -36,12 +36,15 @@ export default function Register() {
         setLocLoading(false)
       },
       () => {
-        setLocError('Could not get location — check browser permissions')
+        setLocError('Location unavailable — allow location access and retry, or continue without it')
         setLocLoading(false)
       },
       { timeout: 10000 },
     )
   }
+
+  // Location is captured automatically — your region is derived from it server-side
+  useEffect(() => { detectLocation() }, [])
 
   const set = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setForm((f) => ({ ...f, [field]: e.target.value }))
@@ -57,8 +60,9 @@ export default function Register() {
       login(data.token, data.user)
       const destinations: Record<string, string> = {
         farmer: '/farmer/dashboard',
-        consumer: '/consumer/browse',
+        wholesaler: '/consumer/browse',
         retailer: '/consumer/browse',
+        direct_consumer: '/consumer/browse',
         transporter: '/transporter/feed',
       }
       navigate(destinations[data.user.role] ?? '/')
@@ -289,82 +293,53 @@ export default function Register() {
                   />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: '#374151', marginBottom: '0.375rem' }}>
-                      Region
-                    </label>
-                    <select
-                      value={form.region}
-                      onChange={set('region')}
-                      className="an-reg-input an-reg-select"
-                      style={lightInputStyle}
-                    >
-                      <option value="">Select region</option>
-                      {REGIONS.map((r) => <option key={r} value={r}>{r}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: '#374151', marginBottom: '0.375rem' }}>
-                      Phone
-                    </label>
-                    <input
-                      type="tel"
-                      value={form.phone}
-                      onChange={set('phone')}
-                      placeholder="024 000 0000"
-                      className="an-reg-input"
-                      style={lightInputStyle}
-                    />
-                  </div>
-                </div>
-
-                {/* ── Location picker ── */}
                 <div>
                   <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: '#374151', marginBottom: '0.375rem' }}>
-                    Location <span style={{ color: '#9CA3AF', fontWeight: 400 }}>— optional</span>
+                    Phone
                   </label>
-                  {coords ? (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.625rem 0.875rem', background: 'rgba(26,92,56,0.06)', border: '1.5px solid #1A5C38', borderRadius: '0.625rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#1A5C38" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                        </svg>
-                        <span style={{ fontSize: '0.8125rem', color: '#1A5C38', fontWeight: 600 }}>
-                          {coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}
-                        </span>
-                      </div>
-                      <button type="button" onClick={() => setCoords(null)} style={{ fontSize: '0.75rem', color: '#6B7280', background: 'none', border: 'none', cursor: 'pointer' }}>
-                        Remove
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={shareLocation}
-                      disabled={locLoading}
-                      style={{
-                        width: '100%', padding: '0.625rem', borderRadius: '0.625rem',
-                        border: '1.5px dashed #D1D5DB', background: '#F9FAFB',
-                        color: '#374151', fontSize: '0.8125rem', fontWeight: 500,
-                        cursor: locLoading ? 'not-allowed' : 'pointer',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
-                        opacity: locLoading ? 0.6 : 1,
-                      }}
-                    >
-                      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <input
+                    type="tel"
+                    value={form.phone}
+                    onChange={set('phone')}
+                    placeholder="024 000 0000"
+                    className="an-reg-input"
+                    style={lightInputStyle}
+                  />
+                </div>
+
+                {/* ── Location — detected automatically, region derived server-side ── */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: '#374151', marginBottom: '0.375rem' }}>
+                    Location <span style={{ color: '#9CA3AF', fontWeight: 400 }}>— detected automatically</span>
+                  </label>
+                  <div style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '0.625rem 0.875rem', borderRadius: '0.625rem',
+                    background: coords ? 'rgba(26,92,56,0.06)' : '#F9FAFB',
+                    border: coords ? '1.5px solid #1A5C38' : '1.5px dashed #D1D5DB',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke={coords ? '#1A5C38' : '#9CA3AF'} strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                       </svg>
-                      {locLoading ? 'Getting location…' : 'Share my GPS location'}
-                    </button>
-                  )}
+                      <span style={{ fontSize: '0.8125rem', color: coords ? '#1A5C38' : '#6B7280', fontWeight: coords ? 600 : 400 }}>
+                        {coords
+                          ? `${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`
+                          : locLoading ? 'Detecting your location…' : 'Location not detected'}
+                      </span>
+                    </div>
+                    {!coords && !locLoading && (
+                      <button type="button" onClick={detectLocation} style={{ fontSize: '0.75rem', color: '#1A5C38', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer' }}>
+                        Retry
+                      </button>
+                    )}
+                  </div>
                   {locError && (
                     <p style={{ fontSize: '0.75rem', color: '#DC2626', marginTop: '0.375rem' }}>{locError}</p>
                   )}
                   <p style={{ fontSize: '0.6875rem', color: '#9CA3AF', marginTop: '0.375rem' }}>
-                    Helps us track demand in your area and improve forecasts
+                    Your region is set automatically from your location to match you with nearby markets
                   </p>
                 </div>
 

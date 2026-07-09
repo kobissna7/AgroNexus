@@ -17,6 +17,16 @@ Add to `android/app/src/main/AndroidManifest.xml` (inside `<manifest>`):
 ```xml
 <uses-permission android:name="android.permission.INTERNET"/>
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+```
+Location is used at signup/login to derive the user's region automatically
+(no manual region input). The app works without it — region just stays unset.
+
+For iOS, add to `ios/Runner/Info.plist`:
+```xml
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>Your location sets your market region automatically.</string>
 ```
 
 ## 3. Run on emulator

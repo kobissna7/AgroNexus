@@ -47,6 +47,10 @@ class _ConsumerBrowseScreenState extends State<ConsumerBrowseScreen> {
   }
 
   Future<void> _placeOrder(Listing listing) async {
+    final role = context.read<AuthProvider>().user!.role;
+    final isBulkBuyer = role == 'wholesaler' || role == 'retailer';
+    final minQty = isBulkBuyer ? 50.0 : 1.0;
+
     double? qty;
     await showDialog(
       context: context,
@@ -64,7 +68,11 @@ class _ConsumerBrowseScreenState extends State<ConsumerBrowseScreen> {
               TextField(
                 controller: ctrl,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(labelText: 'Quantity (kg)', prefixIcon: Icon(Icons.scale_outlined)),
+                decoration: InputDecoration(
+                  labelText: 'Quantity (kg)',
+                  prefixIcon: const Icon(Icons.scale_outlined),
+                  helperText: isBulkBuyer ? 'Bulk buyers: minimum ${minQty.toInt()} kg' : null,
+                ),
                 onChanged: (v) => qty = double.tryParse(v),
               ),
             ],
@@ -79,6 +87,15 @@ class _ConsumerBrowseScreenState extends State<ConsumerBrowseScreen> {
         );
       },
     );
+
+    if (qty != null && qty! > 0 && qty! < minQty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Bulk buyers must order at least ${minQty.toInt()} kg'), backgroundColor: AppColors.redText),
+        );
+      }
+      return;
+    }
 
     if (qty != null && qty! > 0) {
       try {
@@ -213,8 +230,6 @@ class _ConsumerBrowseScreenState extends State<ConsumerBrowseScreen> {
                 children: [
                   Text(l.cropType, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   Text(l.location, style: const TextStyle(color: AppColors.textSecond, fontSize: 12)),
-                  if (l.farmerName != null)
-                    Text('by ${l.farmerName}', style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
                 ],
               ),
             ),

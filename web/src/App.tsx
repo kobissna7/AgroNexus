@@ -37,7 +37,7 @@ export default function App() {
           <Route path="/farmer/orders"    element={<FarmerOrders />} />
         </Route>
 
-        <Route element={<ProtectedRoute allowedRoles={['consumer', 'retailer']} />}>
+        <Route element={<ProtectedRoute allowedRoles={['consumer', 'wholesaler', 'retailer', 'direct_consumer']} />}>
           <Route path="/consumer/browse" element={<ConsumerBrowse />} />
           <Route path="/consumer/orders" element={<ConsumerOrders />} />
         </Route>

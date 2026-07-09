@@ -22,8 +22,8 @@ const MIN_BULK_KG = 50
 
 export default function OrderModal({ listing, onClose, onOrdered }: Props) {
   const { user } = useAuth()
-  const isRetailer = user?.role === 'retailer'
-  const minQty = isRetailer ? MIN_BULK_KG : 1
+  const isBulkBuyer = user?.role === 'retailer' || user?.role === 'wholesaler'
+  const minQty = isBulkBuyer ? MIN_BULK_KG : 1
 
   const [quantity, setQuantity]           = useState<number>(minQty)
   const [transporters, setTransporters]   = useState<Transporter[]>([])
@@ -48,8 +48,8 @@ export default function OrderModal({ listing, onClose, onOrdered }: Props) {
     setError('')
     if (quantity < minQty || quantity > listing.quantity_kg) {
       setError(
-        isRetailer
-          ? `Retailers must order a minimum of ${MIN_BULK_KG} kg (max ${listing.quantity_kg} kg)`
+        isBulkBuyer
+          ? `Bulk buyers must order a minimum of ${MIN_BULK_KG} kg (max ${listing.quantity_kg} kg)`
           : `Enter a quantity between 1 and ${listing.quantity_kg} kg`
       )
       return
@@ -121,7 +121,7 @@ export default function OrderModal({ listing, onClose, onOrdered }: Props) {
                 <MapPinIcon className="w-3.5 h-3.5 shrink-0" /> {listing.location}
               </p>
             </div>
-            {isRetailer && (
+            {isBulkBuyer && (
               <span style={{ marginLeft: 'auto', fontSize: 10, padding: '3px 10px', borderRadius: 9999, background: 'rgba(201,168,76,0.12)', color: '#92621A', border: '1px solid rgba(201,168,76,0.25)', fontWeight: 700 }}>
                 BULK
               </span>
@@ -145,7 +145,7 @@ export default function OrderModal({ listing, onClose, onOrdered }: Props) {
             <div>
               <label style={{ display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#6B7280', marginBottom: 6 }}>
                 Quantity (kg)
-                {isRetailer && <span style={{ color: '#92621A', fontWeight: 400, marginLeft: 6 }}>— min {MIN_BULK_KG} kg for retailers</span>}
+                {isBulkBuyer && <span style={{ color: '#92621A', fontWeight: 400, marginLeft: 6 }}>— min {MIN_BULK_KG} kg for bulk buyers</span>}
               </label>
               <input
                 type="number" min={minQty} max={listing.quantity_kg} step={1}

@@ -25,15 +25,23 @@ class ApiService {
     required String password,
     required String fullName,
     required String role,
-    required String region,
     String? phone,
+    double? locationLat,
+    double? locationLng,
   }) async {
+    // region is not sent — the backend derives it from GPS coordinates
     final r = await _dio.post('/api/v1/auth/register', data: {
       'email': email, 'password': password,
-      'full_name': fullName, 'role': role, 'region': region,
+      'full_name': fullName, 'role': role,
       if (phone != null) 'phone': phone,
+      if (locationLat != null) 'location_lat': locationLat,
+      if (locationLng != null) 'location_lng': locationLng,
     });
     return r.data as Map<String, dynamic>;
+  }
+
+  static Future<void> updateLocation(double lat, double lng) async {
+    await _dio.put('/api/v1/users/location', data: {'lat': lat, 'lng': lng});
   }
 
   // ── Listings ───────────────────────────────────────────────────────────────

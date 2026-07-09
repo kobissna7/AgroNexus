@@ -1,4 +1,14 @@
-export type UserRole = 'farmer' | 'consumer' | 'retailer' | 'transporter' | 'admin'
+// 'consumer' is legacy — kept so sessions created before the v2 role migration keep working
+export type UserRole = 'farmer' | 'consumer' | 'wholesaler' | 'retailer' | 'direct_consumer' | 'transporter' | 'admin'
+
+export const BUYER_ROLES: UserRole[] = ['wholesaler', 'retailer', 'direct_consumer', 'consumer']
+
+export interface ListingAllocation {
+  id: string
+  region: string
+  allocated_kg: number
+  created_at: string
+}
 
 export interface AuthUser {
   id: string

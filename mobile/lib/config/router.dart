@@ -24,8 +24,9 @@ GoRouter buildRouter(AuthProvider auth) {
       if (auth.status == AuthStatus.unknown) return null;
       if (loggedIn && onPublic) {
         final role = auth.user!.role;
-        if (role == 'farmer')   return '/farmer';
-        if (role == 'consumer') return '/consumer';
+        const buyerRoles = ['consumer', 'wholesaler', 'retailer', 'direct_consumer'];
+        if (role == 'farmer')           return '/farmer';
+        if (buyerRoles.contains(role))  return '/consumer';
         return '/transporter';
       }
       return null;

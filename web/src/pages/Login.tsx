@@ -23,9 +23,21 @@ export default function Login() {
       const destinations: Record<string, string> = {
         farmer: '/farmer/dashboard',
         consumer: '/consumer/browse',
+        wholesaler: '/consumer/browse',
         retailer: '/consumer/browse',
+        direct_consumer: '/consumer/browse',
         transporter: '/transporter/feed',
         admin: '/admin',
+      }
+      // Refresh the user's location silently — region is derived server-side
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            api.put('/api/v1/users/location', { lat: pos.coords.latitude, lng: pos.coords.longitude }).catch(() => {})
+          },
+          () => {},
+          { timeout: 8000 },
+        )
       }
       navigate(destinations[data.user.role] ?? '/')
     } catch (err: unknown) {

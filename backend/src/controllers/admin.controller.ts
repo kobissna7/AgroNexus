@@ -30,7 +30,7 @@ export async function getStats(req: Request, res: Response): Promise<void> {
     users: {
       total:        userRows.length,
       farmers:      userRows.filter((u) => u.role === 'farmer').length,
-      consumers:    userRows.filter((u) => u.role === 'consumer').length,
+      consumers:    userRows.filter((u) => ['wholesaler', 'retailer', 'direct_consumer', 'consumer'].includes(u.role)).length,
       transporters: userRows.filter((u) => u.role === 'transporter').length,
       admins:       userRows.filter((u) => u.role === 'admin').length,
     },
@@ -74,7 +74,7 @@ export async function updateUserRole(req: Request, res: Response): Promise<void>
   const { id }   = req.params
   const { role } = req.body as { role: string }
 
-  const allowed = ['farmer', 'consumer', 'transporter', 'admin']
+  const allowed = ['farmer', 'wholesaler', 'retailer', 'direct_consumer', 'transporter', 'admin']
   if (!allowed.includes(role)) {
     res.status(400).json({ error: `role must be one of: ${allowed.join(', ')}` })
     return
@@ -187,7 +187,7 @@ export async function getLocationData(_req: Request, res: Response): Promise<voi
     const r = u.region ?? 'Other'
     ensureRegion(r)
     if (u.role === 'farmer') regions[r].farmers++
-    else if (u.role === 'consumer' || u.role === 'retailer') regions[r].consumers++
+    else if (['wholesaler', 'retailer', 'direct_consumer', 'consumer'].includes(u.role)) regions[r].consumers++
     else if (u.role === 'transporter') regions[r].transporters++
   }
 

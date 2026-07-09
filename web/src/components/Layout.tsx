@@ -33,8 +33,12 @@ const adminNav: NavItem[] = [
 ]
 
 const navByRole: Record<string, NavItem[]> = {
-  farmer: farmerNav, consumer: consumerNav, retailer: consumerNav, transporter: transporterNav, admin: adminNav,
+  farmer: farmerNav,
+  consumer: consumerNav, wholesaler: consumerNav, retailer: consumerNav, direct_consumer: consumerNav,
+  transporter: transporterNav, admin: adminNav,
 }
+
+const BUYER_ROLES = ['consumer', 'wholesaler', 'retailer', 'direct_consumer']
 
 export default function Layout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth()
@@ -63,8 +67,8 @@ export default function Layout({ children }: { children: ReactNode }) {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  const farmerId    = user?.role === 'farmer'      ? user.id : ''
-  const consumerId  = user?.role === 'consumer'    ? user.id : ''
+  const farmerId    = user?.role === 'farmer' ? user.id : ''
+  const consumerId  = user && BUYER_ROLES.includes(user.role) ? user.id : ''
   const isTransport = user?.role === 'transporter'
 
   useRealtimeChannel(`orders:farmer-${farmerId}`, 'new_order', (p) => {

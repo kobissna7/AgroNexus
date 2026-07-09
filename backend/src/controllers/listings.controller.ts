@@ -28,9 +28,11 @@ export async function createListing(req: Request, res: Response): Promise<void> 
 export async function getAllListings(req: Request, res: Response): Promise<void> {
   const { crop_type, region, min_price, max_price, available_from } = req.query as Record<string, string>
 
+  // Buyers see the product, quantity, price, and region only — never the
+  // farmer's identity (no users join here).
   let query = supabaseAdmin
     .from('produce_listings')
-    .select('*, users(full_name, region)')
+    .select('id, crop_type, quantity_kg, price_per_kg, location, available_from, status, created_at')
     .eq('status', 'active')
     .order('created_at', { ascending: false })
 
@@ -121,6 +123,73 @@ export async function deleteListing(req: Request, res: Response): Promise<void> 
     if (error) { res.status(500).json({ error: error.message }); return }
     res.json({ message: 'Listing deleted', archived: false })
   }
+}
+
+const ALLOCATION_REGIONS = ['Tarkwa', 'Bogoso', 'Prestea']
+
+export async function getAllocations(req: Request, res: Response): Promise<void> {
+  const { id } = req.params
+
+  const { data, error } = await supabaseAdmin
+    .from('listing_allocations')
+    .select('id, region, allocated_kg, created_at')
+    .eq('listing_id', id)
+    .order('region')
+
+  if (error) { res.status(500).json({ error: error.message }); return }
+  res.json(data)
+}
+
+export async function setAllocations(req: Request, res: Response): Promise<void> {
+  const { id } = req.params
+  const { allocations } = req.body as { allocations: { region: string; allocated_kg: number }[] }
+
+  if (!Array.isArray(allocations)) {
+    res.status(400).json({ error: 'allocations must be an array of { region, allocated_kg }' })
+    return
+  }
+
+  const { data: listing } = await supabaseAdmin
+    .from('produce_listings')
+    .select('farmer_id, quantity_kg')
+    .eq('id', id)
+    .single()
+
+  if (!listing) { res.status(404).json({ error: 'Listing not found' }); return }
+  if (listing.farmer_id !== req.user!.id) { res.status(403).json({ error: 'Not your listing' }); return }
+
+  const cleaned = allocations.filter((a) => a.allocated_kg > 0)
+
+  for (const a of cleaned) {
+    if (!ALLOCATION_REGIONS.includes(a.region)) {
+      res.status(400).json({ error: `region must be one of: ${ALLOCATION_REGIONS.join(', ')}` })
+      return
+    }
+  }
+
+  const total = cleaned.reduce((s, a) => s + a.allocated_kg, 0)
+  if (total > listing.quantity_kg) {
+    res.status(400).json({ error: `Allocations total ${total} kg but only ${listing.quantity_kg} kg is listed` })
+    return
+  }
+
+  // Replace-all semantics: clear existing allocations, then insert the new set
+  const { error: delError } = await supabaseAdmin
+    .from('listing_allocations')
+    .delete()
+    .eq('listing_id', id)
+
+  if (delError) { res.status(500).json({ error: delError.message }); return }
+
+  if (cleaned.length === 0) { res.json([]); return }
+
+  const { data, error } = await supabaseAdmin
+    .from('listing_allocations')
+    .insert(cleaned.map((a) => ({ listing_id: id, region: a.region, allocated_kg: a.allocated_kg })))
+    .select('id, region, allocated_kg, created_at')
+
+  if (error) { res.status(500).json({ error: error.message }); return }
+  res.json(data)
 }
 
 export async function getFarmerOrders(req: Request, res: Response): Promise<void> {
