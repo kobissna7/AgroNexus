@@ -78,6 +78,8 @@ export async function login(req: Request, res: Response): Promise<void> {
   })
 
   if (authError || !authData.user) {
+    // Log the real Supabase error so we can see it in Render logs
+    console.error('[login] Supabase signInWithPassword error:', authError?.message, authError?.status, authError?.name)
     res.status(401).json({ error: 'Invalid email or password' })
     return
   }
@@ -148,4 +150,34 @@ export async function resetPassword(req: Request, res: Response): Promise<void> 
   }
 
   res.json({ message: 'Password updated successfully' })
+}
+
+// Safe diagnostics — shows whether env vars are set, never exposes values
+export async function diagnostics(_req: Request, res: Response): Promise<void> {
+  const supabaseUrl = process.env.SUPABASE_URL
+  const serviceKey = process.env.SUPABASE_SERVICE_KEY
+  const jwtSecret = process.env.JWT_SECRET
+
+  // Test Supabase connectivity with a simple query
+  let supabaseReachable = false
+  let supabaseError = ''
+  try {
+    const { error } = await supabaseAdmin.from('users').select('id').limit(1)
+    supabaseReachable = !error
+    if (error) supabaseError = error.message
+  } catch (e: unknown) {
+    supabaseError = (e as Error).message
+  }
+
+  res.json({
+    env: {
+      SUPABASE_URL: supabaseUrl ? `set (${supabaseUrl.slice(0, 30)}...)` : 'MISSING',
+      SUPABASE_SERVICE_KEY: serviceKey ? `set (${serviceKey.slice(0, 20)}...)` : 'MISSING',
+      JWT_SECRET: jwtSecret ? 'set' : 'MISSING',
+    },
+    supabase: {
+      reachable: supabaseReachable,
+      error: supabaseError || null,
+    },
+  })
 }
