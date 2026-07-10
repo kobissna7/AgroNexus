@@ -91,9 +91,10 @@ export async function updateUserRole(req: Request, res: Response): Promise<void>
     .update({ role })
     .eq('id', id)
     .select()
-    .single()
+    .maybeSingle()
 
   if (error) { res.status(500).json({ error: error.message }); return }
+  if (!data) { res.status(404).json({ error: 'User not found' }); return }
   res.json(data)
 }
 
@@ -223,8 +224,9 @@ export async function updateListingStatus(req: Request, res: Response): Promise<
     .update({ status })
     .eq('id', id)
     .select()
-    .single()
+    .maybeSingle()
 
   if (error) { res.status(500).json({ error: error.message }); return }
+  if (!data) { res.status(404).json({ error: 'Listing not found' }); return }
   res.json(data)
 }
