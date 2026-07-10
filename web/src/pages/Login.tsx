@@ -255,6 +255,15 @@ export default function Login() {
                   </div>
                 </div>
 
+                <div style={{ textAlign: 'right', marginTop: '-0.5rem' }}>
+                  <Link
+                    to="/forgot-password"
+                    style={{ fontSize: '0.8125rem', color: '#1A5C38', fontWeight: 500, textDecoration: 'none' }}
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+
                 {error && (
                   <div style={{
                     fontSize: '0.875rem', color: '#DC2626',

@@ -97,3 +97,55 @@ export async function login(req: Request, res: Response): Promise<void> {
   const token = signToken(userData.id, userData.role as UserRole, userData.email)
   res.json({ token, user: userData })
 }
+
+export async function forgotPassword(req: Request, res: Response): Promise<void> {
+  const { email } = req.body as { email: string }
+  if (!email) {
+    res.status(400).json({ error: 'email is required' })
+    return
+  }
+
+  // Use Supabase Admin to trigger the built-in password reset email
+  const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
+    redirectTo: `${process.env.FRONTEND_URL ?? 'https://agro-nexus-gules.vercel.app'}/reset-password`,
+  })
+
+  // Always return success to prevent email enumeration
+  if (error) {
+    console.error('forgotPassword error:', error.message)
+  }
+
+  res.json({ message: 'If that email exists, a reset link has been sent.' })
+}
+
+export async function resetPassword(req: Request, res: Response): Promise<void> {
+  const { access_token, new_password } = req.body as { access_token: string; new_password: string }
+
+  if (!access_token || !new_password) {
+    res.status(400).json({ error: 'access_token and new_password are required' })
+    return
+  }
+  if (new_password.length < 6) {
+    res.status(400).json({ error: 'Password must be at least 6 characters' })
+    return
+  }
+
+  // Get the user from the access token
+  const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(access_token)
+  if (userError || !user) {
+    res.status(401).json({ error: 'Invalid or expired reset token' })
+    return
+  }
+
+  // Update the password
+  const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(user.id, {
+    password: new_password,
+  })
+
+  if (updateError) {
+    res.status(500).json({ error: updateError.message })
+    return
+  }
+
+  res.json({ message: 'Password updated successfully' })
+}
