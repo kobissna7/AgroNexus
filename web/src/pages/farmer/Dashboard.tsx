@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { Link } from 'react-router-dom'
+import {
+  CHART, axisTick, gridProps, tooltipStyle, tooltipLabelStyle, tooltipItemStyle,
+  tooltipCursor, goldAreaGradient,
+} from '../../lib/chartTheme'
 import Layout from '../../components/Layout'
 import MetricCard from '../../components/MetricCard'
 import StatusBadge from '../../components/StatusBadge'
@@ -135,16 +139,18 @@ export default function FarmerDashboard() {
             <div style={{ height: 220, background: '#F3F4F6', borderRadius: 12, animation: 'pulse 2s infinite' }} />
           ) : (
             <ResponsiveContainer width="100%" height={220}>
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
-                <XAxis dataKey="day" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-                <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} width={40} tickFormatter={v => `${v}kg`} />
+              <AreaChart data={chartData}>
+                <defs>{goldAreaGradient('forecastGold')}</defs>
+                <CartesianGrid {...gridProps} />
+                <XAxis dataKey="day" tick={axisTick} tickLine={false} axisLine={false} />
+                <YAxis tick={axisTick} tickLine={false} axisLine={false} width={40} tickFormatter={v => `${v}kg`} />
                 <Tooltip
                   formatter={(v) => [`${Number(v).toFixed(1)} kg`, 'Forecast']}
-                  contentStyle={{ borderRadius: 10, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', fontSize: 12 }}
+                  contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} itemStyle={tooltipItemStyle}
+                  cursor={tooltipCursor}
                 />
-                <Line type="monotone" dataKey="forecast" stroke="#C9A84C" strokeWidth={2.5} dot={false} />
-              </LineChart>
+                <Area type="monotone" dataKey="forecast" stroke={CHART.gold} strokeWidth={2} fill="url(#forecastGold)" dot={false} activeDot={{ r: 4, strokeWidth: 2, stroke: '#fff' }} />
+              </AreaChart>
             </ResponsiveContainer>
           )}
         </div>

@@ -11,7 +11,7 @@ interface Props {
 
 export default function MetricCard({ label, value, sub, trend, icon, accent = '#1A5C38' }: Props) {
   return (
-    <div className="card" style={{ padding: '20px', position: 'relative' }}>
+    <div className="card card-lift" style={{ padding: '20px', position: 'relative' }}>
       {/* Background wrapper for clipping the glow without breaking parent borders */}
       <div style={{ position: 'absolute', inset: 0, borderRadius: 'inherit', overflow: 'hidden', pointerEvents: 'none' }}>
         {/* decorative glow */}

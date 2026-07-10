@@ -30,6 +30,7 @@ const adminNav: NavItem[] = [
   { label: 'Orders',    to: '/admin/orders',   icon: <OrderIcon /> },
   { label: 'Market',    to: '/market',         icon: <ChartIcon /> },
   { label: 'Forecasts', to: '/forecasts',      icon: <ForecastIcon /> },
+  { label: 'Insights',  to: '/admin/insights', icon: <InsightIcon /> },
 ]
 
 const navByRole: Record<string, NavItem[]> = {
@@ -238,6 +239,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           padding: '0 24px', height: 60, flexShrink: 0,
           background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)',
           borderBottom: '1px solid #E8EDEA',
+          position: 'relative', zIndex: 40,
         }}>
           {/* Collapse toggle */}
           <button
@@ -331,8 +333,10 @@ export default function Layout({ children }: { children: ReactNode }) {
         </header>
 
         {/* Page content */}
-        <main style={{ flex: 1, overflowY: 'auto', padding: 24, background: '#fff' }}>
-          {children}
+        <main style={{ flex: 1, overflowY: 'auto', padding: 28, background: '#F9FAFB' }}>
+          <div style={{ maxWidth: 1240, margin: '0 auto' }}>
+            {children}
+          </div>
         </main>
       </div>
 
@@ -359,6 +363,9 @@ function BrowseIcon() {
 }
 function TruckIcon() {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: '100%', height: '100%' }}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg>
+}
+function InsightIcon() {
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: '100%', height: '100%' }}><path strokeLinecap="round" strokeLinejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /><path strokeLinecap="round" strokeLinejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" /></svg>
 }
 function ForecastIcon() {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: '100%', height: '100%' }}><path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>

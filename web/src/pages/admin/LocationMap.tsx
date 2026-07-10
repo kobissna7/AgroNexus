@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { ROLE_COLORS } from '../../lib/chartTheme'
 
 interface UserPin {
   id: string
@@ -14,15 +15,20 @@ interface Props {
   users: UserPin[]
 }
 
-// Colors by role
+// Pin colors follow the shared role palette (validated in lib/chartTheme):
+// all buyer roles share one hue — identity is farmer / buyer / transporter.
 const ROLE_COLOR: Record<string, string> = {
-  farmer:      '#1A5C38',
-  consumer:    '#2563EB',
-  retailer:    '#7C3AED',
-  transporter: '#D97706',
+  farmer:          ROLE_COLORS.farmer,
+  wholesaler:      ROLE_COLORS.buyer,
+  retailer:        ROLE_COLORS.buyer,
+  direct_consumer: ROLE_COLORS.buyer,
+  consumer:        ROLE_COLORS.buyer,
+  transporter:     ROLE_COLORS.transporter,
+  admin:           ROLE_COLORS.admin,
 }
 const ROLE_LABEL: Record<string, string> = {
-  farmer: 'Farmer', consumer: 'Consumer', retailer: 'Retailer', transporter: 'Transporter',
+  farmer: 'Farmer', wholesaler: 'Wholesaler', retailer: 'Retailer',
+  direct_consumer: 'Consumer', consumer: 'Consumer', transporter: 'Transporter', admin: 'Admin',
 }
 
 function svgMarker(color: string, size: number): string {

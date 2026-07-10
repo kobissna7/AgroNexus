@@ -34,6 +34,13 @@ body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #
   box-shadow: 0 4px 24px rgba(0,0,0,0.35);
   color: #E8F0EB;
 }
+.card-lift {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(13,43,31,0.08), 0 12px 32px rgba(13,43,31,0.10);
+}
 .card-glass {
   background: rgba(13,43,31,0.55);
   backdrop-filter: blur(20px);

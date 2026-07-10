@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react'
 import {
-  LineChart, Line, BarChart, Bar, XAxis, YAxis,
+  LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
 import Layout from '../../components/Layout'
+import {
+  CHART, axisTick, gridProps, tooltipStyle, tooltipLabelStyle, tooltipItemStyle,
+  tooltipCursor, barCursor, goldAreaGradient,
+} from '../../lib/chartTheme'
 import MetricCard from '../../components/MetricCard'
 import StatusBadge from '../../components/StatusBadge'
 import { CropIcon } from '../../components/CropIcon'
@@ -80,17 +84,24 @@ export default function MarketDashboard() {
 
   return (
     <Layout>
-      {/* Page header */}
-      <div style={{ marginBottom: 24 }}>
+      {/* Dark hero */}
+      <div style={{
+        background: 'linear-gradient(135deg, #030B07 0%, #0D2B1F 60%, #071510 100%)',
+        borderRadius: 20, padding: 32, marginBottom: 24,
+        border: '1px solid rgba(46,125,82,0.25)',
+        boxShadow: '0 4px 32px rgba(0,0,0,0.4)',
+        position: 'relative', overflow: 'hidden',
+      }}>
+        <div style={{ position: 'absolute', top: -60, right: -60, width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(201,168,76,0.14) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
           <div>
-            <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#1A5C38', marginBottom: 8 }}>Market Intelligence</p>
-            <h1 style={{ fontSize: '1.7rem', fontWeight: 800, color: '#111827', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Market Dashboard</h1>
-            <p style={{ fontSize: 14, color: '#6B7280', marginTop: 6 }}>Real-time prices and regional supply · Western Region, Ghana</p>
+            <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#4ADE80', marginBottom: 8 }}>Market Intelligence</p>
+            <h1 style={{ fontSize: '1.7rem', fontWeight: 800, color: '#E8F0EB', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Market Dashboard</h1>
+            <p style={{ fontSize: 14, color: '#4A6B58', marginTop: 6 }}>Real-time prices and regional supply · Western Region, Ghana</p>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 14px', borderRadius: 9999, background: '#F0FAF4', border: '1px solid #D6EFE1' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 14px', borderRadius: 9999, background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.25)' }}>
             <span className="live-dot" />
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#1A5C38', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Live</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#34D399', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Live</span>
           </div>
         </div>
       </div>
@@ -134,16 +145,18 @@ export default function MarketDashboard() {
             <div style={{ height: 220, background: '#F3F4F6', borderRadius: 12 }} />
           ) : (
             <ResponsiveContainer width="100%" height={220}>
-              <LineChart data={priceChartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
-                <XAxis dataKey="date" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} interval={4} />
-                <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} width={40} tickFormatter={(v) => `₵${v}`} />
+              <AreaChart data={priceChartData}>
+                <defs>{goldAreaGradient('priceGold')}</defs>
+                <CartesianGrid {...gridProps} />
+                <XAxis dataKey="date" tick={axisTick} tickLine={false} axisLine={false} interval={4} />
+                <YAxis tick={axisTick} tickLine={false} axisLine={false} width={40} tickFormatter={(v) => `₵${v}`} />
                 <Tooltip
                   formatter={(v) => [`GH₵ ${Number(v).toFixed(2)}`, 'Price']}
-                  contentStyle={{ borderRadius: 10, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', fontSize: 12 }}
+                  contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} itemStyle={tooltipItemStyle}
+                  cursor={tooltipCursor}
                 />
-                <Line type="monotone" dataKey="price" stroke="#C9A84C" strokeWidth={2.5} dot={false} />
-              </LineChart>
+                <Area type="monotone" dataKey="price" stroke={CHART.gold} strokeWidth={2} fill="url(#priceGold)" dot={false} activeDot={{ r: 4, strokeWidth: 2, stroke: '#fff' }} />
+              </AreaChart>
             </ResponsiveContainer>
           )}
         </div>
@@ -161,7 +174,7 @@ export default function MarketDashboard() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: 260, overflowY: 'auto' }}>
               {activity.map((a) => (
                 <div key={a.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid rgba(46,125,82,0.06)' }}>
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(26,92,56,0.22)', color: '#4ADE80', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#F0FAF4', border: '1px solid #D6EFE1', color: '#1A5C38', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <CropIcon type={a.produce_listings?.crop_type ?? ''} className="w-5 h-5" />
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -188,15 +201,16 @@ export default function MarketDashboard() {
           <p style={{ fontSize: 13, color: '#6B8A7A', textAlign: 'center', padding: '32px 0' }}>No active listings yet</p>
         ) : (
           <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={supply} barSize={40}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" vertical={false} />
-              <XAxis dataKey="crop_type" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-              <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} width={40} tickFormatter={(v) => `${v}kg`} />
+            <BarChart data={supply} barSize={36}>
+              <CartesianGrid {...gridProps} />
+              <XAxis dataKey="crop_type" tick={axisTick} tickLine={false} axisLine={false} />
+              <YAxis tick={axisTick} tickLine={false} axisLine={false} width={40} tickFormatter={(v) => `${v}kg`} />
               <Tooltip
                 formatter={(v) => [`${Number(v)} kg`, 'Available']}
-                contentStyle={{ borderRadius: 10, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', fontSize: 12 }}
+                contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} itemStyle={tooltipItemStyle}
+                cursor={barCursor}
               />
-              <Bar dataKey="total_kg" fill="#1A5C38" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="total_kg" fill={CHART.green} radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}
@@ -285,7 +299,7 @@ export default function MarketDashboard() {
             const chartData = crop.monthly.map(m => ({ month: m.month.slice(5), avg: m.avg }))
             const sortedRegions = Object.entries(crop.by_region).sort(([, a], [, b]) => b - a)
             return (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20 }}>
                 {/* Price trend chart */}
                 <div className="card" style={{ padding: 20 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
@@ -303,11 +317,15 @@ export default function MarketDashboard() {
                   </div>
                   <ResponsiveContainer width="100%" height={140}>
                     <LineChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
-                      <XAxis dataKey="month" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
-                      <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} width={36} tickFormatter={(v) => `₵${v}`} />
-                      <Tooltip formatter={(v) => [`GH₵ ${Number(v).toFixed(2)}`, 'Avg Price']} contentStyle={{ borderRadius: 10, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', fontSize: 12 }} />
-                      <Line type="monotone" dataKey="avg" stroke="#1A5C38" strokeWidth={2.5} dot={{ r: 4, fill: '#1A5C38' }} />
+                      <CartesianGrid {...gridProps} />
+                      <XAxis dataKey="month" tick={axisTick} tickLine={false} axisLine={false} />
+                      <YAxis tick={axisTick} tickLine={false} axisLine={false} width={36} tickFormatter={(v) => `₵${v}`} />
+                      <Tooltip
+                        formatter={(v) => [`GH₵ ${Number(v).toFixed(2)}`, 'Avg Price']}
+                        contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} itemStyle={tooltipItemStyle}
+                        cursor={tooltipCursor}
+                      />
+                      <Line type="monotone" dataKey="avg" stroke={CHART.green} strokeWidth={2} strokeDasharray="6 4" dot={false} activeDot={{ r: 4, strokeWidth: 2, stroke: '#fff' }} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>

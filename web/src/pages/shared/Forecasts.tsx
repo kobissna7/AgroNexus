@@ -6,6 +6,9 @@ import {
 import Layout from '../../components/Layout'
 import { CropIcon } from '../../components/CropIcon'
 import api from '../../lib/api'
+import {
+  CHART, axisTick, gridProps, tooltipStyle, tooltipLabelStyle, tooltipItemStyle, barCursor,
+} from '../../lib/chartTheme'
 
 interface ForecastDay {
   day: number; date: string; demand_kg: number; festival: boolean; day_of_week: string
@@ -117,9 +120,9 @@ export default function ForecastsPage() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 24, marginBottom: 24 }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, marginBottom: 24 }}>
         {/* Stat cards */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ flex: '1 1 260px', display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div className="card-dark" style={{ padding: 20 }}>
             <p style={{ fontSize: 11, color: '#4A6B58', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Week 1 (next 7 days)</p>
             <p style={{ fontSize: '1.9rem', fontWeight: 800, color: '#E8F0EB', letterSpacing: '-0.03em', lineHeight: 1 }}>
@@ -150,9 +153,20 @@ export default function ForecastsPage() {
         </div>
 
         {/* Bar chart */}
-        <div className="card" style={{ padding: 24 }}>
-          <h2 style={{ fontWeight: 700, fontSize: 15, color: '#111827' }}>Daily Demand · Next 7 Days</h2>
-          <p style={{ fontSize: 12, color: '#6B8A7A', marginTop: 3, marginBottom: 16 }}>kg · festival days highlighted in gold</p>
+        <div className="card" style={{ flex: '2 1 420px', padding: 24, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+            <div>
+              <h2 style={{ fontWeight: 700, fontSize: 15, color: '#111827' }}>Daily Demand · Next 7 Days</h2>
+              <p style={{ fontSize: 12, color: '#6B8A7A', marginTop: 3, marginBottom: 16 }}>projected kg per day</p>
+            </div>
+            <div style={{ display: 'flex', gap: 14 }}>
+              {[{ c: CHART.green, l: 'Regular day' }, { c: CHART.gold, l: 'Festival day' }].map(({ c, l }) => (
+                <span key={l} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#374151', fontWeight: 600 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: 3, background: c }} /> {l}
+                </span>
+              ))}
+            </div>
+          </div>
           {loading ? (
             <div style={{ height: 220, background: '#F3F4F6', borderRadius: 12 }} />
           ) : !selected ? (
@@ -162,16 +176,17 @@ export default function ForecastsPage() {
           ) : (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={chartData} barSize={36}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" vertical={false} />
-                <XAxis dataKey="label" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-                <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} width={50} tickFormatter={(v) => `${v}kg`} />
+                <CartesianGrid {...gridProps} />
+                <XAxis dataKey="label" tick={axisTick} tickLine={false} axisLine={false} />
+                <YAxis tick={axisTick} tickLine={false} axisLine={false} width={50} tickFormatter={(v) => `${v}kg`} />
                 <Tooltip
-                  formatter={(v) => [`${Number(v)} kg`, 'Demand']}
-                  contentStyle={{ borderRadius: 10, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', fontSize: 12 }}
+                  formatter={(v, _n, item) => [`${Number(v)} kg${(item?.payload as { festival?: boolean })?.festival ? ' · festival' : ''}`, 'Demand']}
+                  contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} itemStyle={tooltipItemStyle}
+                  cursor={barCursor}
                 />
-                <Bar dataKey="demand" radius={[6, 6, 0, 0]}>
+                <Bar dataKey="demand" radius={[4, 4, 0, 0]}>
                   {chartData.map((entry, i) => (
-                    <Cell key={i} fill={entry.festival ? '#C9A84C' : '#1A5C38'} />
+                    <Cell key={i} fill={entry.festival ? CHART.gold : CHART.green} />
                   ))}
                 </Bar>
               </BarChart>
@@ -216,7 +231,11 @@ export default function ForecastsPage() {
                   )
                   const t = fc.weekly_pred_w2 > fc.weekly_pred_w1 * 1.03 ? 'up'
                     : fc.weekly_pred_w2 < fc.weekly_pred_w1 * 0.97 ? 'down' : 'stable'
-                  const tColor = t === 'up' ? '#34D399' : t === 'down' ? '#F87171' : '#C9A84C'
+                  const pill = t === 'up'
+                    ? { bg: '#D1FAE5', text: '#065F46' }
+                    : t === 'down'
+                    ? { bg: '#FEE2E2', text: '#991B1B' }
+                    : { bg: '#FEF3C7', text: '#92400E' }
                   return (
                     <tr key={c}>
                       <td>
@@ -227,7 +246,11 @@ export default function ForecastsPage() {
                       <td style={{ textAlign: 'right', fontWeight: 600, color: '#111827' }}>{Math.round(fc.weekly_pred_w1).toLocaleString()}</td>
                       <td style={{ textAlign: 'right', color: '#6B8A7A' }}>{Math.round(fc.weekly_pred_w2).toLocaleString()}</td>
                       <td style={{ textAlign: 'right' }}>
-                        <span style={{ fontWeight: 700, color: tColor }}>
+                        <span style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 4,
+                          fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 9999,
+                          background: pill.bg, color: pill.text, textTransform: 'capitalize',
+                        }}>
                           {t === 'up' ? '↑' : t === 'down' ? '↓' : '→'} {t}
                         </span>
                       </td>

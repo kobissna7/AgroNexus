@@ -16,6 +16,7 @@ import TransporterFeed from './pages/transporter/Feed'
 import MarketDashboard from './pages/shared/Dashboard'
 import ForecastsPage from './pages/shared/Forecasts'
 import AdminDashboard from './pages/admin/AdminDashboard'
+import ForecastInsights from './pages/admin/ForecastInsights'
 import AdminUsers from './pages/admin/AdminUsers'
 import AdminListings from './pages/admin/AdminListings'
 import AdminOrders from './pages/admin/AdminOrders'
@@ -54,6 +55,7 @@ export default function App() {
 
         <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
           <Route path="/admin"          element={<AdminDashboard />} />
+          <Route path="/admin/insights" element={<ForecastInsights />} />
           <Route path="/admin/users"    element={<AdminUsers />} />
           <Route path="/admin/listings" element={<AdminListings />} />
           <Route path="/admin/orders"   element={<AdminOrders />} />

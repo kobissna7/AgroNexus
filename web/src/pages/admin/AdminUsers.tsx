@@ -15,19 +15,29 @@ interface AdminUser {
 }
 
 const ROLE_COLORS: Record<string, string> = {
-  farmer:      '#D1FAE5',
-  consumer:    '#DBEAFE',
-  transporter: '#FEF3C7',
-  admin:       '#EDE9FE',
+  farmer:          '#D1FAE5',
+  wholesaler:      '#DBEAFE',
+  retailer:        '#E0F2FE',
+  direct_consumer: '#EFF6FF',
+  consumer:        '#DBEAFE',  // legacy pre-v2 rows
+  transporter:     '#FEF3C7',
+  admin:           '#EDE9FE',
 }
 const ROLE_TEXT: Record<string, string> = {
-  farmer:      '#065F46',
-  consumer:    '#1E40AF',
-  transporter: '#92400E',
-  admin:       '#6B21A8',
+  farmer:          '#065F46',
+  wholesaler:      '#1E40AF',
+  retailer:        '#075985',
+  direct_consumer: '#1D4ED8',
+  consumer:        '#1E40AF',
+  transporter:     '#92400E',
+  admin:           '#6B21A8',
 }
 
-const ROLES: UserRole[] = ['farmer', 'consumer', 'transporter', 'admin']
+// v2 role set — must match the backend's allowed list in admin.controller
+const ROLES: UserRole[] = ['farmer', 'wholesaler', 'retailer', 'direct_consumer', 'transporter', 'admin']
+
+const roleLabel = (r: string) =>
+  r.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
 
 export default function AdminUsers() {
   const [users, setUsers]       = useState<AdminUser[]>([])
@@ -156,7 +166,7 @@ export default function AdminUsers() {
                   border: '1px solid #D1E0D8', cursor: 'pointer',
                 }}
               >
-                {r === 'all' ? 'All Roles' : r.charAt(0).toUpperCase() + r.slice(1)}
+                {r === 'all' ? 'All Roles' : roleLabel(r)}
               </button>
             )
           })}
@@ -232,8 +242,11 @@ export default function AdminUsers() {
                           color: ROLE_TEXT[u.role] ?? '#374151',
                         }}
                       >
+                        {!ROLES.includes(u.role) && (
+                          <option value={u.role} disabled>{roleLabel(u.role)} (legacy)</option>
+                        )}
                         {ROLES.map(r => (
-                          <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
+                          <option key={r} value={r}>{roleLabel(r)}</option>
                         ))}
                       </select>
                     </td>
