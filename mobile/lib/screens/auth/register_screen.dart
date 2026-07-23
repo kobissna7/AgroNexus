@@ -172,7 +172,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 builder: (_, auth, __) => auth.error != null
                   ? Padding(
                       padding: const EdgeInsets.only(top: 12),
-                      child: Text(auth.error!, style: const TextStyle(color: AppColors.redText, fontSize: 13), textAlign: TextAlign.center),
+                      child: Text(auth.error!, style: TextStyle(color: AppColors.redText, fontSize: 13), textAlign: TextAlign.center),
                     )
                   : const SizedBox.shrink(),
               ),

@@ -17,9 +17,9 @@ class OfflineBanner extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           child: Row(
             children: [
-              const Icon(Icons.wifi_off, size: 16, color: AppColors.amberText),
+              Icon(Icons.wifi_off, size: 16, color: AppColors.amberText),
               const SizedBox(width: 8),
-              const Expanded(
+              Expanded(
                 child: Text(
                   'You\'re offline — showing cached data',
                   style: TextStyle(

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import { supabaseAdmin } from '../services/supabase'
+import { anonymizedListingsQuery, ListingFilters } from '../services/listingsQuery'
 
 export async function createListing(req: Request, res: Response): Promise<void> {
   const { crop_type, quantity_kg, price_per_kg, location, available_from } = req.body as {
@@ -26,23 +27,7 @@ export async function createListing(req: Request, res: Response): Promise<void> 
 }
 
 export async function getAllListings(req: Request, res: Response): Promise<void> {
-  const { crop_type, region, min_price, max_price, available_from } = req.query as Record<string, string>
-
-  // Buyers see the product, quantity, price, and region only — never the
-  // farmer's identity (no users join here).
-  let query = supabaseAdmin
-    .from('produce_listings')
-    .select('id, crop_type, quantity_kg, price_per_kg, location, available_from, status, created_at')
-    .eq('status', 'active')
-    .order('created_at', { ascending: false })
-
-  if (crop_type) query = query.ilike('crop_type', `%${crop_type}%`)
-  if (region)    query = query.ilike('location', `%${region}%`)
-  if (min_price) query = query.gte('price_per_kg', Number(min_price))
-  if (max_price) query = query.lte('price_per_kg', Number(max_price))
-  if (available_from) query = query.gte('available_from', available_from)
-
-  const { data, error } = await query
+  const { data, error } = await anonymizedListingsQuery(req.query as ListingFilters)
   if (error) { res.status(500).json({ error: error.message }); return }
   res.json(data)
 }

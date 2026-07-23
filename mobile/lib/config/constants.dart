@@ -1,5 +1,6 @@
 class AppConstants {
-  static const String baseUrl = 'http://10.0.2.2:3001';  // Android emulator → localhost
+  // Physical device: dev machine's LAN IP. For the emulator use http://10.0.2.2:3001
+  static const String baseUrl = 'http://172.20.10.7:3001';
 
   static const Map<String, String> cropIcons = {
     'maize':    '🌽',

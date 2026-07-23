@@ -70,20 +70,20 @@ export default function FarmerDashboard() {
     <Layout>
       {/* Dark hero */}
       <div style={{
-        background: 'linear-gradient(135deg, #030B07 0%, #0D2B1F 60%, #071510 100%)',
+        background: 'linear-gradient(170deg, #000 0%, color-mix(in srgb, #0b2e14 55%, #000) 100%)',
         borderRadius: 20, padding: 32, marginBottom: 24,
-        border: '1px solid rgba(46,125,82,0.25)',
+        border: '1px solid var(--edge)',
         boxShadow: '0 4px 32px rgba(0,0,0,0.4)',
         position: 'relative', overflow: 'hidden',
       }}>
-        <div style={{ position: 'absolute', top: -60, right: -60, width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(26,92,56,0.2) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: -60, right: -60, width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(11,46,20,0.30) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
           <div>
-            <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#4ADE80', marginBottom: 8 }}>Farmer Dashboard</p>
-            <h1 style={{ fontSize: '1.7rem', fontWeight: 800, color: '#E8F0EB', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--brand-ink)', marginBottom: 8 }}>Farmer Dashboard</p>
+            <h1 style={{ fontSize: '1.7rem', fontWeight: 800, color: 'var(--ink)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
               Welcome back, {user?.full_name?.split(' ')[0]}
             </h1>
-            <p style={{ fontSize: 14, color: '#4A6B58', marginTop: 6 }}>Manage listings, track orders and view demand forecasts</p>
+            <p style={{ fontSize: 14, color: 'var(--ink-faint)', marginTop: 6 }}>Manage listings, track orders and view demand forecasts</p>
             <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
               <button
                 onClick={() => { setEditListing(null); setShowModal(true) }}
@@ -94,21 +94,21 @@ export default function FarmerDashboard() {
               </button>
               <Link to="/forecasts" style={{
                 padding: '10px 22px', fontSize: 13, fontWeight: 600, borderRadius: 9999,
-                background: 'rgba(201,168,76,0.15)', color: '#C9A84C',
-                border: '1px solid rgba(201,168,76,0.3)', textDecoration: 'none', display: 'inline-block',
+                background: 'var(--brand-soft)', color: 'var(--brand-ink)',
+                border: '1px solid var(--edge)', textDecoration: 'none', display: 'inline-block',
               }}>
                 View Forecasts
               </Link>
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <p style={{ fontSize: 11, color: '#4A6B58', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Region</p>
-            <p style={{ fontSize: 14, fontWeight: 700, color: '#E8F0EB', marginTop: 4 }}>{(user as unknown as { region?: string })?.region ?? '—'}</p>
+            <p style={{ fontSize: 11, color: 'var(--ink-faint)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Region</p>
+            <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)', marginTop: 4 }}>{(user as unknown as { region?: string })?.region ?? '—'}</p>
             {liveOrders > 0 && (
               <span style={{
                 display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 8,
                 fontSize: 11, fontWeight: 700, padding: '4px 12px', borderRadius: 9999,
-                background: 'rgba(52,211,153,0.15)', color: '#34D399', border: '1px solid rgba(52,211,153,0.25)',
+                background: 'var(--brand-soft)', color: 'var(--brand-ink)', border: '1px solid var(--edge)',
               }}>
                 <span className="live-dot" /> {liveOrders} new order{liveOrders > 1 ? 's' : ''}
               </span>
@@ -120,7 +120,7 @@ export default function FarmerDashboard() {
       {/* Metric cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 24 }}>
         <MetricCard label="Active Listings" value={activeListings} sub="Currently available" icon={<ListSvg />} />
-        <MetricCard label="Pending Orders" value={pendingOrders} sub="Awaiting confirmation" icon={<OrderSvg />} accent="#C9A84C" />
+        <MetricCard label="Pending Orders" value={pendingOrders} sub="Awaiting confirmation" icon={<OrderSvg />} />
         <MetricCard label="Confirmed Revenue" value={`GH₵ ${totalRevenue.toFixed(0)}`} sub="Confirmed + delivered" icon={<CoinSvg />} />
       </div>
 
@@ -129,14 +129,14 @@ export default function FarmerDashboard() {
         <div className="card" style={{ padding: 24 }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
             <div>
-              <h2 style={{ fontWeight: 700, fontSize: 15, color: '#111827' }}>Demand Forecast — Next 7 Days</h2>
-              <p style={{ fontSize: 12, color: '#6B8A7A', marginTop: 3 }}>
+              <h2 style={{ fontWeight: 700, fontSize: 15, color: 'var(--ink-strong)' }}>Demand Forecast — Next 7 Days</h2>
+              <p style={{ fontSize: 12, color: 'var(--ink-muted)', marginTop: 3 }}>
                 {activeFc ? `${activeFc.crop_type} · ${w1.toFixed(0)} kg/wk · ${activeFc.mape_pct.toFixed(1)}% MAPE` : 'kg demand per day'}
               </p>
             </div>
           </div>
           {loading ? (
-            <div style={{ height: 220, background: '#F3F4F6', borderRadius: 12, animation: 'pulse 2s infinite' }} />
+            <div style={{ height: 220, background: 'var(--surface-2)', borderRadius: 12, animation: 'pulse 2s infinite' }} />
           ) : (
             <ResponsiveContainer width="100%" height={220}>
               <AreaChart data={chartData}>
@@ -149,7 +149,7 @@ export default function FarmerDashboard() {
                   contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} itemStyle={tooltipItemStyle}
                   cursor={tooltipCursor}
                 />
-                <Area type="monotone" dataKey="forecast" stroke={CHART.gold} strokeWidth={2} fill="url(#forecastGold)" dot={false} activeDot={{ r: 4, strokeWidth: 2, stroke: '#fff' }} />
+                <Area type="monotone" dataKey="forecast" stroke={CHART.gold} strokeWidth={2} fill="url(#forecastGold)" dot={false} activeDot={{ r: 4, strokeWidth: 2, stroke: 'var(--surface)' }} />
               </AreaChart>
             </ResponsiveContainer>
           )}
@@ -157,20 +157,20 @@ export default function FarmerDashboard() {
 
         {/* Recent orders */}
         <div className="card" style={{ padding: 24 }}>
-          <h2 style={{ fontWeight: 700, fontSize: 15, color: '#111827', marginBottom: 16 }}>Recent Orders</h2>
+          <h2 style={{ fontWeight: 700, fontSize: 15, color: 'var(--ink-strong)', marginBottom: 16 }}>Recent Orders</h2>
           {loading ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {[1,2,3].map(i => <div key={i} style={{ height: 48, background: '#F3F4F6', borderRadius: 10 }} />)}
+              {[1,2,3].map(i => <div key={i} style={{ height: 48, background: 'var(--surface-2)', borderRadius: 10 }} />)}
             </div>
           ) : orders.length === 0 ? (
-            <p style={{ fontSize: 13, color: '#6B8A7A', textAlign: 'center', padding: '32px 0' }}>No orders yet</p>
+            <p style={{ fontSize: 13, color: 'var(--ink-muted)', textAlign: 'center', padding: '32px 0' }}>No orders yet</p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: 260, overflowY: 'auto' }}>
               {orders.slice(0, 8).map((o) => (
-                <div key={o.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid rgba(46,125,82,0.06)' }}>
+                <div key={o.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--edge)' }}>
                   <div>
-                    <p style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>{(o as Order & { produce_listings?: { crop_type: string } }).produce_listings?.crop_type ?? '—'}</p>
-                    <p style={{ fontSize: 11, color: '#6B8A7A', marginTop: 2 }}>{o.quantity_kg} kg · {new Date(o.created_at).toLocaleDateString()}</p>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink-strong)' }}>{(o as Order & { produce_listings?: { crop_type: string } }).produce_listings?.crop_type ?? '—'}</p>
+                    <p style={{ fontSize: 11, color: 'var(--ink-muted)', marginTop: 2 }}>{o.quantity_kg} kg · {new Date(o.created_at).toLocaleDateString()}</p>
                   </div>
                   <StatusBadge status={o.status} />
                 </div>
@@ -183,7 +183,7 @@ export default function FarmerDashboard() {
       {/* Listings table */}
       <div className="card" style={{ padding: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-          <h2 style={{ fontWeight: 700, fontSize: 15, color: '#111827' }}>My Listings</h2>
+          <h2 style={{ fontWeight: 700, fontSize: 15, color: 'var(--ink-strong)' }}>My Listings</h2>
           <button
             onClick={() => { setEditListing(null); setShowModal(true) }}
             className="btn-primary"
@@ -194,10 +194,10 @@ export default function FarmerDashboard() {
         </div>
         {loading ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {[1,2,3].map(i => <div key={i} style={{ height: 40, background: '#F3F4F6', borderRadius: 10 }} />)}
+            {[1,2,3].map(i => <div key={i} style={{ height: 40, background: 'var(--surface-2)', borderRadius: 10 }} />)}
           </div>
         ) : listings.length === 0 ? (
-          <p style={{ fontSize: 13, color: '#6B8A7A', textAlign: 'center', padding: '48px 0' }}>No listings yet. Add your first one!</p>
+          <p style={{ fontSize: 13, color: 'var(--ink-muted)', textAlign: 'center', padding: '48px 0' }}>No listings yet. Add your first one!</p>
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <table className="table-pro" style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -215,21 +215,21 @@ export default function FarmerDashboard() {
               <tbody>
                 {listings.map((l) => (
                   <tr key={l.id}>
-                    <td style={{ fontWeight: 600, color: '#111827', textTransform: 'capitalize' }}>{l.crop_type}</td>
+                    <td style={{ fontWeight: 600, color: 'var(--ink-strong)', textTransform: 'capitalize' }}>{l.crop_type}</td>
                     <td>{l.quantity_kg} kg</td>
                     <td>GH₵ {l.price_per_kg}</td>
                     <td>{l.location}</td>
-                    <td style={{ color: '#6B8A7A' }}>{new Date(l.available_from).toLocaleDateString()}</td>
+                    <td style={{ color: 'var(--ink-muted)' }}>{new Date(l.available_from).toLocaleDateString()}</td>
                     <td><StatusBadge status={l.status} /></td>
                     <td>
                       <div style={{ display: 'flex', gap: 8 }}>
                         <button
                           onClick={() => { setEditListing(l); setShowModal(true) }}
-                          style={{ fontSize: 12, padding: '5px 12px', borderRadius: 9999, border: '1px solid #D1E0D8', background: 'transparent', color: '#2E7D52', cursor: 'pointer' }}
+                          style={{ fontSize: 12, padding: '5px 12px', borderRadius: 9999, border: '1px solid var(--edge)', background: 'transparent', color: 'var(--brand-ink)', cursor: 'pointer' }}
                         >Edit</button>
                         <button
                           onClick={() => handleDelete(l.id)}
-                          style={{ fontSize: 12, padding: '5px 12px', borderRadius: 9999, border: 'none', background: 'transparent', color: '#F87171', cursor: 'pointer' }}
+                          style={{ fontSize: 12, padding: '5px 12px', borderRadius: 9999, border: 'none', background: 'transparent', color: 'var(--ink)', cursor: 'pointer' }}
                         >Remove</button>
                       </div>
                     </td>

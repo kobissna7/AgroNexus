@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
 
     <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
@@ -11,7 +12,18 @@
 
     <!-- PWA / Theme -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0D2B1F" />
+    <meta name="theme-color" content="#0b2e14" />
+
+    <!-- Apply stored theme override before first paint (avoids theme flash) -->
+    <script>
+      try {
+        var t = localStorage.getItem('agronexus_theme');
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    </script>
+
+    <!-- Fonts -->
+    <link rel="preload" href="/fonts/Mulish-Variable.woff2" as="font" type="font/woff2" crossorigin />
 
     <!-- SEO -->
     <title>AgroNexus — Ghana's Intelligent Agricultural Marketplace</title>

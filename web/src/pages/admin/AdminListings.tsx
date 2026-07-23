@@ -19,9 +19,9 @@ interface AdminListing {
 const STATUS_OPTIONS = ['active', 'sold', 'expired'] as const
 
 const STATUS_BADGE: Record<string, { bg: string; color: string }> = {
-  active:  { bg: 'rgba(52,211,153,0.12)',  color: '#34D399' },
-  sold:    { bg: 'rgba(201,168,76,0.12)',  color: '#C9A84C' },
-  expired: { bg: 'rgba(107,138,122,0.1)', color: '#6B8A7A' },
+  active:  { bg: 'var(--brand-soft)',  color: 'var(--brand-ink)' },
+  sold:    { bg: 'rgba(255,255,255,0.08)',  color: 'var(--brand-ink)' },
+  expired: { bg: 'rgba(107,138,122,0.1)', color: 'var(--ink-muted)' },
 }
 
 export default function AdminListings() {
@@ -70,10 +70,10 @@ export default function AdminListings() {
       {/* ── Page header ── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.625rem', fontWeight: 800, color: '#111827', letterSpacing: '-0.01em' }}>
+          <h1 style={{ fontSize: '1.625rem', fontWeight: 800, color: 'var(--ink-strong)', letterSpacing: '-0.01em' }}>
             All Listings
           </h1>
-          <p style={{ fontSize: '0.875rem', color: '#4A7C5E', marginTop: '0.25rem' }}>
+          <p style={{ fontSize: '0.875rem', color: 'var(--ink-muted)', marginTop: '0.25rem' }}>
             {listings.length} listings · {listings.filter(l => l.status === 'active').length} active
           </p>
         </div>
@@ -81,8 +81,8 @@ export default function AdminListings() {
           onClick={fetchListings}
           style={{
             padding: '0.5rem 1.25rem', borderRadius: '9999px',
-            border: '1px solid #D1E0D8',
-            background: '#fff', color: '#374151',
+            border: '1px solid var(--edge)',
+            background: 'var(--surface)', color: 'var(--ink)',
             fontSize: '0.8125rem', fontWeight: 500,
             cursor: 'pointer',
           }}
@@ -96,7 +96,7 @@ export default function AdminListings() {
         {/* Search */}
         <div style={{ flex: 1, minWidth: '12rem', position: 'relative' }}>
           <svg
-            style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', width: '0.9375rem', height: '0.9375rem', color: '#6B8A7A', pointerEvents: 'none' }}
+            style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', width: '0.9375rem', height: '0.9375rem', color: 'var(--ink-muted)', pointerEvents: 'none' }}
             fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
@@ -109,9 +109,9 @@ export default function AdminListings() {
             style={{
               width: '100%', padding: '0.625rem 1rem 0.625rem 2.375rem',
               borderRadius: '9999px',
-              border: '1px solid #D1E0D8',
-              backgroundColor: '#fff',
-              fontSize: '0.875rem', color: '#374151',
+              border: '1px solid var(--edge)',
+              backgroundColor: 'var(--surface)',
+              fontSize: '0.875rem', color: 'var(--ink)',
               outline: 'none', boxSizing: 'border-box',
             }}
           />
@@ -128,15 +128,15 @@ export default function AdminListings() {
                 style={isActive ? {
                   padding: '0.5rem 1rem', borderRadius: '9999px',
                   fontSize: '0.8125rem', fontWeight: 600,
-                  background: 'linear-gradient(135deg, #2E7D52, #1A5C38)',
-                  color: '#fff', border: 'none',
-                  boxShadow: '0 4px 12px rgba(26,92,56,0.3)',
+                  background: 'var(--brand)',
+                  color: 'var(--on-brand)', border: 'none',
+                  boxShadow: '0 4px 12px rgba(11,46,20,0.30)',
                   cursor: 'pointer',
                 } : {
                   padding: '0.5rem 1rem', borderRadius: '9999px',
                   fontSize: '0.8125rem', fontWeight: 500,
-                  backgroundColor: '#fff', color: '#374151',
-                  border: '1px solid #D1E0D8', cursor: 'pointer',
+                  backgroundColor: 'var(--surface)', color: 'var(--ink)',
+                  border: '1px solid var(--edge)', cursor: 'pointer',
                 }}
               >
                 {s === 'all' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1)}
@@ -148,9 +148,9 @@ export default function AdminListings() {
 
       {error && (
         <div style={{
-          background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.25)',
+          background: 'var(--surface-2)', border: '1px solid var(--edge-strong)',
           borderRadius: '0.75rem', padding: '1rem', marginBottom: '1rem',
-          fontSize: '0.875rem', color: '#F87171',
+          fontSize: '0.875rem', color: 'var(--ink)',
         }}>
           {error}
         </div>
@@ -158,8 +158,8 @@ export default function AdminListings() {
 
       {/* ── Table card ── */}
       <div style={{
-        background: '#fff',
-        border: '1px solid rgba(46,125,82,0.1)',
+        background: 'var(--surface)',
+        border: '1px solid var(--edge)',
         borderRadius: '1rem',
         overflow: 'hidden',
         boxShadow: '0 2px 16px rgba(13,43,31,0.08)',
@@ -167,21 +167,21 @@ export default function AdminListings() {
         {loading ? (
           <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="animate-pulse" style={{ height: '3rem', borderRadius: '0.5rem', backgroundColor: '#F3F4F6' }} />
+              <div key={i} className="animate-pulse" style={{ height: '3rem', borderRadius: '0.5rem', backgroundColor: 'var(--surface-2)' }} />
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <div style={{ padding: '4rem 0', textAlign: 'center', color: '#6B8A7A' }}>No listings found.</div>
+          <div style={{ padding: '4rem 0', textAlign: 'center', color: 'var(--ink-muted)' }}>No listings found.</div>
         ) : (
           <div className="overflow-x-auto">
             <table style={{ width: '100%', fontSize: '0.875rem', borderCollapse: 'collapse' }}>
               <thead>
-                <tr style={{ backgroundColor: '#0D2B1F' }}>
+                <tr style={{ backgroundColor: 'var(--brand)' }}>
                   {['Crop', 'Farmer', 'Qty / Price', 'Location', 'Status', 'Date'].map(col => (
                     <th key={col} style={{
                       padding: '0.875rem 1.5rem', textAlign: 'left',
                       fontSize: '0.6875rem', fontWeight: 600,
-                      color: '#A3C4B0', textTransform: 'uppercase', letterSpacing: '0.06em',
+                      color: 'var(--ink-faint)', textTransform: 'uppercase', letterSpacing: '0.06em',
                       border: 'none',
                     }}>
                       {col}
@@ -194,22 +194,22 @@ export default function AdminListings() {
                   <tr
                     key={l.id}
                     className="hover:bg-gray-50"
-                    style={{ borderBottom: '1px solid rgba(46,125,82,0.07)', transition: 'background 0.12s' }}
+                    style={{ borderBottom: '1px solid var(--edge)', transition: 'background 0.12s' }}
                   >
                     <td style={{ padding: '1rem 1.5rem' }}>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', fontWeight: 600, color: '#111827' }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', fontWeight: 600, color: 'var(--ink-strong)' }}>
                         <CropIcon type={l.crop_type} className="w-4 h-4" />
                         <span style={{ textTransform: 'capitalize' }}>{l.crop_type}</span>
                       </span>
                     </td>
                     <td style={{ padding: '1rem 1.5rem' }}>
-                      <p style={{ fontWeight: 600, color: '#111827' }}>{l.users?.full_name ?? '—'}</p>
-                      <p style={{ fontSize: '0.75rem', color: '#6B8A7A', marginTop: '0.125rem' }}>{l.users?.email}</p>
+                      <p style={{ fontWeight: 600, color: 'var(--ink-strong)' }}>{l.users?.full_name ?? '—'}</p>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--ink-muted)', marginTop: '0.125rem' }}>{l.users?.email}</p>
                     </td>
-                    <td style={{ padding: '1rem 1.5rem', color: '#6B8A7A' }}>
+                    <td style={{ padding: '1rem 1.5rem', color: 'var(--ink-muted)' }}>
                       {l.quantity_kg} kg · GH₵ {l.price_per_kg.toFixed(2)}/kg
                     </td>
-                    <td style={{ padding: '1rem 1.5rem', color: '#6B8A7A' }}>{l.location}</td>
+                    <td style={{ padding: '1rem 1.5rem', color: 'var(--ink-muted)' }}>{l.location}</td>
                     <td style={{ padding: '1rem 1.5rem' }}>
                       <select
                         value={l.status}
@@ -224,7 +224,7 @@ export default function AdminListings() {
                           cursor: changing === l.id ? 'not-allowed' : 'pointer',
                           fontWeight: 700,
                           backgroundColor: STATUS_BADGE[l.status]?.bg ?? 'rgba(107,138,122,0.1)',
-                          color: STATUS_BADGE[l.status]?.color ?? '#374151',
+                          color: STATUS_BADGE[l.status]?.color ?? 'var(--ink)',
                           appearance: 'none' as React.CSSProperties['appearance'],
                         }}
                       >
@@ -233,7 +233,7 @@ export default function AdminListings() {
                         ))}
                       </select>
                     </td>
-                    <td style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', color: '#6B8A7A' }}>
+                    <td style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', color: 'var(--ink-muted)' }}>
                       {new Date(l.created_at).toLocaleDateString()}
                     </td>
                   </tr>

@@ -18,7 +18,8 @@ api.interceptors.response.use(
     if (err.response?.status === 401 && !isAuthCall) {
       localStorage.removeItem('agronexus_token')
       localStorage.removeItem('agronexus_user')
-      window.location.href = '/login'
+      const next = encodeURIComponent(window.location.pathname + window.location.search)
+      window.location.href = `/login?next=${next}`
     }
     return Promise.reject(err)
   }

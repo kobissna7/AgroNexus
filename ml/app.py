@@ -144,6 +144,14 @@ def _build_feature_row(
         festival_flag,
         crop_enc, region_enc,
     ]
+
+    # Models retrained with behavioral interest features (listing_views,
+    # searches, checkouts — see train.py INTEREST_COLS) expect a longer
+    # vector; live serving has no per-week interest history, so pad with
+    # zeros to match the trained feature count.
+    if len(FEATURE_COLS) > len(row):
+        row.extend([0.0] * (len(FEATURE_COLS) - len(row)))
+
     return np.array(row, dtype=float)
 
 

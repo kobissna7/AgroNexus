@@ -8,7 +8,9 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "export:demand": "tsx src/scripts/export-demand.ts",
-    "test": "NODE_ENV=test vitest run --reporter=verbose"
+    "test": "NODE_ENV=test vitest run --reporter=verbose",
+    "export:interest": "tsx src/scripts/export-interest.ts",
+    "export:all": "npm run export:demand && npm run export:interest"
   },
   "keywords": [],
   "author": "",

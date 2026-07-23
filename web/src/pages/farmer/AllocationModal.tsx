@@ -17,8 +17,8 @@ interface Props {
 
 const inputStyle: React.CSSProperties = {
   width: '100%', padding: '10px 14px', fontSize: 13, borderRadius: 10,
-  border: '1.5px solid #D1D5DB', background: '#fff',
-  color: '#111827', outline: 'none',
+  border: '1.5px solid var(--edge)', background: 'var(--surface)',
+  color: 'var(--ink-strong)', outline: 'none',
   transition: 'border-color 0.15s, box-shadow 0.15s',
 }
 
@@ -94,34 +94,34 @@ export default function AllocationModal({ listing, onClose, onSaved }: Props) {
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, background: 'var(--overlay)', backdropFilter: 'blur(4px)' }}>
       <div style={{
         width: '100%', maxWidth: 500,
-        background: '#fff', borderRadius: 20, padding: 32,
-        border: '1px solid #E8EDEA',
+        background: 'var(--surface)', borderRadius: 20, padding: 32,
+        border: '1px solid var(--edge)',
         boxShadow: '0 8px 40px rgba(0,0,0,0.12)',
         maxHeight: '90vh', overflowY: 'auto',
       }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
           <div>
-            <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#1A5C38', marginBottom: 4 }}>Regional Allocation</p>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#111827', textTransform: 'capitalize' }}>{listing.crop_type} — {listing.quantity_kg} kg</h2>
+            <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--brand-ink)', marginBottom: 4 }}>Regional Allocation</p>
+            <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--ink-strong)', textTransform: 'capitalize' }}>{listing.crop_type} — {listing.quantity_kg} kg</h2>
           </div>
           <button
             onClick={onClose}
-            style={{ padding: 8, borderRadius: 9, background: '#F3F4F6', border: 'none', cursor: 'pointer', color: '#6B7280', transition: 'background 0.15s' }}
-            onMouseEnter={e => { e.currentTarget.style.background = '#FEE2E2'; e.currentTarget.style.color = '#DC2626' }}
-            onMouseLeave={e => { e.currentTarget.style.background = '#F3F4F6'; e.currentTarget.style.color = '#6B7280' }}
+            style={{ padding: 8, borderRadius: 9, background: 'var(--surface-2)', border: 'none', cursor: 'pointer', color: 'var(--ink-muted)', transition: 'background 0.15s' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--brand-soft)'; e.currentTarget.style.color = 'var(--ink)' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface-2)'; e.currentTarget.style.color = 'var(--ink-muted)' }}
           >
             <XIcon className="w-5 h-5" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ background: '#F0FAF4', border: '1px solid #D6EFE1', borderRadius: 12, padding: '14px 16px' }}>
+          <div style={{ background: 'var(--surface-2)', border: '1px solid var(--edge)', borderRadius: 12, padding: '14px 16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#1A5C38' }}>
+              <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--brand-ink)' }}>
                 Forecast Weekly Demand
               </p>
               <button
@@ -129,7 +129,7 @@ export default function AllocationModal({ listing, onClose, onSaved }: Props) {
                 disabled={fetching || totalForecast <= 0}
                 style={{
                   fontSize: 11, padding: '4px 12px', borderRadius: 9999, fontWeight: 700,
-                  border: '1px solid #1A5C38', background: 'transparent', color: '#1A5C38',
+                  border: '1px solid var(--brand)', background: 'transparent', color: 'var(--brand-ink)',
                   cursor: fetching || totalForecast <= 0 ? 'not-allowed' : 'pointer',
                   opacity: fetching || totalForecast <= 0 ? 0.5 : 1,
                 }}
@@ -137,7 +137,7 @@ export default function AllocationModal({ listing, onClose, onSaved }: Props) {
                 Auto-split by demand
               </button>
             </div>
-            <p style={{ fontSize: 12, color: '#6B7280', marginTop: 6 }}>
+            <p style={{ fontSize: 12, color: 'var(--ink-muted)', marginTop: 6 }}>
               Allocate more stock to regions where forecast demand is highest
             </p>
           </div>
@@ -145,8 +145,8 @@ export default function AllocationModal({ listing, onClose, onSaved }: Props) {
           {REGIONS.map((region) => (
             <div key={region} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, alignItems: 'end' }}>
               <div>
-                <p style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>{region}</p>
-                <p style={{ fontSize: 11, color: '#6B8A7A', marginTop: 2 }}>
+                <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-strong)' }}>{region}</p>
+                <p style={{ fontSize: 11, color: 'var(--ink-muted)', marginTop: 2 }}>
                   {fetching
                     ? 'Loading forecast…'
                     : forecasts[region] != null
@@ -166,16 +166,16 @@ export default function AllocationModal({ listing, onClose, onSaved }: Props) {
 
           <div style={{
             display: 'flex', justifyContent: 'space-between', fontSize: 13,
-            borderTop: '1px solid #E8EDEA', paddingTop: 12,
+            borderTop: '1px solid var(--edge)', paddingTop: 12,
           }}>
-            <span style={{ color: '#6B7280' }}>Allocated: <strong style={{ color: '#111827' }}>{allocated} kg</strong></span>
-            <span style={{ color: remaining < 0 ? '#DC2626' : '#6B7280' }}>
-              Unallocated: <strong style={{ color: remaining < 0 ? '#DC2626' : '#1A5C38' }}>{remaining} kg</strong>
+            <span style={{ color: 'var(--ink-muted)' }}>Allocated: <strong style={{ color: 'var(--ink-strong)' }}>{allocated} kg</strong></span>
+            <span style={{ color: remaining < 0 ? 'var(--ink)' : 'var(--ink-muted)' }}>
+              Unallocated: <strong style={{ color: remaining < 0 ? 'var(--ink)' : 'var(--brand-ink)' }}>{remaining} kg</strong>
             </span>
           </div>
 
           {error && (
-            <div style={{ fontSize: 13, color: '#DC2626', background: '#FEF2F2', border: '1px solid #FCA5A5', padding: '10px 14px', borderRadius: 10 }}>
+            <div style={{ fontSize: 13, color: 'var(--ink)', background: 'var(--surface-2)', border: '1px solid var(--edge)', padding: '10px 14px', borderRadius: 10 }}>
               {error}
             </div>
           )}
@@ -183,7 +183,7 @@ export default function AllocationModal({ listing, onClose, onSaved }: Props) {
           <div style={{ display: 'flex', gap: 12, paddingTop: 4 }}>
             <button
               type="button" onClick={onClose}
-              style={{ flex: 1, padding: '11px 0', borderRadius: 9999, border: '1.5px solid #E5E7EB', background: 'transparent', color: '#6B7280', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+              style={{ flex: 1, padding: '11px 0', borderRadius: 9999, border: '1.5px solid var(--edge)', background: 'transparent', color: 'var(--ink-muted)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
             >
               Cancel
             </button>

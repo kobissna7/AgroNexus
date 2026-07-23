@@ -1,5 +1,7 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { useEffect } from 'react'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import Home from './pages/Home'
+import { track } from './lib/analytics'
 import './index.css'
 
 // Auth pages (Phase 1)
@@ -14,6 +16,8 @@ import FarmerListings from './pages/farmer/Listings'
 import FarmerOrders from './pages/farmer/Orders'
 import ConsumerBrowse from './pages/consumer/Browse'
 import ConsumerOrders from './pages/consumer/Orders'
+import Checkout from './pages/checkout/Checkout'
+import PaymentCallback from './pages/checkout/PaymentCallback'
 import TransporterFeed from './pages/transporter/Feed'
 import MarketDashboard from './pages/shared/Dashboard'
 import ForecastsPage from './pages/shared/Forecasts'
@@ -26,9 +30,19 @@ import NotFound from './pages/NotFound'
 
 import ProtectedRoute from './components/ProtectedRoute'
 
+/** Emits a page_view event on every route change. */
+function PageViewTracker() {
+  const location = useLocation()
+  useEffect(() => {
+    track('page_view', { metadata: { path: location.pathname } })
+  }, [location.pathname])
+  return null
+}
+
 export default function App() {
   return (
     <BrowserRouter>
+      <PageViewTracker />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -45,6 +59,8 @@ export default function App() {
         <Route element={<ProtectedRoute allowedRoles={['consumer', 'wholesaler', 'retailer', 'direct_consumer']} />}>
           <Route path="/consumer/browse" element={<ConsumerBrowse />} />
           <Route path="/consumer/orders" element={<ConsumerOrders />} />
+          <Route path="/checkout/:listingId" element={<Checkout />} />
+          <Route path="/payment/callback" element={<PaymentCallback />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['transporter']} />}>

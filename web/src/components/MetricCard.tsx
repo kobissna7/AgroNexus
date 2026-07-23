@@ -6,54 +6,32 @@ interface Props {
   sub?: string
   trend?: string
   icon: ReactNode
-  accent?: string
+  accent?: string // legacy prop, ignored — tokens drive color now
 }
 
-export default function MetricCard({ label, value, sub, trend, icon, accent = '#1A5C38' }: Props) {
+export default function MetricCard({ label, value, sub, trend, icon }: Props) {
   return (
-    <div className="card card-lift" style={{ padding: '20px', position: 'relative' }}>
-      {/* Background wrapper for clipping the glow without breaking parent borders */}
-      <div style={{ position: 'absolute', inset: 0, borderRadius: 'inherit', overflow: 'hidden', pointerEvents: 'none' }}>
-        {/* decorative glow */}
-        <div style={{
-          position: 'absolute', top: -40, right: -40,
-          width: 120, height: 120, borderRadius: '50%',
-          background: `radial-gradient(circle, ${accent}15 0%, transparent 70%)`,
-        }} />
-      </div>
-
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16, position: 'relative', zIndex: 1 }}>
+    <div className="card card-lift" style={{ padding: 20, position: 'relative' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
         <div style={{
           width: 44, height: 44, borderRadius: 12,
-          background: `linear-gradient(135deg, ${accent}15, ${accent}05)`,
-          border: `1px solid ${accent}25`,
+          background: 'var(--brand-soft)',
+          border: '1px solid var(--edge)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: accent === '#1A5C38' ? '#2E7D52' : accent === '#C9A84C' ? '#C9A84C' : '#3B82F6',
+          color: 'var(--brand-ink)',
           flexShrink: 0,
         }}>
           {icon}
         </div>
-        {trend && (
-          <span style={{
-            fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 9999,
-            background: 'rgba(52,211,153,0.12)', color: '#059669',
-            border: '1px solid rgba(52,211,153,0.2)',
-          }}>
-            {trend}
-          </span>
-        )}
+        {trend && <span className="badge badge-soft" style={{ fontSize: 11 }}>{trend}</span>}
       </div>
 
-      <div style={{ position: 'relative', zIndex: 1 }}>
-        <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#6B7280', marginBottom: 6 }}>
-          {label}
-        </p>
-        <p style={{ fontSize: '1.9rem', fontWeight: 800, color: '#111827', letterSpacing: '-0.03em', lineHeight: 1 }}>
+      <div>
+        <p className="stat-label" style={{ marginBottom: 6 }}>{label}</p>
+        <p style={{ fontSize: '1.9rem', fontWeight: 800, color: 'var(--ink-strong)', letterSpacing: '-0.03em', lineHeight: 1 }}>
           {value}
         </p>
-        {sub && (
-          <p style={{ fontSize: 12, color: '#6B7280', marginTop: 6 }}>{sub}</p>
-        )}
+        {sub && <p style={{ fontSize: 12, color: 'var(--ink-muted)', marginTop: 6 }}>{sub}</p>}
       </div>
     </div>
   )

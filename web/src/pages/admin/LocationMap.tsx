@@ -77,7 +77,7 @@ export default function LocationMap({ users }: Props) {
     markersRef.current = []
 
     for (const u of users) {
-      const color  = ROLE_COLOR[u.role] ?? '#6B7280'
+      const color  = ROLE_COLOR[u.role] ?? 'var(--ink-faint)'
       const volText = u.volume_kg > 0 ? `${u.volume_kg.toLocaleString()} kg` : 'No volume yet'
       const size = Math.max(28, Math.min(48, 28 + Math.sqrt(u.volume_kg / 10)))
 
@@ -92,7 +92,7 @@ export default function LocationMap({ users }: Props) {
         .bindPopup(`
           <div style="font-family:sans-serif;min-width:160px">
             <p style="font-weight:700;font-size:14px;margin:0 0 4px">${u.full_name}</p>
-            <p style="font-size:12px;color:#6B7280;margin:0 0 2px">${ROLE_LABEL[u.role] ?? u.role} · ${u.region}</p>
+            <p style="font-size:12px;color:rgba(0,0,0,0.55);margin:0 0 2px">${ROLE_LABEL[u.role] ?? u.role} · ${u.region}</p>
             <p style="font-size:12px;font-weight:600;color:${color};margin:0">${volText}</p>
           </div>
         `)
@@ -105,16 +105,16 @@ export default function LocationMap({ users }: Props) {
   if (users.length === 0) {
     return (
       <div style={{
-        height: 320, borderRadius: 16, border: '1.5px dashed #D1D5DB',
-        background: '#F9FAFB', display: 'flex', flexDirection: 'column',
+        height: 320, borderRadius: 16, border: '1.5px dashed var(--edge)',
+        background: 'var(--surface-2)', display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center', gap: 8,
       }}>
-        <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="#9CA3AF" strokeWidth={1.5}>
+        <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
           <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
         </svg>
-        <p style={{ fontSize: 14, color: '#9CA3AF', margin: 0 }}>No user locations shared yet</p>
-        <p style={{ fontSize: 12, color: '#D1D5DB', margin: 0 }}>Users can share their GPS when registering or from their profile</p>
+        <p style={{ fontSize: 14, color: 'var(--ink-faint)', margin: 0 }}>No user locations shared yet</p>
+        <p style={{ fontSize: 12, color: 'var(--ink-faint)', margin: 0 }}>Users can share their GPS when registering or from their profile</p>
       </div>
     )
   }
@@ -124,7 +124,7 @@ export default function LocationMap({ users }: Props) {
       ref={mapRef}
       style={{
         height: 400, borderRadius: 16, overflow: 'hidden',
-        border: '1px solid #E5E7EB',
+        border: '1px solid var(--edge)',
         boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
         zIndex: 0,
       }}

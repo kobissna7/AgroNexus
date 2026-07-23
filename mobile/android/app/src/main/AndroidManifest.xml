@@ -4,10 +4,12 @@
     <!-- Location: region is derived server-side from GPS at signup/login -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <!-- usesCleartextTraffic: the dev backend is plain HTTP on the LAN -->
     <application
         android:label="AgroNexus"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"

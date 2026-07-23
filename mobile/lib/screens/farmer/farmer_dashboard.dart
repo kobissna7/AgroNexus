@@ -121,7 +121,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                         Expanded(child: MetricCard(
                           label: 'Pending Orders', value: '$pendingOrders',
                           sub: '${_orders.length} total', icon: Icons.receipt_long_outlined,
-                          iconColor: AppColors.accentGold,
+                          iconColor: AppColors.brand,
                         )),
                       ]),
                       const SizedBox(height: 20),
@@ -132,7 +132,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                           children: [
                             const Text('7-Day Demand Forecast', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                             Text('${_forecasts.first.mapePct.toStringAsFixed(1)}% MAPE',
-                              style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                              style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
                           ],
                         ),
                         const SizedBox(height: 10),
@@ -164,7 +164,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                                     Text(AppConstants.cropIcons[fc.cropType] ?? '🌱', style: const TextStyle(fontSize: 20)),
                                     const SizedBox(height: 4),
                                     Text(fc.cropType, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
-                                    Text('${fc.weeklyPredW1.toInt()} kg/wk', style: const TextStyle(fontSize: 10, color: AppColors.textSecond)),
+                                    Text('${fc.weeklyPredW1.toInt()} kg/wk', style: TextStyle(fontSize: 10, color: AppColors.textSecond)),
                                     const Spacer(),
                                     Icon(tIcon, color: tColor, size: 18),
                                   ],
@@ -228,8 +228,8 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
             children: [
               Text(l.cropType, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
               Text('${l.quantityKg.toInt()} kg · GH₵ ${l.pricePerKg.toStringAsFixed(2)}/kg',
-                style: const TextStyle(color: AppColors.textSecond, fontSize: 12)),
-              Text(l.location, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                style: TextStyle(color: AppColors.textSecond, fontSize: 12)),
+              Text(l.location, style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
             ],
           ),
         ),
@@ -257,7 +257,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
               Text('${o.cropType ?? 'Order'} — ${o.quantityKg.toInt()} kg',
                 style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
               Text('GH₵ ${o.total.toStringAsFixed(2)}',
-                style: const TextStyle(color: AppColors.textSecond, fontSize: 12)),
+                style: TextStyle(color: AppColors.textSecond, fontSize: 12)),
             ],
           ),
         ),
@@ -268,6 +268,6 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
 
   Widget _empty(String msg) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 24),
-    child: Center(child: Text(msg, style: const TextStyle(color: AppColors.textMuted, fontSize: 13))),
+    child: Center(child: Text(msg, style: TextStyle(color: AppColors.textMuted, fontSize: 13))),
   );
 }

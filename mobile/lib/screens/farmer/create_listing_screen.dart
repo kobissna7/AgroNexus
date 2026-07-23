@@ -40,7 +40,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Listing created!'), backgroundColor: AppColors.brand),
+          SnackBar(content: Text('Listing created!'), backgroundColor: AppColors.brand),
         );
         context.pop();
       }
@@ -138,7 +138,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
               if (_error != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 12),
-                  child: Text(_error!, style: const TextStyle(color: AppColors.redText), textAlign: TextAlign.center),
+                  child: Text(_error!, style: TextStyle(color: AppColors.redText), textAlign: TextAlign.center),
                 ),
               const SizedBox(height: 24),
               ElevatedButton(

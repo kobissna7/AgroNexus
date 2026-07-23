@@ -42,6 +42,10 @@ ROLLING_WIN   = 4              # weeks rolling mean
 TRAIN_CUTOFF  = '2023-01-01'  # chronological 80/20 split
 
 
+# Behavioral features captured by the web tracker (site_events → interest_weekly)
+INTEREST_COLS = ['listing_views', 'searches', 'checkouts']
+
+
 # ─── 1. Load & merge ──────────────────────────────────────────────────────────
 
 def load_data() -> pd.DataFrame:
@@ -64,6 +68,20 @@ def load_data() -> pd.DataFrame:
         df = pd.concat([df, platform], ignore_index=True)
         df = df.drop_duplicates(subset=['date', 'crop_type', 'region'], keep='last')
         print(f"Blended {len(platform)} platform demand rows from {platform_path.name}")
+
+    # Behavioral interest signal exported from the interest_weekly view
+    # (backend: npm run export:interest). Left-merge as extra features;
+    # weeks with no tracked activity get zeros.
+    interest_path = DATA_DIR / 'platform_interest.csv'
+    if interest_path.exists():
+        interest = pd.read_csv(interest_path, parse_dates=['date'])
+        interest = interest[['date', 'crop_type', 'region'] + INTEREST_COLS]
+        df = pd.merge(df, interest, on=['date', 'crop_type', 'region'], how='left')
+        print(f"Merged {len(interest)} platform interest rows from {interest_path.name}")
+    for col in INTEREST_COLS:
+        if col not in df.columns:
+            df[col] = 0
+    df[INTEREST_COLS] = df[INTEREST_COLS].fillna(0)
 
     df = df.sort_values(['crop_type', 'region', 'date']).reset_index(drop=True)
     return df
@@ -113,6 +131,7 @@ FEATURE_COLS = [
     'month', 'week_of_year', 'year',
     'festival_flag',
     'crop_enc', 'region_enc',
+    *INTEREST_COLS,
 ]
 TARGET_COL = 'demand_kg'
 

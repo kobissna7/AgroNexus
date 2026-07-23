@@ -1,8 +1,9 @@
-// /home/ekko-7/AgroNexus/web/src/pages/Register.tsx
 import { useState, useEffect, FormEvent } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import api from '../lib/api'
+import AuthShell from '../components/AuthShell'
+import { postAuthDestination, safeNext } from '../lib/redirects'
 import type { AuthUser, UserRole } from '../types'
 
 const ROLES: { value: UserRole; label: string; desc: string }[] = [
@@ -13,9 +14,17 @@ const ROLES: { value: UserRole; label: string; desc: string }[] = [
   { value: 'transporter', label: 'Transporter', desc: 'Accept and deliver orders' },
 ]
 
+const BUYER_ROLES: UserRole[] = ['wholesaler', 'retailer', 'direct_consumer']
+
 export default function Register() {
   const { login } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const next = safeNext(searchParams.get('next'))
+  // A buyer intent (e.g. /checkout/…) means they came to buy — preselect nothing
+  // but highlight buyer roles first if they arrived mid-purchase.
+  const buyingIntent = !!next && next.startsWith('/checkout')
+
   const [form, setForm] = useState({
     email: '', password: '', full_name: '', role: '' as UserRole | '',
     phone: '',
@@ -59,14 +68,9 @@ export default function Register() {
       const payload = { ...form, ...(coords ? { location_lat: coords.lat, location_lng: coords.lng } : {}) }
       const { data } = await api.post<{ token: string; user: AuthUser }>('/api/v1/auth/register', payload)
       login(data.token, data.user)
-      const destinations: Record<string, string> = {
-        farmer: '/farmer/dashboard',
-        wholesaler: '/consumer/browse',
-        retailer: '/consumer/browse',
-        direct_consumer: '/consumer/browse',
-        transporter: '/transporter/feed',
-      }
-      navigate(destinations[data.user.role] ?? '/')
+      // Only follow a checkout intent for roles that can actually buy
+      const followNext = !buyingIntent || BUYER_ROLES.includes(data.user.role) ? next : null
+      navigate(postAuthDestination(data.user.role, followNext))
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: string } } }).response?.data?.error
       setError(msg ?? 'Registration failed. Please try again.')
@@ -75,338 +79,178 @@ export default function Register() {
     }
   }
 
-  const lightInputStyle: React.CSSProperties = {
-    width: '100%', padding: '0.75rem 1rem', borderRadius: '0.625rem',
-    border: '1.5px solid #D1D5DB',
-    backgroundColor: '#fff',
-    color: '#111827', fontSize: '0.875rem',
-    outline: 'none', boxSizing: 'border-box',
-    transition: 'border-color 0.15s, box-shadow 0.15s',
-  }
+  const roleOptions = buyingIntent
+    ? [...ROLES.filter(r => BUYER_ROLES.includes(r.value)), ...ROLES.filter(r => !BUYER_ROLES.includes(r.value))]
+    : ROLES
 
   return (
-    <>
-      <style>{`
-        .an-reg-input::placeholder { color: #9CA3AF; }
-        .an-reg-input:focus {
-          border-color: #1A5C38 !important;
-          box-shadow: 0 0 0 3px rgba(26,92,56,0.12) !important;
-        }
-        .an-reg-select option { background-color: #fff; color: #111827; }
-      `}</style>
-      <div style={{ minHeight: '100vh', display: 'flex', backgroundColor: '#F9FAFB' }}>
+    <AuthShell
+      headline={<>Grow with<br />the market.</>}
+      sub="Create a free account to buy fresh produce, sell your harvest, or deliver orders across the Western Region."
+    >
+      <div style={{ marginBottom: '1rem' }}>
+        <h2 style={{ fontSize: 'clamp(1.3rem, 2vw, 1.55rem)', fontWeight: 800, color: 'var(--ink-strong)', letterSpacing: '-0.03em' }}>Create your account</h2>
+        <p style={{ color: 'var(--ink-muted)', marginTop: 4, fontSize: 13 }}>
+          {buyingIntent ? 'One quick step and your order continues right where you left it' : 'Free to join — start in under a minute'}
+        </p>
+      </div>
 
-        {/* ── Left panel ── */}
-        <div
-          className="hidden lg:flex"
-          style={{
-            width: '50%',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            padding: '3rem',
-            background: 'linear-gradient(160deg, #F0FAF4 0%, #D6EFE1 50%, #E8F5EE 100%)',
-            borderRight: '1px solid #D6EFE1',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-        >
-          {/* Decorative radial glows */}
-          <div style={{
-            position: 'absolute', top: '-140px', right: '-140px',
-            width: '520px', height: '520px', borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(26,92,56,0.1) 0%, transparent 70%)',
-            pointerEvents: 'none',
-          }} />
-          <div style={{
-            position: 'absolute', bottom: '-80px', left: '-80px',
-            width: '380px', height: '380px', borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%)',
-            pointerEvents: 'none',
-          }} />
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        {/* Role selector */}
+        <div>
+          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ink-muted)', marginBottom: 8 }}>
+            I am a…
+          </label>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+            {roleOptions.map(({ value, label, desc }) => {
+              const isSelected = form.role === value
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setForm((f) => ({ ...f, role: value }))}
+                  style={{
+                    padding: '0.55rem 0.65rem',
+                    borderRadius: 12,
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    transition: 'all 0.18s',
+                    fontFamily: 'inherit',
+                    border: isSelected ? '1.5px solid var(--brand)' : '1.5px solid var(--edge)',
+                    background: isSelected ? 'var(--brand-soft)' : 'var(--surface)',
+                  }}
+                >
+                  <p style={{ fontSize: 13, fontWeight: 700, color: isSelected ? 'var(--brand-ink)' : 'var(--ink)', marginBottom: 3 }}>
+                    {label}
+                  </p>
+                  <p style={{ fontSize: 11, color: 'var(--ink-muted)', lineHeight: 1.4 }}>{desc}</p>
+                </button>
+              )
+            })}
+          </div>
+        </div>
 
-          {/* Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', position: 'relative', zIndex: 1 }}>
-            <div style={{
-              width: '2.5rem', height: '2.5rem', borderRadius: '50%',
-              background: 'linear-gradient(135deg, #2E7D52, #1A5C38)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 4px 16px rgba(26,92,56,0.35)',
-            }}>
-              <svg style={{ width: '1.25rem', height: '1.25rem' }} fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064" />
+        {/* two-up rows keep the whole form inside one viewport */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '0.75rem' }}>
+          <div>
+            <label htmlFor="full_name" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ink-muted)', marginBottom: 6 }}>
+              Full name
+            </label>
+            <input id="full_name" type="text" className="input-field" value={form.full_name} onChange={set('full_name')} required placeholder="Kwame Mensah" />
+          </div>
+          <div>
+            <label htmlFor="phone" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ink-muted)', marginBottom: 6 }}>
+              Phone
+            </label>
+            <input id="phone" type="tel" className="input-field" value={form.phone} onChange={set('phone')} placeholder="024 000 0000" />
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="reg_email" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ink-muted)', marginBottom: 6 }}>
+            Email address
+          </label>
+          <input id="reg_email" type="email" className="input-field" value={form.email} onChange={set('email')} required placeholder="you@example.com" />
+        </div>
+
+        <div>
+          <label htmlFor="reg_password" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ink-muted)', marginBottom: 6 }}>
+            Password
+          </label>
+          <div style={{ position: 'relative' }}>
+            <input
+              id="reg_password"
+              type={showPassword ? 'text' : 'password'}
+              className="input-field"
+              style={{ paddingRight: '2.75rem' }}
+              value={form.password}
+              onChange={set('password')}
+              required
+              minLength={6}
+              placeholder="At least 6 characters"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              style={{
+                position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+                background: 'none', border: 'none', cursor: 'pointer', padding: 4,
+                color: 'var(--ink-faint)', display: 'flex', alignItems: 'center',
+              }}
+            >
+              {showPassword ? (
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                </svg>
+              ) : (
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Location — detected automatically, region derived server-side */}
+        <div>
+          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ink-muted)', marginBottom: 6 }}>
+            Location <span style={{ color: 'var(--ink-faint)', fontWeight: 400 }}>— detected automatically</span>
+          </label>
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '0.625rem 0.875rem', borderRadius: 10,
+            background: coords ? 'var(--brand-soft)' : 'var(--surface-2)',
+            border: coords ? '1.5px solid var(--brand)' : '1.5px dashed var(--edge-strong)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ color: coords ? 'var(--brand-ink)' : 'var(--ink-faint)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
               </svg>
+              <span style={{ fontSize: 13, color: coords ? 'var(--brand-ink)' : 'var(--ink-muted)', fontWeight: coords ? 600 : 400 }}>
+                {coords
+                  ? `${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`
+                  : locLoading ? 'Detecting your location…' : 'Location not detected'}
+              </span>
             </div>
-            <span style={{ color: '#0D2B1F', fontWeight: 700, fontSize: '1.25rem', letterSpacing: '-0.01em' }}>AgroNexus</span>
+            {!coords && !locLoading && (
+              <button type="button" onClick={detectLocation} style={{ fontSize: 12, color: 'var(--brand-ink)', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+                Retry
+              </button>
+            )}
           </div>
-
-          {/* Copy block */}
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <p style={{
-              color: '#92621A', fontSize: '0.6875rem', fontWeight: 700,
-              textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: '1rem',
-            }}>
-              Join the Network
-            </p>
-            <h1 style={{ fontSize: '3.25rem', fontWeight: 800, color: '#0D2B1F', lineHeight: 1.1, marginBottom: '1.25rem' }}>
-              Join Ghana's{' '}
-              <span style={{ color: '#C9A84C' }}>smartest</span>
-              <br />agricultural network
-            </h1>
-            <p style={{ color: '#374151', fontSize: '0.9375rem', lineHeight: 1.65, maxWidth: '26rem' }}>
-              Reduce post-harvest losses, get fair prices, and connect with buyers and transporters in your region.
-            </p>
-          </div>
-
-          <p style={{ color: '#6B7280', fontSize: '0.75rem', position: 'relative', zIndex: 1 }}>
-            © 2026 AgroNexus. All rights reserved.
+          {locError && <p style={{ fontSize: 12, color: 'var(--ink)', fontWeight: 600, marginTop: 4 }}>{locError}</p>}
+          <p style={{ fontSize: 11, color: 'var(--ink-faint)', marginTop: 4 }}>
+            Your region is set automatically from your location to match you with nearby markets
           </p>
         </div>
 
-        {/* ── Right panel ── */}
-        <div style={{
-          flex: 1,
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'center',
-          padding: '2rem',
-          backgroundColor: '#fff',
-          overflowY: 'auto',
-        }}>
-          <div style={{ width: '100%', maxWidth: '26rem', paddingTop: '2rem', paddingBottom: '2rem' }}>
-            {/* Form card */}
-            <div style={{
-              background: '#fff',
-              border: '1px solid #E8EDEA',
-              borderRadius: '1.25rem',
-              padding: '2.5rem',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
-            }}>
-              {/* Mobile logo */}
-              <div className="flex lg:hidden" style={{ alignItems: 'center', gap: '0.5rem', marginBottom: '1.75rem' }}>
-                <div style={{
-                  width: '2rem', height: '2rem', borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #2E7D52, #1A5C38)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <svg style={{ width: '1rem', height: '1rem' }} fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064" />
-                  </svg>
-                </div>
-                <span style={{ color: '#111827', fontWeight: 700 }}>AgroNexus</span>
-              </div>
-
-              <div style={{ marginBottom: '2rem' }}>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#111827' }}>Create your account</h2>
-                <p style={{ color: '#6B7280', marginTop: '0.25rem', fontSize: '0.875rem' }}>
-                  Get started with AgroNexus today
-                </p>
-              </div>
-
-              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-
-                {/* Role selector */}
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: '#374151', marginBottom: '0.625rem' }}>
-                    I am a…
-                  </label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.625rem' }}>
-                    {ROLES.map(({ value, label, desc }) => {
-                      const isSelected = form.role === value
-                      return (
-                        <button
-                          key={value}
-                          type="button"
-                          onClick={() => setForm((f) => ({ ...f, role: value }))}
-                          style={{
-                            padding: '0.875rem 0.625rem',
-                            borderRadius: '0.75rem',
-                            textAlign: 'left',
-                            cursor: 'pointer',
-                            transition: 'all 0.18s',
-                            border: isSelected
-                              ? '1.5px solid #1A5C38'
-                              : '1.5px solid #E5E7EB',
-                            background: isSelected
-                              ? 'rgba(26,92,56,0.08)'
-                              : '#F9FAFB',
-                            boxShadow: isSelected
-                              ? '0 0 0 1px rgba(26,92,56,0.1)'
-                              : 'none',
-                          }}
-                        >
-                          <p style={{
-                            fontSize: '0.8125rem', fontWeight: 700,
-                            color: isSelected ? '#1A5C38' : '#374151',
-                            marginBottom: '0.25rem',
-                          }}>
-                            {label}
-                          </p>
-                          <p style={{ fontSize: '0.6875rem', color: '#6B7280' }}>{desc}</p>
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: '#374151', marginBottom: '0.375rem' }}>
-                    Full name
-                  </label>
-                  <input
-                    type="text"
-                    value={form.full_name}
-                    onChange={set('full_name')}
-                    required
-                    placeholder="Kwame Mensah"
-                    className="an-reg-input"
-                    style={lightInputStyle}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: '#374151', marginBottom: '0.375rem' }}>
-                    Email address
-                  </label>
-                  <input
-                    type="email"
-                    value={form.email}
-                    onChange={set('email')}
-                    required
-                    placeholder="you@example.com"
-                    className="an-reg-input"
-                    style={lightInputStyle}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: '#374151', marginBottom: '0.375rem' }}>
-                    Password
-                  </label>
-                  <div style={{ position: 'relative' }}>
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      value={form.password}
-                      onChange={set('password')}
-                      required
-                      minLength={6}
-                      placeholder="At least 6 characters"
-                      className="an-reg-input"
-                      style={{ ...lightInputStyle, padding: '0.75rem 2.75rem 0.75rem 1rem' }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((v) => !v)}
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
-                      style={{
-                        position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)',
-                        background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem',
-                        color: '#9CA3AF', display: 'flex', alignItems: 'center',
-                      }}
-                    >
-                      {showPassword ? (
-                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                        </svg>
-                      ) : (
-                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: '#374151', marginBottom: '0.375rem' }}>
-                    Phone
-                  </label>
-                  <input
-                    type="tel"
-                    value={form.phone}
-                    onChange={set('phone')}
-                    placeholder="024 000 0000"
-                    className="an-reg-input"
-                    style={lightInputStyle}
-                  />
-                </div>
-
-                {/* ── Location — detected automatically, region derived server-side ── */}
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: '#374151', marginBottom: '0.375rem' }}>
-                    Location <span style={{ color: '#9CA3AF', fontWeight: 400 }}>— detected automatically</span>
-                  </label>
-                  <div style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '0.625rem 0.875rem', borderRadius: '0.625rem',
-                    background: coords ? 'rgba(26,92,56,0.06)' : '#F9FAFB',
-                    border: coords ? '1.5px solid #1A5C38' : '1.5px dashed #D1D5DB',
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke={coords ? '#1A5C38' : '#9CA3AF'} strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                      </svg>
-                      <span style={{ fontSize: '0.8125rem', color: coords ? '#1A5C38' : '#6B7280', fontWeight: coords ? 600 : 400 }}>
-                        {coords
-                          ? `${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`
-                          : locLoading ? 'Detecting your location…' : 'Location not detected'}
-                      </span>
-                    </div>
-                    {!coords && !locLoading && (
-                      <button type="button" onClick={detectLocation} style={{ fontSize: '0.75rem', color: '#1A5C38', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer' }}>
-                        Retry
-                      </button>
-                    )}
-                  </div>
-                  {locError && (
-                    <p style={{ fontSize: '0.75rem', color: '#DC2626', marginTop: '0.375rem' }}>{locError}</p>
-                  )}
-                  <p style={{ fontSize: '0.6875rem', color: '#9CA3AF', marginTop: '0.375rem' }}>
-                    Your region is set automatically from your location to match you with nearby markets
-                  </p>
-                </div>
-
-                {error && (
-                  <div style={{
-                    fontSize: '0.875rem', color: '#DC2626',
-                    backgroundColor: '#FEF2F2',
-                    border: '1px solid #FCA5A5',
-                    padding: '0.75rem 1rem', borderRadius: '0.625rem',
-                  }}>
-                    {error}
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  style={{
-                    width: '100%', padding: '0.8125rem', borderRadius: '9999px',
-                    background: loading
-                      ? 'rgba(26,92,56,0.5)'
-                      : 'linear-gradient(135deg, #2E7D52, #1A5C38)',
-                    color: '#fff', fontSize: '0.875rem', fontWeight: 600,
-                    border: 'none', cursor: loading ? 'not-allowed' : 'pointer',
-                    boxShadow: loading ? 'none' : '0 4px 16px rgba(26,92,56,0.3)',
-                    transition: 'all 0.2s',
-                    opacity: loading ? 0.7 : 1,
-                  }}
-                >
-                  {loading ? 'Creating account…' : 'Create account'}
-                </button>
-              </form>
-
-              <p style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.875rem', color: '#6B7280' }}>
-                Already have an account?{' '}
-                <Link to="/login" style={{ color: '#1A5C38', fontWeight: 600, textDecoration: 'none' }}>
-                  Sign in
-                </Link>
-              </p>
-            </div>
+        {error && (
+          <div style={{
+            fontSize: 13, fontWeight: 600,
+            background: 'var(--invert-bg)', color: 'var(--invert-ink)',
+            padding: '0.75rem 1rem', borderRadius: 10,
+          }}>
+            {error}
           </div>
-        </div>
-      </div>
-    </>
+        )}
+
+        <button type="submit" disabled={loading} className="btn-primary" style={{ width: '100%', minHeight: 48, fontSize: 15 }}>
+          {loading ? 'Creating account…' : 'Create account'}
+        </button>
+      </form>
+
+      <p style={{ marginTop: '0.9rem', textAlign: 'center', fontSize: 14, color: 'var(--ink-muted)' }}>
+        Already have an account?{' '}
+        <Link
+          to={next ? `/login?next=${encodeURIComponent(next)}` : '/login'}
+          style={{ color: 'var(--brand-ink)', fontWeight: 700, textDecoration: 'none' }}
+        >
+          Sign in
+        </Link>
+      </p>
+    </AuthShell>
   )
 }

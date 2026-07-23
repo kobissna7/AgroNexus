@@ -21,16 +21,16 @@ interface LocationData { users: UserPin[]; regions: Record<string, RegionStat> }
 
 // Stat tile: ink number + colored accent dot — identity lives in the dot,
 // never in the number, so values stay readable.
-function StatTile({ label, value, accent = '#1A5C38', sub }: { label: string; value: number | string; accent?: string; sub?: string }) {
+function StatTile({ label, value, accent = 'var(--brand-ink)', sub }: { label: string; value: number | string; accent?: string; sub?: string }) {
   return (
     <div className="card card-lift" style={{ padding: '18px 20px', position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: 3, background: accent, opacity: 0.85 }} />
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
         <span style={{ width: 7, height: 7, borderRadius: '50%', background: accent, flexShrink: 0 }} />
-        <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#6B7280' }}>{label}</p>
+        <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--ink-muted)' }}>{label}</p>
       </div>
-      <p style={{ fontSize: '1.7rem', fontWeight: 800, color: '#111827', letterSpacing: '-0.03em', lineHeight: 1 }}>{value}</p>
-      {sub && <p style={{ fontSize: 11, color: '#9CA3AF', marginTop: 6 }}>{sub}</p>}
+      <p style={{ fontSize: '1.7rem', fontWeight: 800, color: 'var(--ink-strong)', letterSpacing: '-0.03em', lineHeight: 1 }}>{value}</p>
+      {sub && <p style={{ fontSize: 11, color: 'var(--ink-faint)', marginTop: 6 }}>{sub}</p>}
     </div>
   )
 }
@@ -38,14 +38,14 @@ function StatTile({ label, value, accent = '#1A5C38', sub }: { label: string; va
 function SectionHeader({ children }: { children: React.ReactNode }) {
   return (
     <h2 style={{
-      fontSize: '0.75rem', fontWeight: 700, color: '#4A7C5E',
+      fontSize: '0.75rem', fontWeight: 700, color: 'var(--ink-muted)',
       textTransform: 'uppercase', letterSpacing: '0.09em',
       marginBottom: '0.875rem',
       display: 'flex', alignItems: 'center', gap: '0.5rem',
     }}>
       <span style={{
         display: 'inline-block', width: '3px', height: '13px',
-        backgroundColor: '#C9A84C', borderRadius: '2px', flexShrink: 0,
+        backgroundColor: 'var(--brand)', borderRadius: '2px', flexShrink: 0,
       }} />
       {children}
     </h2>
@@ -54,13 +54,13 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
 
 // Status accents mirror the StatusBadge dot palette
 const STATUS_ACCENT = {
-  neutral:   '#6B7280',
-  good:      '#10B981',
-  warning:   '#F59E0B',
-  info:      '#3B82F6',
-  transit:   '#6366F1',
-  bad:       '#EF4444',
-  gold:      '#C9A84C',
+  neutral:   'var(--ink-faint)',
+  good:      'var(--chart-1)',
+  warning:   'var(--chart-2)',
+  info:      'var(--chart-3)',
+  transit:   'var(--chart-3)',
+  bad:       'var(--ink)',
+  gold:      'var(--chart-2)',
 } as const
 
 export default function AdminDashboard() {
@@ -82,25 +82,25 @@ export default function AdminDashboard() {
     <Layout>
       {/* Dark hero with revenue */}
       <div style={{
-        background: 'linear-gradient(135deg, #030B07 0%, #0D2B1F 60%, #071510 100%)',
+        background: 'linear-gradient(170deg, #000 0%, color-mix(in srgb, #0b2e14 55%, #000) 100%)',
         borderRadius: 20, padding: 32, marginBottom: 24,
-        border: '1px solid rgba(46,125,82,0.25)',
+        border: '1px solid var(--edge)',
         boxShadow: '0 4px 32px rgba(0,0,0,0.4)',
         position: 'relative', overflow: 'hidden',
       }}>
-        <div style={{ position: 'absolute', top: -60, right: -60, width: 220, height: 220, borderRadius: '50%', background: 'radial-gradient(circle, rgba(201,168,76,0.16) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: -60, right: -60, width: 220, height: 220, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap' }}>
           <div>
-            <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#4ADE80', marginBottom: 8 }}>Platform Administration</p>
-            <h1 style={{ fontSize: '1.7rem', fontWeight: 800, color: '#E8F0EB', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Admin Dashboard</h1>
-            <p style={{ fontSize: 14, color: '#4A6B58', marginTop: 6 }}>Platform-wide overview · Western Region, Ghana</p>
+            <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--brand-ink)', marginBottom: 8 }}>Platform Administration</p>
+            <h1 style={{ fontSize: '1.7rem', fontWeight: 800, color: 'var(--ink)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Admin Dashboard</h1>
+            <p style={{ fontSize: 14, color: 'var(--ink-faint)', marginTop: 6 }}>Platform-wide overview · Western Region, Ghana</p>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <p style={{ fontSize: 11, color: '#7BA892', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700, marginBottom: 8 }}>Total Platform Revenue</p>
-            <p style={{ fontSize: '2.6rem', fontWeight: 800, color: '#C9A84C', letterSpacing: '-0.03em', lineHeight: 1 }}>
+            <p style={{ fontSize: 11, color: 'var(--ink-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700, marginBottom: 8 }}>Total Platform Revenue</p>
+            <p style={{ fontSize: '2.6rem', fontWeight: 800, color: 'var(--brand-ink)', letterSpacing: '-0.03em', lineHeight: 1 }}>
               {loading || !stats ? '—' : <>GH₵ {stats.revenue_ghs.toLocaleString()}</>}
             </p>
-            <p style={{ fontSize: 11, color: '#4A6B58', marginTop: 6 }}>confirmed + in-transit + delivered orders</p>
+            <p style={{ fontSize: 11, color: 'var(--ink-faint)', marginTop: 6 }}>confirmed + in-transit + delivered orders</p>
           </div>
         </div>
       </div>
@@ -110,7 +110,7 @@ export default function AdminDashboard() {
           {[...Array(8)].map((_, i) => <div key={i} className="skeleton" style={{ height: 96, borderRadius: 16 }} />)}
         </div>
       ) : !stats ? (
-        <p style={{ color: '#991B1B' }}>Failed to load stats.</p>
+        <p style={{ color: 'var(--ink)' }}>Failed to load stats.</p>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
 
@@ -178,10 +178,10 @@ export default function AdminDashboard() {
                   ].map(({ color, label }) => (
                     <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       <div style={{ width: 10, height: 10, borderRadius: '50%', background: color }} />
-                      <span style={{ fontSize: 12, color: '#374151', fontWeight: 600 }}>{label}</span>
+                      <span style={{ fontSize: 12, color: 'var(--ink)', fontWeight: 600 }}>{label}</span>
                     </div>
                   ))}
-                  <span style={{ fontSize: 12, color: '#9CA3AF' }}>· Pin size = trade volume</span>
+                  <span style={{ fontSize: 12, color: 'var(--ink-faint)' }}>· Pin size = trade volume</span>
                 </div>
 
                 <LocationMap users={locData?.users ?? []} />
@@ -206,12 +206,12 @@ export default function AdminDashboard() {
                             .sort(([, a], [, b]) => b.volume_listed_kg - a.volume_listed_kg)
                             .map(([region, r]) => (
                               <tr key={region}>
-                                <td style={{ fontWeight: 600, color: '#111827' }}>{region}</td>
+                                <td style={{ fontWeight: 600, color: 'var(--ink-strong)' }}>{region}</td>
                                 <td>{r.farmers}</td>
                                 <td>{r.consumers}</td>
                                 <td>{r.transporters}</td>
-                                <td style={{ fontWeight: 700, color: '#111827' }}>{r.volume_listed_kg.toLocaleString()}</td>
-                                <td style={{ fontWeight: 700, color: '#111827' }}>{r.volume_ordered_kg.toLocaleString()}</td>
+                                <td style={{ fontWeight: 700, color: 'var(--ink-strong)' }}>{r.volume_listed_kg.toLocaleString()}</td>
+                                <td style={{ fontWeight: 700, color: 'var(--ink-strong)' }}>{r.volume_ordered_kg.toLocaleString()}</td>
                               </tr>
                             ))}
                         </tbody>
@@ -221,11 +221,11 @@ export default function AdminDashboard() {
                 )}
 
                 {/* ML forecast note */}
-                <div style={{ padding: '12px 16px', background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.2)', borderRadius: 12, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#C9A84C" strokeWidth={2} style={{ flexShrink: 0, marginTop: 1 }}>
+                <div style={{ padding: '12px 16px', background: 'var(--brand-soft)', border: '1px solid var(--edge)', borderRadius: 12, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--brand-ink)" strokeWidth={2} style={{ flexShrink: 0, marginTop: 1 }}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
-                  <p style={{ fontSize: 12, color: '#92621A', lineHeight: 1.6, margin: 0 }}>
+                  <p style={{ fontSize: 12, color: 'var(--brand-ink)', lineHeight: 1.6, margin: 0 }}>
                     Regional volume data is passed to the ML forecast service with each prediction request, helping the model learn which areas have higher demand. Pin size on the map is proportional to trade volume per user.
                   </p>
                 </div>

@@ -86,22 +86,22 @@ export default function MarketDashboard() {
     <Layout>
       {/* Dark hero */}
       <div style={{
-        background: 'linear-gradient(135deg, #030B07 0%, #0D2B1F 60%, #071510 100%)',
+        background: 'linear-gradient(170deg, #000 0%, color-mix(in srgb, #0b2e14 55%, #000) 100%)',
         borderRadius: 20, padding: 32, marginBottom: 24,
-        border: '1px solid rgba(46,125,82,0.25)',
+        border: '1px solid var(--edge)',
         boxShadow: '0 4px 32px rgba(0,0,0,0.4)',
         position: 'relative', overflow: 'hidden',
       }}>
-        <div style={{ position: 'absolute', top: -60, right: -60, width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(201,168,76,0.14) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: -60, right: -60, width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
           <div>
-            <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#4ADE80', marginBottom: 8 }}>Market Intelligence</p>
-            <h1 style={{ fontSize: '1.7rem', fontWeight: 800, color: '#E8F0EB', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Market Dashboard</h1>
-            <p style={{ fontSize: 14, color: '#4A6B58', marginTop: 6 }}>Real-time prices and regional supply · Western Region, Ghana</p>
+            <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--brand-ink)', marginBottom: 8 }}>Market Intelligence</p>
+            <h1 style={{ fontSize: '1.7rem', fontWeight: 800, color: 'var(--ink)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Market Dashboard</h1>
+            <p style={{ fontSize: 14, color: 'var(--ink-faint)', marginTop: 6 }}>Real-time prices and regional supply · Western Region, Ghana</p>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 14px', borderRadius: 9999, background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.25)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 14px', borderRadius: 9999, background: 'var(--brand-soft)', border: '1px solid var(--edge)' }}>
             <span className="live-dot" />
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#34D399', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Live</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--brand-ink)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Live</span>
           </div>
         </div>
       </div>
@@ -109,7 +109,7 @@ export default function MarketDashboard() {
       {/* Metric cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 24 }}>
         <MetricCard label="Crops Tracked" value={cropsTracked} sub="Western Region markets" icon={<LeafIcon />} />
-        <MetricCard label="Active Supply" value={`${totalListings.toLocaleString()}kg`} sub="available across listings" icon={<BoxIcon />} accent="#C9A84C" />
+        <MetricCard label="Active Supply" value={`${totalListings.toLocaleString()}kg`} sub="available across listings" icon={<BoxIcon />} />
         <MetricCard label="Orders Today" value={todayOrders} sub="Platform-wide" icon={<OrderIcon />} />
       </div>
 
@@ -118,8 +118,8 @@ export default function MarketDashboard() {
         <div className="card" style={{ padding: 24 }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16, gap: 12, flexWrap: 'wrap' }}>
             <div>
-              <h2 style={{ fontWeight: 700, fontSize: 15, color: '#111827' }}>Price Trends</h2>
-              <p style={{ fontSize: 12, color: '#6B8A7A', marginTop: 3 }}>GH₵ per kg · last 30 days</p>
+              <h2 style={{ fontWeight: 700, fontSize: 15, color: 'var(--ink-strong)' }}>Price Trends</h2>
+              <p style={{ fontSize: 12, color: 'var(--ink-muted)', marginTop: 3 }}>GH₵ per kg · last 30 days</p>
             </div>
             <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
               {prices.map((p) => (
@@ -130,9 +130,9 @@ export default function MarketDashboard() {
                     fontSize: 11, padding: '4px 10px', borderRadius: 9999,
                     display: 'inline-flex', alignItems: 'center', gap: 4,
                     textTransform: 'capitalize', transition: 'all 0.15s',
-                    background: activeCrop === p.crop_type ? '#0D2B1F' : '#F3F4F6',
+                    background: activeCrop === p.crop_type ? 'var(--brand)' : 'var(--surface-2)',
                     color: activeCrop === p.crop_type ? '#fff' : '#6B7280',
-                    border: activeCrop === p.crop_type ? '1px solid rgba(46,125,82,0.4)' : '1px solid transparent',
+                    border: activeCrop === p.crop_type ? '1px solid var(--edge)' : '1px solid transparent',
                     cursor: 'pointer', fontWeight: 600,
                   }}
                 >
@@ -142,7 +142,7 @@ export default function MarketDashboard() {
             </div>
           </div>
           {loading ? (
-            <div style={{ height: 220, background: '#F3F4F6', borderRadius: 12 }} />
+            <div style={{ height: 220, background: 'var(--surface-2)', borderRadius: 12 }} />
           ) : (
             <ResponsiveContainer width="100%" height={220}>
               <AreaChart data={priceChartData}>
@@ -155,7 +155,7 @@ export default function MarketDashboard() {
                   contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} itemStyle={tooltipItemStyle}
                   cursor={tooltipCursor}
                 />
-                <Area type="monotone" dataKey="price" stroke={CHART.gold} strokeWidth={2} fill="url(#priceGold)" dot={false} activeDot={{ r: 4, strokeWidth: 2, stroke: '#fff' }} />
+                <Area type="monotone" dataKey="price" stroke={CHART.gold} strokeWidth={2} fill="url(#priceGold)" dot={false} activeDot={{ r: 4, strokeWidth: 2, stroke: 'var(--surface)' }} />
               </AreaChart>
             </ResponsiveContainer>
           )}
@@ -163,25 +163,25 @@ export default function MarketDashboard() {
 
         {/* Activity feed */}
         <div className="card" style={{ padding: 24 }}>
-          <h2 style={{ fontWeight: 700, fontSize: 15, color: '#111827', marginBottom: 16 }}>Recent Activity</h2>
+          <h2 style={{ fontWeight: 700, fontSize: 15, color: 'var(--ink-strong)', marginBottom: 16 }}>Recent Activity</h2>
           {loading ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {[1,2,3,4].map(i => <div key={i} style={{ height: 48, background: '#F3F4F6', borderRadius: 10 }} />)}
+              {[1,2,3,4].map(i => <div key={i} style={{ height: 48, background: 'var(--surface-2)', borderRadius: 10 }} />)}
             </div>
           ) : activity.length === 0 ? (
-            <p style={{ fontSize: 13, color: '#6B8A7A', textAlign: 'center', padding: '32px 0' }}>No activity yet</p>
+            <p style={{ fontSize: 13, color: 'var(--ink-muted)', textAlign: 'center', padding: '32px 0' }}>No activity yet</p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: 260, overflowY: 'auto' }}>
               {activity.map((a) => (
-                <div key={a.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid rgba(46,125,82,0.06)' }}>
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#F0FAF4', border: '1px solid #D6EFE1', color: '#1A5C38', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <div key={a.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid var(--edge)' }}>
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--surface-2)', border: '1px solid var(--edge)', color: 'var(--brand-ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <CropIcon type={a.produce_listings?.crop_type ?? ''} className="w-5 h-5" />
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: 13, fontWeight: 600, color: '#111827', textTransform: 'capitalize', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink-strong)', textTransform: 'capitalize', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {a.produce_listings?.crop_type ?? 'Order'} — {a.quantity_kg} kg
                     </p>
-                    <p style={{ fontSize: 11, color: '#6B8A7A' }}>{a.produce_listings?.location} · {new Date(a.created_at).toLocaleDateString()}</p>
+                    <p style={{ fontSize: 11, color: 'var(--ink-muted)' }}>{a.produce_listings?.location} · {new Date(a.created_at).toLocaleDateString()}</p>
                   </div>
                   <StatusBadge status={a.status} />
                 </div>
@@ -193,12 +193,12 @@ export default function MarketDashboard() {
 
       {/* Supply bar chart */}
       <div className="card" style={{ padding: 24, marginBottom: 24 }}>
-        <h2 style={{ fontWeight: 700, fontSize: 15, color: '#111827' }}>Active Supply by Crop</h2>
-        <p style={{ fontSize: 12, color: '#6B8A7A', marginTop: 3, marginBottom: 16 }}>Total kg available across active listings</p>
+        <h2 style={{ fontWeight: 700, fontSize: 15, color: 'var(--ink-strong)' }}>Active Supply by Crop</h2>
+        <p style={{ fontSize: 12, color: 'var(--ink-muted)', marginTop: 3, marginBottom: 16 }}>Total kg available across active listings</p>
         {loading ? (
-          <div style={{ height: 192, background: '#F3F4F6', borderRadius: 12 }} />
+          <div style={{ height: 192, background: 'var(--surface-2)', borderRadius: 12 }} />
         ) : supply.length === 0 ? (
-          <p style={{ fontSize: 13, color: '#6B8A7A', textAlign: 'center', padding: '32px 0' }}>No active listings yet</p>
+          <p style={{ fontSize: 13, color: 'var(--ink-muted)', textAlign: 'center', padding: '32px 0' }}>No active listings yet</p>
         ) : (
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={supply} barSize={36}>
@@ -219,9 +219,9 @@ export default function MarketDashboard() {
       {/* Demand forecast cards */}
       <div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <h2 style={{ fontWeight: 700, fontSize: 15, color: '#111827' }}>7-Day Demand Forecast</h2>
+          <h2 style={{ fontWeight: 700, fontSize: 15, color: 'var(--ink-strong)' }}>7-Day Demand Forecast</h2>
           {forecasts.length > 0 && (
-            <span style={{ fontSize: 12, color: '#6B8A7A' }}>
+            <span style={{ fontSize: 12, color: 'var(--ink-muted)' }}>
               {forecasts[0]?.mape_pct?.toFixed(1)}% MAPE
             </span>
           )}
@@ -232,19 +232,19 @@ export default function MarketDashboard() {
             : cropForecasts.map(({ crop_type, current_price, trend, weeklyKg }) => {
                 const arrow  = trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→'
                 const tStyle = trend === 'up'
-                  ? { bg: 'rgba(26,92,56,0.1)', text: '#1A5C38' }
+                  ? { bg: 'var(--brand-soft)', text: 'var(--brand-ink)' }
                   : trend === 'down'
-                  ? { bg: 'rgba(220,38,38,0.08)', text: '#DC2626' }
-                  : { bg: 'rgba(201,168,76,0.12)', text: '#C9A84C' }
+                  ? { bg: 'var(--surface-2)', text: 'var(--ink)' }
+                  : { bg: 'var(--surface-2)', text: 'var(--ink-muted)' }
                 return (
                   <div key={crop_type} className="card" style={{ padding: 16, textAlign: 'center' }}>
-                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8, color: '#1A5C38' }}>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8, color: 'var(--brand-ink)' }}>
                       <CropIcon type={crop_type} className="w-7 h-7" />
                     </div>
-                    <p style={{ fontSize: 12, fontWeight: 700, color: '#111827', textTransform: 'capitalize' }}>{crop_type}</p>
-                    <p style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>GH₵ {current_price.toFixed(2)}/kg</p>
+                    <p style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink-strong)', textTransform: 'capitalize' }}>{crop_type}</p>
+                    <p style={{ fontSize: 11, color: 'var(--ink-muted)', marginTop: 2 }}>GH₵ {current_price.toFixed(2)}/kg</p>
                     {weeklyKg !== null && (
-                      <p style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{Math.round(weeklyKg)} kg/wk</p>
+                      <p style={{ fontSize: 11, color: 'var(--ink-muted)', marginTop: 2 }}>{Math.round(weeklyKg)} kg/wk</p>
                     )}
                     <span style={{
                       display: 'inline-flex', alignItems: 'center', gap: 3, marginTop: 8,
@@ -265,8 +265,8 @@ export default function MarketDashboard() {
         <div style={{ marginTop: 32 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
             <div>
-              <h2 style={{ fontWeight: 700, fontSize: 15, color: '#111827' }}>National Price Benchmarks</h2>
-              <p style={{ fontSize: 12, color: '#6B7280', marginTop: 3 }}>
+              <h2 style={{ fontWeight: 700, fontSize: 15, color: 'var(--ink-strong)' }}>National Price Benchmarks</h2>
+              <p style={{ fontSize: 12, color: 'var(--ink-muted)', marginTop: 3 }}>
                 Source: {moaData.source} · Updated {moaData.lastUpdated}
               </p>
             </div>
@@ -280,9 +280,9 @@ export default function MarketDashboard() {
                     fontSize: 11, padding: '4px 10px', borderRadius: 9999,
                     display: 'inline-flex', alignItems: 'center', gap: 4,
                     textTransform: 'capitalize', transition: 'all 0.15s', cursor: 'pointer',
-                    background: activeMoaCrop === c ? '#0D2B1F' : '#F3F4F6',
+                    background: activeMoaCrop === c ? 'var(--brand)' : 'var(--surface-2)',
                     color: activeMoaCrop === c ? '#fff' : '#6B7280',
-                    border: activeMoaCrop === c ? '1px solid rgba(46,125,82,0.4)' : '1px solid transparent',
+                    border: activeMoaCrop === c ? '1px solid var(--edge)' : '1px solid transparent',
                     fontWeight: 600,
                   }}
                 >
@@ -304,13 +304,13 @@ export default function MarketDashboard() {
                 <div className="card" style={{ padding: 20 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                     <div>
-                      <p style={{ fontSize: 13, fontWeight: 700, color: '#111827', textTransform: 'capitalize' }}>{activeMoaCrop} — National Avg</p>
-                      <p style={{ fontSize: 22, fontWeight: 900, color: '#111827', letterSpacing: '-0.03em', lineHeight: 1.1 }}>GH₵ {crop.national_avg.toFixed(2)}<span style={{ fontSize: 13, fontWeight: 400, color: '#6B7280' }}>/kg</span></p>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-strong)', textTransform: 'capitalize' }}>{activeMoaCrop} — National Avg</p>
+                      <p style={{ fontSize: 22, fontWeight: 900, color: 'var(--ink-strong)', letterSpacing: '-0.03em', lineHeight: 1.1 }}>GH₵ {crop.national_avg.toFixed(2)}<span style={{ fontSize: 13, fontWeight: 400, color: 'var(--ink-muted)' }}>/kg</span></p>
                     </div>
                     <span style={{
                       fontSize: 12, fontWeight: 700, padding: '4px 12px', borderRadius: 9999,
-                      background: trendPositive ? 'rgba(26,92,56,0.1)' : 'rgba(220,38,38,0.08)',
-                      color: trendPositive ? '#1A5C38' : '#DC2626',
+                      background: trendPositive ? 'rgba(11,46,20,0.30)' : 'rgba(220,38,38,0.08)',
+                      color: trendPositive ? 'var(--brand-ink)' : 'var(--ink)',
                     }}>
                       {trendPositive ? '↑' : '↓'} {Math.abs(crop.trend_pct)}% (Jul–Oct)
                     </span>
@@ -325,14 +325,14 @@ export default function MarketDashboard() {
                         contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} itemStyle={tooltipItemStyle}
                         cursor={tooltipCursor}
                       />
-                      <Line type="monotone" dataKey="avg" stroke={CHART.green} strokeWidth={2} strokeDasharray="6 4" dot={false} activeDot={{ r: 4, strokeWidth: 2, stroke: '#fff' }} />
+                      <Line type="monotone" dataKey="avg" stroke={CHART.green} strokeWidth={2} strokeDasharray="6 4" dot={false} activeDot={{ r: 4, strokeWidth: 2, stroke: 'var(--surface)' }} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
 
                 {/* Regional breakdown */}
                 <div className="card" style={{ padding: 20 }}>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: '#111827', marginBottom: 14 }}>Price by Region (Oct 2025)</p>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-strong)', marginBottom: 14 }}>Price by Region (Oct 2025)</p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 220, overflowY: 'auto' }}>
                     {sortedRegions.map(([region, price], i) => {
                       const maxPrice = sortedRegions[0][1]
@@ -340,11 +340,11 @@ export default function MarketDashboard() {
                       return (
                         <div key={region}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                            <span style={{ fontSize: 12, color: '#374151', fontWeight: i === 0 ? 700 : 400 }}>{region}</span>
-                            <span style={{ fontSize: 12, fontWeight: 700, color: i === 0 ? '#1A5C38' : '#374151' }}>GH₵ {price.toFixed(2)}</span>
+                            <span style={{ fontSize: 12, color: 'var(--ink)', fontWeight: i === 0 ? 700 : 400 }}>{region}</span>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: i === 0 ? 'var(--brand-ink)' : 'var(--ink)' }}>GH₵ {price.toFixed(2)}</span>
                           </div>
-                          <div style={{ height: 5, background: '#F3F4F6', borderRadius: 9999, overflow: 'hidden' }}>
-                            <div style={{ height: '100%', width: `${barW}%`, background: i === 0 ? '#1A5C38' : '#D6EFE1', borderRadius: 9999, transition: 'width 0.4s' }} />
+                          <div style={{ height: 5, background: 'var(--surface-2)', borderRadius: 9999, overflow: 'hidden' }}>
+                            <div style={{ height: '100%', width: `${barW}%`, background: i === 0 ? 'var(--chart-1)' : 'var(--surface-2)', borderRadius: 9999, transition: 'width 0.4s' }} />
                           </div>
                         </div>
                       )

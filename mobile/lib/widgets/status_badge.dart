@@ -23,7 +23,7 @@ class StatusBadge extends StatelessWidget {
     'pending' || 'sold' || 'accepted'      => (AppColors.amberBg, AppColors.amberText),
     'cancelled' || 'expired'               => (AppColors.redBg,   AppColors.redText),
     'in_transit'                            => (AppColors.blueBg,  AppColors.blueText),
-    'open'                                  => (AppColors.redBg,   AppColors.redText),
+    'open'                                  => (AppColors.amberBg, AppColors.amberText),
     _                                       => (AppColors.brandLight, AppColors.brand),
   };
 }

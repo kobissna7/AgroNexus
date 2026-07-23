@@ -39,3 +39,7 @@ pnpm-debug.log*
 
 # OS
 Thumbs.db
+
+# Local junk
+*.deb
+Pasted image.png

@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useRealtimeChannel } from '../hooks/useRealtimeChannel'
 import LiveToast, { showToast } from './LiveToast'
+import ThemeToggle from './ThemeToggle'
 import { CartIcon, TruckIcon as TruckToastIcon, PackageIcon } from './icons'
 import api from '../lib/api'
 
@@ -16,8 +17,8 @@ const farmerNav: NavItem[] = [
   { label: 'Forecasts',   to: '/forecasts',        icon: <ForecastIcon /> },
 ]
 const consumerNav: NavItem[] = [
-  { label: 'Browse',    to: '/consumer/browse', icon: <BrowseIcon /> },
-  { label: 'My Orders', to: '/consumer/orders', icon: <OrderIcon /> },
+  { label: 'Marketplace', to: '/consumer/browse', icon: <BrowseIcon /> },
+  { label: 'My Orders',   to: '/consumer/orders', icon: <OrderIcon /> },
 ]
 const transporterNav: NavItem[] = [
   { label: 'Feed',       to: '/transporter/feed',       icon: <HomeIcon /> },
@@ -40,6 +41,17 @@ const navByRole: Record<string, NavItem[]> = {
 }
 
 const BUYER_ROLES = ['consumer', 'wholesaler', 'retailer', 'direct_consumer']
+
+/* Sidebar is permanently dark (brand green over black) in both themes;
+   only the topbar + content area follow the light/dark tokens. */
+const SIDEBAR = {
+  bg: 'linear-gradient(180deg, color-mix(in srgb, #0b2e14 55%, #000) 0%, color-mix(in srgb, #0b2e14 30%, #000) 100%)',
+  edge: 'rgba(255,255,255,0.08)',
+  ink: 'rgba(255,255,255,0.92)',
+  muted: 'rgba(255,255,255,0.45)',
+  active: 'rgba(255,255,255,0.12)',
+  hover: 'rgba(255,255,255,0.06)',
+}
 
 export default function Layout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth()
@@ -88,7 +100,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   useRealtimeChannel(`orders:consumer-${consumerId}`, 'status_update', (p) => {
     if (!consumerId) return
-    const msg = `Your ${p.crop_type} order is now ${String(p.status).replace('_', ' ')}`
+    const msg = `Your ${p.crop_type} order is now ${String(p.status).replace(/_/g, ' ')}`
     showToast(msg, <PackageIcon className="w-5 h-5" />)
     setUnread(u => u + 1)
     setNotifications(prev => [{ id: Date.now().toString(), message: msg, read: false, created_at: new Date().toISOString() }, ...prev])
@@ -107,29 +119,23 @@ export default function Layout({ children }: { children: ReactNode }) {
   const initials = user?.full_name?.[0]?.toUpperCase() ?? '?'
 
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: '#fff' }}>
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: 'var(--canvas)' }}>
       {/* ── Sidebar ──────────────────────────────────────── */}
       <aside style={{
         width: collapsed ? 64 : 220,
         transition: 'width 0.22s cubic-bezier(0.4,0,0.2,1)',
         flexShrink: 0,
         display: 'flex', flexDirection: 'column',
-        background: 'linear-gradient(180deg, #030B07 0%, #050F08 100%)',
-        borderRight: '1px solid rgba(46,125,82,0.12)',
+        background: SIDEBAR.bg,
+        borderRight: `1px solid ${SIDEBAR.edge}`,
         position: 'relative',
         overflow: 'hidden',
       }}>
-        {/* subtle glow strip */}
-        <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, height: 2,
-          background: 'linear-gradient(90deg, transparent, #1A5C38, transparent)',
-        }} />
-
         {/* Logo */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: 10,
           padding: collapsed ? '20px 14px' : '20px 16px',
-          borderBottom: '1px solid rgba(46,125,82,0.1)',
+          borderBottom: `1px solid ${SIDEBAR.edge}`,
           overflow: 'hidden',
         }}>
           <div style={{ width: 34, height: 34, borderRadius: 9, flexShrink: 0, overflow: 'hidden', background: '#fff', boxShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
@@ -137,8 +143,8 @@ export default function Layout({ children }: { children: ReactNode }) {
           </div>
           {!collapsed && (
             <div style={{ overflow: 'hidden' }}>
-              <p style={{ color: '#E8F0EB', fontWeight: 700, fontSize: 14, letterSpacing: '-0.2px', lineHeight: '1.2' }}>AgroNexus</p>
-              <p style={{ color: '#4A6B58', fontSize: 10, fontWeight: 500, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Platform</p>
+              <p style={{ color: SIDEBAR.ink, fontWeight: 700, fontSize: 14, letterSpacing: '-0.2px', lineHeight: '1.2' }}>AgroNexus</p>
+              <p style={{ color: SIDEBAR.muted, fontSize: 10, fontWeight: 500, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Platform</p>
             </div>
           )}
         </div>
@@ -150,10 +156,10 @@ export default function Layout({ children }: { children: ReactNode }) {
               display: 'inline-block', fontSize: 10, fontWeight: 700,
               textTransform: 'uppercase', letterSpacing: '0.08em',
               padding: '3px 10px', borderRadius: 9999,
-              background: 'rgba(46,125,82,0.18)', color: '#4ADE80',
-              border: '1px solid rgba(46,125,82,0.3)',
+              background: SIDEBAR.active, color: SIDEBAR.ink,
+              border: `1px solid ${SIDEBAR.edge}`,
             }}>
-              {user.role}
+              {user.role.replace(/_/g, ' ')}
             </span>
           </div>
         )}
@@ -171,25 +177,22 @@ export default function Layout({ children }: { children: ReactNode }) {
                 textDecoration: 'none',
                 fontSize: 13, fontWeight: 500,
                 transition: 'all 0.15s',
-                color: isActive ? '#E8F0EB' : '#4A6B58',
-                background: isActive
-                  ? 'linear-gradient(135deg, rgba(46,125,82,0.35), rgba(26,92,56,0.25))'
-                  : 'transparent',
-                border: isActive ? '1px solid rgba(46,125,82,0.3)' : '1px solid transparent',
-                boxShadow: isActive ? '0 2px 10px rgba(26,92,56,0.25)' : 'none',
+                color: isActive ? SIDEBAR.ink : SIDEBAR.muted,
+                background: isActive ? SIDEBAR.active : 'transparent',
+                border: isActive ? `1px solid ${SIDEBAR.edge}` : '1px solid transparent',
               })}
               onMouseEnter={e => {
                 const el = e.currentTarget
-                if (!el.style.background.includes('46,125,82,0.35')) {
-                  el.style.background = 'rgba(46,125,82,0.1)'
-                  el.style.color = '#7BA892'
+                if (el.style.background !== SIDEBAR.active) {
+                  el.style.background = SIDEBAR.hover
+                  el.style.color = SIDEBAR.ink
                 }
               }}
               onMouseLeave={e => {
                 const el = e.currentTarget
-                if (!el.style.background.includes('46,125,82,0.35')) {
-                  el.style.background = 'transparent'
-                  el.style.color = '#4A6B58'
+                if (el.style.background !== SIDEBAR.active) {
+                  el.style.background = el.getAttribute('aria-current') === 'page' ? SIDEBAR.active : 'transparent'
+                  el.style.color = el.getAttribute('aria-current') === 'page' ? SIDEBAR.ink : SIDEBAR.muted
                 }
               }}
             >
@@ -200,16 +203,16 @@ export default function Layout({ children }: { children: ReactNode }) {
         </nav>
 
         {/* User + logout */}
-        <div style={{ padding: '10px', borderTop: '1px solid rgba(46,125,82,0.1)' }}>
+        <div style={{ padding: '10px', borderTop: `1px solid ${SIDEBAR.edge}` }}>
           {!collapsed && (
             <div style={{
               padding: '10px 10px 8px',
-              background: 'rgba(255,255,255,0.03)',
+              background: SIDEBAR.hover,
               borderRadius: 10, marginBottom: 6,
-              border: '1px solid rgba(46,125,82,0.1)',
+              border: `1px solid ${SIDEBAR.edge}`,
             }}>
-              <p style={{ color: '#E8F0EB', fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.full_name}</p>
-              <p style={{ color: '#4A6B58', fontSize: 10, marginTop: 2 }}>{user?.email?.slice(0, 22)}{(user?.email?.length ?? 0) > 22 ? '…' : ''}</p>
+              <p style={{ color: SIDEBAR.ink, fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.full_name}</p>
+              <p style={{ color: SIDEBAR.muted, fontSize: 10, marginTop: 2 }}>{user?.email?.slice(0, 22)}{(user?.email?.length ?? 0) > 22 ? '…' : ''}</p>
             </div>
           )}
           <button
@@ -219,11 +222,11 @@ export default function Layout({ children }: { children: ReactNode }) {
               padding: collapsed ? '9px 13px' : '9px 10px',
               borderRadius: 9, width: '100%',
               background: 'transparent', border: 'none', cursor: 'pointer',
-              color: '#4A6B58', fontSize: 12, fontWeight: 500,
+              color: SIDEBAR.muted, fontSize: 12, fontWeight: 500,
               transition: 'all 0.15s',
             }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(248,113,113,0.1)'; e.currentTarget.style.color = '#F87171' }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#4A6B58' }}
+            onMouseEnter={e => { e.currentTarget.style.background = SIDEBAR.hover; e.currentTarget.style.color = SIDEBAR.ink }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = SIDEBAR.muted }}
           >
             <LogoutIcon />
             {!collapsed && <span>Sign out</span>}
@@ -237,73 +240,67 @@ export default function Layout({ children }: { children: ReactNode }) {
         <header style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '0 24px', height: 60, flexShrink: 0,
-          background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)',
-          borderBottom: '1px solid #E8EDEA',
+          background: 'var(--surface)',
+          borderBottom: '1px solid var(--edge)',
           position: 'relative', zIndex: 40,
         }}>
           {/* Collapse toggle */}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            style={{
-              padding: '8px', borderRadius: 8, background: 'transparent',
-              border: 'none', cursor: 'pointer', color: '#7BA892',
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(46,125,82,0.1)'; e.currentTarget.style.color = '#1A5C38' }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#7BA892' }}
+            className="btn-ghost"
+            style={{ minHeight: 36, padding: '0 8px' }}
+            aria-label="Toggle sidebar"
           >
             <MenuIcon />
           </button>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <ThemeToggle />
+
             {/* Bell */}
             <div ref={bellRef} style={{ position: 'relative' }}>
               <button
                 onClick={handleBellClick}
-                style={{
-                  position: 'relative', padding: 8, borderRadius: 9, background: 'transparent',
-                  border: 'none', cursor: 'pointer', color: '#7BA892', transition: 'all 0.15s',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(46,125,82,0.1)'; e.currentTarget.style.color = '#1A5C38' }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#7BA892' }}
+                className="btn-ghost"
+                style={{ minHeight: 36, padding: '0 8px', position: 'relative' }}
+                aria-label="Notifications"
               >
                 <BellIcon />
                 {unread > 0 && (
                   <span style={{
-                    position: 'absolute', top: 4, right: 4,
+                    position: 'absolute', top: 2, right: 2,
                     width: 16, height: 16, borderRadius: '50%',
-                    background: 'linear-gradient(135deg,#2E7D52,#1A5C38)',
-                    color: '#fff', fontSize: 9, fontWeight: 700,
+                    background: 'var(--brand)',
+                    color: 'var(--on-brand)', fontSize: 9, fontWeight: 700,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    boxShadow: '0 0 0 2px #fff',
+                    boxShadow: '0 0 0 2px var(--surface)',
                   }}>
                     {unread > 9 ? '9+' : unread}
                   </span>
                 )}
               </button>
               {showBell && (
-                <div style={{
+                <div className="card" style={{
                   position: 'absolute', right: 0, top: 'calc(100% + 8px)',
-                  width: 320, background: '#fff', borderRadius: 14,
-                  border: '1px solid rgba(46,125,82,0.12)',
-                  boxShadow: '0 8px 32px rgba(13,43,31,0.15)', zIndex: 50, overflow: 'hidden',
+                  width: 320, borderRadius: 14, zIndex: 50, overflow: 'hidden',
+                  boxShadow: 'var(--shadow-pop)',
                 }}>
-                  <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(46,125,82,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <p style={{ fontWeight: 700, fontSize: 13, color: '#111827' }}>Notifications</p>
+                  <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--edge)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <p style={{ fontWeight: 700, fontSize: 13, color: 'var(--ink-strong)' }}>Notifications</p>
                     {unread === 0 && <span className="live-dot" />}
                   </div>
                   <div style={{ maxHeight: 280, overflowY: 'auto' }}>
                     {notifications.length === 0 ? (
-                      <p style={{ fontSize: 13, color: '#9CA3AF', textAlign: 'center', padding: '24px 16px' }}>No notifications yet</p>
+                      <p style={{ fontSize: 13, color: 'var(--ink-faint)', textAlign: 'center', padding: '24px 16px' }}>No notifications yet</p>
                     ) : (
                       notifications.slice(0, 10).map((n) => (
                         <div key={n.id} style={{
                           padding: '12px 16px',
-                          borderBottom: '1px solid rgba(46,125,82,0.06)',
-                          background: n.read ? '#fff' : 'rgba(26,92,56,0.04)',
+                          borderBottom: '1px solid var(--edge)',
+                          background: n.read ? 'transparent' : 'var(--brand-soft)',
                         }}>
-                          <p style={{ fontSize: 13, color: '#111827' }}>{n.message}</p>
-                          <p style={{ fontSize: 11, color: '#9CA3AF', marginTop: 3 }}>{new Date(n.created_at).toLocaleString()}</p>
+                          <p style={{ fontSize: 13, color: 'var(--ink)' }}>{n.message}</p>
+                          <p style={{ fontSize: 11, color: 'var(--ink-faint)', marginTop: 3 }}>{new Date(n.created_at).toLocaleString()}</p>
                         </div>
                       ))
                     )}
@@ -313,27 +310,26 @@ export default function Layout({ children }: { children: ReactNode }) {
             </div>
 
             {/* User avatar + info */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 4 }}>
               <div style={{
                 width: 34, height: 34, borderRadius: '50%',
-                background: 'linear-gradient(135deg, #2E7D52, #1A5C38)',
-                color: '#fff', fontWeight: 700, fontSize: 13,
+                background: 'var(--brand)',
+                color: 'var(--on-brand)', fontWeight: 700, fontSize: 13,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 2px 8px rgba(26,92,56,0.3)',
                 flexShrink: 0,
               }}>
                 {initials}
               </div>
               <div style={{ display: 'none' }} className="sm:block" >
-                <p style={{ fontSize: 13, fontWeight: 600, color: '#111827', lineHeight: '1.3' }}>{user?.full_name}</p>
-                <p style={{ fontSize: 11, color: '#7BA892', textTransform: 'capitalize' }}>{user?.role}</p>
+                <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink-strong)', lineHeight: '1.3' }}>{user?.full_name}</p>
+                <p style={{ fontSize: 11, color: 'var(--ink-muted)', textTransform: 'capitalize' }}>{user?.role?.replace(/_/g, ' ')}</p>
               </div>
             </div>
           </div>
         </header>
 
         {/* Page content */}
-        <main style={{ flex: 1, overflowY: 'auto', padding: 28, background: '#F9FAFB' }}>
+        <main style={{ flex: 1, overflowY: 'auto', padding: 28, background: 'var(--canvas-soft)' }}>
           <div style={{ maxWidth: 1240, margin: '0 auto' }}>
             {children}
           </div>

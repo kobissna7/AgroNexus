@@ -7,7 +7,8 @@ plugins {
 android {
     namespace = "com.example.agronexus"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    // ndkVersion intentionally unset: no plugin ships native code, and without
+    // the pin AGP skips the ~6GB NDK (only used here to strip libflutter.so)
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

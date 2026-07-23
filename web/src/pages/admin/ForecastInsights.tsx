@@ -30,14 +30,14 @@ function SectionHeader({ children, sub }: { children: React.ReactNode; sub?: str
   return (
     <div style={{ marginBottom: '0.875rem' }}>
       <h2 style={{
-        fontSize: '0.75rem', fontWeight: 700, color: '#4A7C5E',
+        fontSize: '0.75rem', fontWeight: 700, color: 'var(--ink-muted)',
         textTransform: 'uppercase', letterSpacing: '0.09em',
         display: 'flex', alignItems: 'center', gap: '0.5rem',
       }}>
-        <span style={{ display: 'inline-block', width: 3, height: 13, backgroundColor: '#C9A84C', borderRadius: 2, flexShrink: 0 }} />
+        <span style={{ display: 'inline-block', width: 3, height: 13, backgroundColor: 'var(--brand)', borderRadius: 2, flexShrink: 0 }} />
         {children}
       </h2>
-      {sub && <p style={{ fontSize: 12, color: '#6B8A7A', marginTop: 4 }}>{sub}</p>}
+      {sub && <p style={{ fontSize: 12, color: 'var(--ink-muted)', marginTop: 4 }}>{sub}</p>}
     </div>
   )
 }
@@ -46,7 +46,7 @@ function LegendChips({ items }: { items: { c: string; l: string }[] }) {
   return (
     <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
       {items.map(({ c, l }) => (
-        <span key={l} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#374151', fontWeight: 600 }}>
+        <span key={l} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--ink)', fontWeight: 600 }}>
           <span style={{ width: 10, height: 10, borderRadius: 3, background: c, flexShrink: 0 }} /> {l}
         </span>
       ))}
@@ -142,16 +142,16 @@ export default function ForecastInsights() {
     <Layout>
       {/* Dark hero */}
       <div style={{
-        background: 'linear-gradient(135deg, #030B07 0%, #0D2B1F 60%, #071510 100%)',
+        background: 'linear-gradient(170deg, #000 0%, color-mix(in srgb, #0b2e14 55%, #000) 100%)',
         borderRadius: 20, padding: 32, marginBottom: 24,
-        border: '1px solid rgba(46,125,82,0.25)',
+        border: '1px solid var(--edge)',
         boxShadow: '0 4px 32px rgba(0,0,0,0.4)',
         position: 'relative', overflow: 'hidden',
       }}>
-        <div style={{ position: 'absolute', top: -60, right: -60, width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(201,168,76,0.14) 0%, transparent 70%)', pointerEvents: 'none' }} />
-        <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#4ADE80', marginBottom: 8 }}>Admin · ML Forecasting</p>
-        <h1 style={{ fontSize: '1.7rem', fontWeight: 800, color: '#E8F0EB', letterSpacing: '-0.02em' }}>Forecast Insights</h1>
-        <p style={{ fontSize: 14, color: '#4A6B58', marginTop: 6 }}>
+        <div style={{ position: 'absolute', top: -60, right: -60, width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--brand-ink)', marginBottom: 8 }}>Admin · ML Forecasting</p>
+        <h1 style={{ fontSize: '1.7rem', fontWeight: 800, color: 'var(--ink)', letterSpacing: '-0.02em' }}>Forecast Insights</h1>
+        <p style={{ fontSize: 14, color: 'var(--ink-faint)', marginTop: 6 }}>
           Cross-region demand analytics · next 14 days · all tracked crops
         </p>
       </div>
@@ -165,8 +165,8 @@ export default function ForecastInsights() {
         </div>
       ) : forecasts.length === 0 ? (
         <div className="card" style={{ padding: 32, textAlign: 'center' }}>
-          <p style={{ fontWeight: 700, color: '#111827', marginBottom: 6 }}>No forecast data available</p>
-          <p style={{ fontSize: 13, color: '#6B8A7A' }}>
+          <p style={{ fontWeight: 700, color: 'var(--ink-strong)', marginBottom: 6 }}>No forecast data available</p>
+          <p style={{ fontSize: 13, color: 'var(--ink-muted)' }}>
             The ML service (port 5000) may be down — check <code>/api/v1/forecasts/health</code>.
           </p>
         </div>
@@ -178,21 +178,21 @@ export default function ForecastInsights() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
               <MetricCard
                 label="Week-1 Demand" value={fmtKg(totalW1)}
-                sub="all crops · all regions" icon={<ScaleIcon />} accent="#1A5C38"
+                sub="all crops · all regions" icon={<ScaleIcon />}
               />
               <MetricCard
                 label="Week-2 Outlook" value={fmtKg(totalW2)}
                 sub={`${deltaPct >= 0 ? '+' : ''}${deltaPct.toFixed(1)}% vs week 1`}
-                icon={<TrendIcon />} accent="#C9A84C"
+                icon={<TrendIcon />}
               />
               <MetricCard
                 label="Peak Day" value={peakDay?.label ?? '—'}
                 sub={peakDay ? `${peakDay.total.toLocaleString()} kg across regions` : undefined}
-                icon={<CalendarIcon />} accent="#2563EB"
+                icon={<CalendarIcon />}
               />
               <MetricCard
                 label="Model Accuracy" value={mape != null ? `${mape.toFixed(1)}%` : '—'}
-                sub="MAPE · lower is better" icon={<ChipIcon />} accent="#1A5C38"
+                sub="MAPE · lower is better" icon={<ChipIcon />}
               />
             </div>
           </section>
@@ -220,7 +220,7 @@ export default function ForecastInsights() {
                     <Line
                       key={r} type="monotone" dataKey={r}
                       stroke={REGION_COLORS[r]} strokeWidth={2} strokeLinecap="round"
-                      dot={false} activeDot={{ r: 4.5, stroke: '#fff', strokeWidth: 2 }}
+                      dot={false} activeDot={{ r: 4.5, stroke: 'var(--surface)', strokeWidth: 2 }}
                     />
                   ))}
                 </LineChart>
@@ -263,7 +263,7 @@ export default function ForecastInsights() {
               </SectionHeader>
               <div className="card" style={{ padding: 24 }}>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
-                  <LegendChips items={[{ c: '#A8842F', l: 'Forecast demand' }, { c: '#2E7D52', l: 'Listed supply' }]} />
+                  <LegendChips items={[{ c: 'var(--chart-2)', l: 'Forecast demand' }, { c: 'var(--chart-1)', l: 'Listed supply' }]} />
                 </div>
                 <ResponsiveContainer width="100%" height={240}>
                   <BarChart data={demandVsSupply} barSize={22} barGap={2} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
@@ -275,13 +275,13 @@ export default function ForecastInsights() {
                       contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} itemStyle={tooltipItemStyle}
                       cursor={barCursor}
                     />
-                    <Bar dataKey="demand" fill="#A8842F" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="supply" fill="#2E7D52" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="demand" fill="var(--chart-2)" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="supply" fill="var(--brand-ink)" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
                 {worstCoverage && (
-                  <div style={{ marginTop: 14, padding: '10px 14px', background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.2)', borderRadius: 10 }}>
-                    <p style={{ fontSize: 12, color: '#92621A', margin: 0 }}>
+                  <div style={{ marginTop: 14, padding: '10px 14px', background: 'var(--brand-soft)', border: '1px solid var(--edge)', borderRadius: 10 }}>
+                    <p style={{ fontSize: 12, color: 'var(--brand-ink)', margin: 0 }}>
                       ⚠ {worstCoverage.region}: listed supply covers only{' '}
                       <strong>{Math.round(worstCoverage.coverage * 100)}%</strong> of next week's forecast demand.
                     </p>
@@ -307,7 +307,7 @@ export default function ForecastInsights() {
                       tickFormatter={(v) => `${v > 0 ? '+' : ''}${v}%`}
                     />
                     <YAxis type="category" dataKey="crop" tick={axisTick} tickLine={false} axisLine={false} width={64} />
-                    <ReferenceLine x={0} stroke="#D1D5DB" />
+                    <ReferenceLine x={0} stroke="var(--chart-grid)" />
                     <Tooltip
                       formatter={(v) => [`${Number(v) > 0 ? '+' : ''}${Number(v)}%`, 'w2 vs w1']}
                       contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} itemStyle={tooltipItemStyle}
@@ -347,14 +347,14 @@ export default function ForecastInsights() {
                     {tableRows.map(({ crop, cells, total }) => (
                       <tr key={crop}>
                         <td>
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontWeight: 600, color: '#111827', textTransform: 'capitalize' }}>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontWeight: 600, color: 'var(--ink-strong)', textTransform: 'capitalize' }}>
                             <CropIcon type={crop} className="w-4 h-4" />{crop}
                           </span>
                         </td>
                         {cells.map((v, i) => (
                           <td key={i} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{v.toLocaleString()}</td>
                         ))}
-                        <td style={{ textAlign: 'right', fontWeight: 700, color: '#111827', fontVariantNumeric: 'tabular-nums' }}>{total.toLocaleString()}</td>
+                        <td style={{ textAlign: 'right', fontWeight: 700, color: 'var(--ink-strong)', fontVariantNumeric: 'tabular-nums' }}>{total.toLocaleString()}</td>
                       </tr>
                     ))}
                   </tbody>

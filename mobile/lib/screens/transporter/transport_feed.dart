@@ -58,12 +58,12 @@ class _TransportFeedScreenState extends State<TransportFeedScreen>
     try {
       await ApiService.acceptRequest(req.id);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Request accepted!'), backgroundColor: AppColors.brand),
+        SnackBar(content: Text('Request accepted!'), backgroundColor: AppColors.brand),
       );
       await _load();
     } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to accept'), backgroundColor: AppColors.redText),
+        SnackBar(content: Text('Failed to accept'), backgroundColor: AppColors.redText),
       );
     }
   }
@@ -78,7 +78,7 @@ class _TransportFeedScreenState extends State<TransportFeedScreen>
       await _load();
     } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Update failed'), backgroundColor: AppColors.redText),
+        SnackBar(content: Text('Update failed'), backgroundColor: AppColors.redText),
       );
     }
   }
@@ -130,7 +130,7 @@ class _TransportFeedScreenState extends State<TransportFeedScreen>
                   controller: _tabs,
                   labelColor: Colors.white,
                   unselectedLabelColor: const Color(0xFF4A7C5E),
-                  indicatorColor: AppColors.accentGold,
+                  indicatorColor: Colors.white,
                   tabs: [
                     Tab(text: 'Open (${open.length})'),
                     Tab(text: 'Active (${active.length})'),
@@ -152,7 +152,7 @@ class _TransportFeedScreenState extends State<TransportFeedScreen>
               Expanded(child: MetricCard(
                 label: 'Completed', value: '${done.length}',
                 sub: 'deliveries', icon: Icons.check_circle_outline,
-                iconColor: AppColors.accentGold,
+                iconColor: AppColors.brand,
               )),
             ]),
           ),
@@ -176,7 +176,7 @@ class _TransportFeedScreenState extends State<TransportFeedScreen>
     if (items.isEmpty) {
       return Center(child: Text(
         isOpen ? 'No open requests right now' : 'No active deliveries',
-        style: const TextStyle(color: AppColors.textMuted),
+        style: TextStyle(color: AppColors.textMuted),
       ));
     }
     return RefreshIndicator(
@@ -211,8 +211,8 @@ class _TransportFeedScreenState extends State<TransportFeedScreen>
                   children: [
                     Text('${req.cropType} — ${req.quantityKg.toInt()} kg',
                       style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                    Text('From: ${req.pickupLocation}', style: const TextStyle(color: AppColors.textSecond, fontSize: 12)),
-                    Text('To: ${req.deliveryLocation}', style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                    Text('From: ${req.pickupLocation}', style: TextStyle(color: AppColors.textSecond, fontSize: 12)),
+                    Text('To: ${req.deliveryLocation}', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
                   ],
                 ),
               ),
@@ -236,7 +236,7 @@ class _TransportFeedScreenState extends State<TransportFeedScreen>
                     onPressed: () => _updateStatus(req, 'in_transit'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.brand,
-                      side: const BorderSide(color: AppColors.brand),
+                      side: BorderSide(color: AppColors.brand),
                       shape: const StadiumBorder(),
                     ),
                     child: const Text('Mark In Transit'),
@@ -246,7 +246,7 @@ class _TransportFeedScreenState extends State<TransportFeedScreen>
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () => _updateStatus(req, 'delivered'),
-                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.accentGold),
+                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.brand),
                     child: const Text('Mark Delivered'),
                   ),
                 ),

@@ -39,22 +39,22 @@ export default function FarmerOrders() {
       {/* Page header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#2E7D52', marginBottom: 4 }}>Incoming</p>
-          <h1 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#111827', letterSpacing: '-0.02em' }}>Orders Received</h1>
-          <p style={{ fontSize: 14, color: '#6B8A7A', marginTop: 4 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--brand-ink)', marginBottom: 4 }}>Incoming</p>
+          <h1 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--ink-strong)', letterSpacing: '-0.02em' }}>Orders Received</h1>
+          <p style={{ fontSize: 14, color: 'var(--ink-muted)', marginTop: 4 }}>
             {orders.length} orders &middot; GH₵ {revenue.toFixed(2)} confirmed revenue
           </p>
         </div>
         <button
           onClick={fetchOrders}
-          style={{ padding: '10px 18px', fontSize: 13, borderRadius: 9999, border: '1px solid #D1E0D8', background: 'transparent', color: '#2E7D52', cursor: 'pointer', fontWeight: 600 }}
+          style={{ padding: '10px 18px', fontSize: 13, borderRadius: 9999, border: '1px solid var(--edge)', background: 'transparent', color: 'var(--brand-ink)', cursor: 'pointer', fontWeight: 600 }}
         >
           Refresh
         </button>
       </div>
 
       {error && (
-        <div style={{ background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.25)', borderRadius: 12, padding: '12px 16px', marginBottom: 16, fontSize: 13, color: '#F87171' }}>
+        <div style={{ background: 'var(--surface-2)', border: '1px solid var(--edge-strong)', borderRadius: 12, padding: '12px 16px', marginBottom: 16, fontSize: 13, color: 'var(--ink)' }}>
           {error}
         </div>
       )}
@@ -62,23 +62,23 @@ export default function FarmerOrders() {
       {/* Metric cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 24 }}>
         <MetricCard label="Total Orders" value={orders.length} sub="All time" icon={<TotalIcon />} />
-        <MetricCard label="Pending" value={orders.filter(o => o.status === 'pending').length} sub="Awaiting action" icon={<PendingIcon />} accent="#C9A84C" />
-        <MetricCard label="In Transit" value={orders.filter(o => o.status === 'in_transit').length} sub="Being delivered" icon={<TransitIcon />} accent="#60A5FA" />
+        <MetricCard label="Pending" value={orders.filter(o => o.status === 'pending').length} sub="Awaiting action" icon={<PendingIcon />} />
+        <MetricCard label="In Transit" value={orders.filter(o => o.status === 'in_transit').length} sub="Being delivered" icon={<TransitIcon />} />
         <MetricCard label="Delivered" value={orders.filter(o => o.status === 'delivered').length} sub="Completed" icon={<DoneIcon />} />
       </div>
 
       <div className="card" style={{ padding: 24 }}>
         {loading ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {[1,2,3,4].map(i => <div key={i} style={{ height: 48, background: '#F3F4F6', borderRadius: 10 }} />)}
+            {[1,2,3,4].map(i => <div key={i} style={{ height: 48, background: 'var(--surface-2)', borderRadius: 10 }} />)}
           </div>
         ) : orders.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '64px 24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16, color: '#D1D5DB' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16, color: 'var(--ink-faint)' }}>
               <ClipboardIcon className="w-14 h-14" />
             </div>
-            <p style={{ fontWeight: 600, color: '#374151' }}>No orders yet</p>
-            <p style={{ fontSize: 13, color: '#6B8A7A', marginTop: 6 }}>Orders from consumers will appear here</p>
+            <p style={{ fontWeight: 600, color: 'var(--ink)' }}>No orders yet</p>
+            <p style={{ fontSize: 13, color: 'var(--ink-muted)', marginTop: 6 }}>Orders from consumers will appear here</p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -86,21 +86,21 @@ export default function FarmerOrders() {
               const crop = o.produce_listings?.crop_type ?? 'Order'
               const total = o.quantity_kg * (o.produce_listings?.price_per_kg ?? 0)
               return (
-                <div key={o.id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderBottom: '1px solid rgba(46,125,82,0.07)' }}>
+                <div key={o.id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderBottom: '1px solid var(--edge)' }}>
                   <div style={{
                     width: 38, height: 38, borderRadius: '50%', flexShrink: 0,
-                    background: 'rgba(26,92,56,0.22)', color: '#4ADE80',
+                    background: 'var(--brand-soft)', color: 'var(--brand-ink)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
                     <CropIcon type={crop} className="w-5 h-5" />
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: 14, fontWeight: 600, color: '#111827', textTransform: 'capitalize' }}>{crop}</p>
-                    <p style={{ fontSize: 12, color: '#6B8A7A', marginTop: 2 }}>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink-strong)', textTransform: 'capitalize' }}>{crop}</p>
+                    <p style={{ fontSize: 12, color: 'var(--ink-muted)', marginTop: 2 }}>
                       {o.quantity_kg} kg &middot; GH₵ {total.toFixed(2)}
                       {o.produce_listings?.location && ` · ${o.produce_listings.location}`}
                     </p>
-                    <p style={{ fontSize: 11, color: '#6B8A7A', marginTop: 1 }}>{new Date(o.created_at).toLocaleString()}</p>
+                    <p style={{ fontSize: 11, color: 'var(--ink-muted)', marginTop: 1 }}>{new Date(o.created_at).toLocaleString()}</p>
                   </div>
                   <StatusBadge status={o.status} />
                 </div>

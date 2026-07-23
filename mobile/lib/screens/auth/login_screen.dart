@@ -79,11 +79,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Text('Sign in', style: TextStyle(
+                      Text('Sign in', style: TextStyle(
                         fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.textPrimary,
                       )),
                       const SizedBox(height: 4),
-                      const Text('Enter your credentials to continue', style: TextStyle(
+                      Text('Enter your credentials to continue', style: TextStyle(
                         color: AppColors.textSecond, fontSize: 13,
                       )),
                       const SizedBox(height: 24),
@@ -115,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ? Padding(
                               padding: const EdgeInsets.only(top: 12),
                               child: Text(auth.error!,
-                                style: const TextStyle(color: AppColors.redText, fontSize: 13),
+                                style: TextStyle(color: AppColors.redText, fontSize: 13),
                                 textAlign: TextAlign.center,
                               ),
                             )

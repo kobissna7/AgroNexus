@@ -1,0 +1,15 @@
+{
+  "name": "agronexus",
+  "private": true,
+  "description": "One-command dev runner for the AgroNexus stack",
+  "scripts": {
+    "dev": "concurrently -n backend,web -c green,cyan \"npm run dev --prefix backend\" \"npm run dev --prefix web\"",
+    "dev:ml": "cd ml && venv/bin/python app.py",
+    "dev:all": "concurrently -n backend,web,ml -c green,cyan,yellow \"npm run dev --prefix backend\" \"npm run dev --prefix web\" \"npm run dev:ml\"",
+    "build": "npm run build --prefix backend && npm run build --prefix web",
+    "test": "npm test --prefix backend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

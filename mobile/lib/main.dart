@@ -58,7 +58,7 @@ class _AgroNexusAppState extends State<AgroNexusApp> {
                   color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold,
                 )),
                 const SizedBox(height: 32),
-                const CircularProgressIndicator(color: AppColors.accentGold),
+                const CircularProgressIndicator(color: Colors.white),
               ],
             ),
           ),
@@ -77,7 +77,9 @@ class _AgroNexusAppState extends State<AgroNexusApp> {
         return MaterialApp.router(
           title: 'AgroNexus',
           debugShowCheckedModeBanner: false,
-          theme: buildTheme(),
+          theme: buildTheme(Brightness.light),
+          darkTheme: buildTheme(Brightness.dark),
+          themeMode: ThemeMode.system,
           routerConfig: router,
         );
       },

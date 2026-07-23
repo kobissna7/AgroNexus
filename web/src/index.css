@@ -1,223 +1,409 @@
 @import "tailwindcss";
 
-@theme {
-  --color-brand-dark:    #0D2B1F;
-  --color-brand:         #1A5C38;
-  --color-brand-mid:     #2E7D52;
-  --color-brand-light:   #D6EFE1;
-  --color-brand-pale:    #F0FAF4;
-  --color-accent-gold:   #C9A84C;
-  --color-sidebar-bg:    #030B07;
-  --color-sidebar-icon:  #4A7C5E;
-  --color-sidebar-hover: #0D2B1F;
-  --color-sidebar-text:  #7BA892;
-  --border-radius-2xl: 1rem;
-  --border-radius-3xl: 1.5rem;
-  --shadow-card: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
-  --shadow-card-dark: 0 4px 24px rgba(0,0,0,0.35), 0 0 0 1px rgba(46,125,82,0.2);
+/* ═══════════════════════════════════════════════════════════════════════════
+   AgroNexus design system — strict 3-color palette:
+     #0b2e14 (brand green) · #000000 · #ffffff
+   Every color on the site is one of these three or a tint/alpha mix of them.
+   Theme follows the device (prefers-color-scheme) unless the user overrides
+   it via <html data-theme="light|dark"> (persisted in localStorage).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Fonts ──────────────────────────────────────────────────────────────────
+   'Paralucent' files are not shipped yet: the @font-face below 404s silently
+   and the stack falls through to the vendored Mulish variable font. Drop
+   licensed Paralucent woff2s into /public/fonts to activate — no code change. */
+@font-face {
+  font-family: 'Paralucent';
+  src: url('/fonts/Paralucent-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Mulish';
+  src: url('/fonts/Mulish-Variable.woff2') format('woff2');
+  font-weight: 200 1000;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Mulish';
+  src: url('/fonts/Mulish-Italic-Variable.woff2') format('woff2');
+  font-weight: 200 1000;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ── Semantic tokens ───────────────────────────────────────────────────────── */
+:root {
+  --green: #0b2e14;
+
+  /* light theme (default) */
+  --canvas:       #ffffff;
+  --canvas-soft:  color-mix(in srgb, var(--green) 3%, #ffffff);
+  --surface:      #ffffff;
+  --surface-2:    color-mix(in srgb, var(--green) 6%, #ffffff);
+  --ink:          rgba(0, 0, 0, 0.92);
+  --ink-strong:   #000000;
+  --ink-muted:    rgba(0, 0, 0, 0.60);
+  --ink-faint:    rgba(0, 0, 0, 0.40);
+  --brand:        var(--green);
+  --brand-hover:  color-mix(in srgb, var(--green) 82%, #000000);
+  --brand-soft:   rgba(11, 46, 20, 0.08);
+  --brand-ink:    var(--green);          /* brand-colored text/icons */
+  --on-brand:     #ffffff;
+  --edge:         rgba(0, 0, 0, 0.10);
+  --edge-strong:  rgba(0, 0, 0, 0.22);
+  --ring:         rgba(11, 46, 20, 0.55);
+  --overlay:      rgba(0, 0, 0, 0.45);
+  --shadow-card:  0 1px 3px rgba(0, 0, 0, 0.06), 0 6px 24px rgba(11, 46, 20, 0.06);
+  --shadow-pop:   0 12px 40px rgba(11, 46, 20, 0.14);
+  --invert-bg:    #000000;               /* attention surfaces (errors, toasts) */
+  --invert-ink:   #ffffff;
+  --band:         var(--green);          /* alternating .section-brand background */
+
+  /* chart series — single-green lightness ramp, validated vs white surface.
+     Chroma is inherently low (3-color brand): series identity always ships
+     with legend + dash/texture secondary encoding, never color alone. */
+  --chart-1:      #234430;
+  --chart-2:      #5c7463;
+  --chart-3:      #7e9083;
+  --chart-grid:   rgba(0, 0, 0, 0.07);
+  --chart-cursor: rgba(11, 46, 20, 0.18);
+  color-scheme: light;
+}
+
+/* dark values, applied when the OS is dark and the user hasn't forced light.
+   Dark mode is GREEN-dominant, not black: the canvas is brand green and
+   black appears only in mixes/shadows. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --canvas:       var(--green);
+    --canvas-soft:  color-mix(in srgb, #000000 26%, var(--green));
+    --surface:      color-mix(in srgb, #ffffff 8%, var(--green));
+    --surface-2:    color-mix(in srgb, #ffffff 15%, var(--green));
+    --ink:          rgba(255, 255, 255, 0.94);
+    --ink-strong:   #ffffff;
+    --ink-muted:    rgba(255, 255, 255, 0.68);
+    --ink-faint:    rgba(255, 255, 255, 0.42);
+    --brand:        #ffffff;             /* Karma-style: white pill CTAs on green */
+    --brand-hover:  color-mix(in srgb, #ffffff 85%, var(--green));
+    --brand-soft:   rgba(255, 255, 255, 0.12);
+    --brand-ink:    color-mix(in srgb, var(--green) 20%, #ffffff);
+    --on-brand:     var(--green);
+    --edge:         rgba(255, 255, 255, 0.14);
+    --edge-strong:  rgba(255, 255, 255, 0.30);
+    --ring:         rgba(255, 255, 255, 0.55);
+    --overlay:      rgba(0, 0, 0, 0.65);
+    --shadow-card:  0 1px 3px rgba(0, 0, 0, 0.5), 0 8px 30px rgba(0, 0, 0, 0.35);
+    --shadow-pop:   0 16px 48px rgba(0, 0, 0, 0.6);
+    --invert-bg:    #ffffff;
+    --invert-ink:   #000000;
+    --band:         color-mix(in srgb, #000000 45%, var(--green));
+    --chart-1:      #c3cdc6;
+    --chart-2:      #8b9c90;
+    --chart-3:      #5c7463;
+    --chart-grid:   rgba(255, 255, 255, 0.08);
+    --chart-cursor: rgba(255, 255, 255, 0.22);
+    color-scheme: dark;
+  }
+}
+
+/* explicit user override (theme toggle) — mirrors the block above */
+:root[data-theme="dark"] {
+  --canvas:       var(--green);
+  --canvas-soft:  color-mix(in srgb, #000000 26%, var(--green));
+  --surface:      color-mix(in srgb, #ffffff 8%, var(--green));
+  --surface-2:    color-mix(in srgb, #ffffff 15%, var(--green));
+  --ink:          rgba(255, 255, 255, 0.94);
+  --ink-strong:   #ffffff;
+  --ink-muted:    rgba(255, 255, 255, 0.68);
+  --ink-faint:    rgba(255, 255, 255, 0.42);
+  --brand:        #ffffff;
+  --brand-hover:  color-mix(in srgb, #ffffff 85%, var(--green));
+  --brand-soft:   rgba(255, 255, 255, 0.12);
+  --brand-ink:    color-mix(in srgb, var(--green) 20%, #ffffff);
+  --on-brand:     var(--green);
+  --edge:         rgba(255, 255, 255, 0.14);
+  --edge-strong:  rgba(255, 255, 255, 0.30);
+  --ring:         rgba(255, 255, 255, 0.55);
+  --overlay:      rgba(0, 0, 0, 0.65);
+  --shadow-card:  0 1px 3px rgba(0, 0, 0, 0.5), 0 8px 30px rgba(0, 0, 0, 0.35);
+  --shadow-pop:   0 16px 48px rgba(0, 0, 0, 0.6);
+  --invert-bg:    #ffffff;
+  --invert-ink:   #000000;
+  --band:         color-mix(in srgb, #000000 45%, var(--green));
+  --chart-1:      #c3cdc6;
+  --chart-2:      #8b9c90;
+  --chart-3:      #5c7463;
+  --chart-grid:   rgba(255, 255, 255, 0.08);
+  --chart-cursor: rgba(255, 255, 255, 0.22);
+  color-scheme: dark;
+}
+
+/* ── Tailwind theme (utilities reference the runtime vars) ─────────────────── */
+@theme inline {
+  --color-canvas:      var(--canvas);
+  --color-canvas-soft: var(--canvas-soft);
+  --color-surface:     var(--surface);
+  --color-surface-2:   var(--surface-2);
+  --color-ink:         var(--ink);
+  --color-ink-strong:  var(--ink-strong);
+  --color-ink-muted:   var(--ink-muted);
+  --color-ink-faint:   var(--ink-faint);
+  --color-brand:       var(--brand);
+  --color-brand-soft:  var(--brand-soft);
+  --color-brand-ink:   var(--brand-ink);
+  --color-on-brand:    var(--on-brand);
+  --color-edge:        var(--edge);
+  --color-edge-strong: var(--edge-strong);
+  --color-invert:      var(--invert-bg);
+  --color-invert-ink:  var(--invert-ink);
+  --font-sans: 'Paralucent', 'Mulish', ui-sans-serif, system-ui, sans-serif;
+  --shadow-card: var(--shadow-card);
+  --shadow-pop:  var(--shadow-pop);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #fff; color: #111827; }
 
-/* ── Card utility classes ──────────────────────────────── */
-.card {
-  background: #fff;
-  border-radius: 1rem;
-  border: 1px solid #E8EDEA;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
-}
-.card-dark {
-  background: linear-gradient(135deg, #0D2B1F 0%, #071510 100%);
-  border-radius: 1rem;
-  border: 1px solid rgba(46,125,82,0.25);
-  box-shadow: 0 4px 24px rgba(0,0,0,0.35);
-  color: #E8F0EB;
-}
-.card-lift {
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
-}
-.card-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(13,43,31,0.08), 0 12px 32px rgba(13,43,31,0.10);
-}
-.card-glass {
-  background: rgba(13,43,31,0.55);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 1rem;
-  border: 1px solid rgba(46,125,82,0.3);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+body {
+  font-family: 'Paralucent', 'Mulish', ui-sans-serif, system-ui, sans-serif;
+  background: var(--canvas);
+  color: var(--ink);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* ── Button utility classes ───────────────────────────── */
-.btn-primary {
-  background: linear-gradient(135deg, #2E7D52, #1A5C38);
-  color: #fff;
-  border-radius: 9999px;
-  border: none;
-  cursor: pointer;
-  font-weight: 700;
-  min-height: 40px;
-  box-shadow: 0 2px 10px rgba(26,92,56,0.25);
-  transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
-}
-.btn-primary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(26,92,56,0.38);
-}
-.btn-primary:active:not(:disabled) { transform: translateY(0); }
-.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-.btn-primary:focus-visible { outline: 2px solid #1A5C38; outline-offset: 2px; }
+/* ── Layout helpers ────────────────────────────────────────────────────────── */
+.container-page { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
 
-.btn-outline {
-  background: transparent;
-  border: 1.5px solid #D1E0D8;
-  color: #1A5C38;
-  border-radius: 9999px;
-  cursor: pointer;
-  font-weight: 600;
-  min-height: 40px;
-  transition: background 0.15s, border-color 0.15s;
-}
-.btn-outline:hover { background: #F0FAF4; border-color: #1A5C38; }
-.btn-outline:focus-visible { outline: 2px solid #1A5C38; outline-offset: 2px; }
-
-/* ── Form inputs ──────────────────────────────────────── */
-.input-field {
-  border: 1.5px solid #D1D5DB;
-  border-radius: 0.625rem;
-  background: #fff;
-  color: #111827;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  outline: none;
-  width: 100%;
-  padding: 10px 14px;
-  font-size: 14px;
-  line-height: 1.5;
-}
-.input-field:focus {
-  border-color: #1A5C38;
-  box-shadow: 0 0 0 3px rgba(26,92,56,0.12);
-}
-.input-field::placeholder { color: #9CA3AF; }
-
-.input-dark {
-  border: 1px solid rgba(46,125,82,0.25);
-  border-radius: 0.625rem;
-  background: rgba(255,255,255,0.06);
-  color: #E8F0EB;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  outline: none;
-  width: 100%;
-  padding: 10px 14px;
-  font-size: 14px;
-}
-.input-dark:focus {
-  border-color: #2E7D52;
-  box-shadow: 0 0 0 3px rgba(26,92,56,0.22);
-}
-.input-dark::placeholder { color: #4A6B58; }
-.input-dark option { background: #0D2B1F; color: #E8F0EB; }
-
-/* ── Table ────────────────────────────────────────────── */
-.table-pro {
-  width: 100%;
-  border-collapse: collapse;
-}
-.table-pro thead th {
-  background: #0D2B1F;
-  color: #7BA892;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  padding: 13px 20px;
-  border-bottom: 2px solid rgba(46,125,82,0.3);
-  white-space: nowrap;
-  text-align: left;
-}
-.table-pro tbody td {
-  padding: 13px 20px;
-  border-bottom: 1px solid #F3F4F6;
-  color: #374151;
-  font-size: 14px;
-  line-height: 1.5;
-}
-.table-pro tbody tr:last-child td { border-bottom: none; }
-.table-pro tbody tr:hover td { background: #F8FFF9; }
-
-/* ── Stat number highlight ────────────────────────────── */
-.stat-number {
-  font-size: 2.2rem;
+.page-title {
+  font-size: clamp(2.2rem, 5vw, 4rem);
   font-weight: 800;
   letter-spacing: -0.03em;
-  line-height: 1;
-}
-.stat-label {
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #6B7280;
+  line-height: 1.05;
+  color: var(--ink-strong);
 }
 
-/* ── Glow effects ─────────────────────────────────────── */
-.glow-green { box-shadow: 0 0 20px rgba(26,92,56,0.4), 0 0 40px rgba(26,92,56,0.15); }
-.glow-gold  { box-shadow: 0 0 20px rgba(201,168,76,0.35), 0 0 40px rgba(201,168,76,0.1); }
-
-/* ── Section label ────────────────────────────────────── */
 .section-label {
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #6B7280;
+  color: var(--ink-muted);
   margin-bottom: 14px;
 }
 
-/* ── Pulse dot ────────────────────────────────────────── */
+/* ── Brand band ────────────────────────────────────────────────────────────────
+   Alternating page rhythm: white section (green + black content) → green
+   section (white + black content) → repeat. Wrap any <section> in
+   .section-brand and every primitive inside adapts — no per-component color
+   work. In dark mode the band renders a deeper green so it still alternates
+   against the green canvas. */
+.section-brand {
+  background: var(--band);
+  --canvas:       var(--band);
+  --canvas-soft:  var(--band);
+  --surface:      #ffffff;               /* cards float white on the green band */
+  --surface-2:    rgba(255, 255, 255, 0.12);
+  --ink:          rgba(255, 255, 255, 0.94);
+  --ink-strong:   #ffffff;
+  --ink-muted:    rgba(255, 255, 255, 0.68);
+  --ink-faint:    rgba(255, 255, 255, 0.42);
+  --brand:        #ffffff;
+  --brand-hover:  color-mix(in srgb, #ffffff 85%, var(--green));
+  --brand-soft:   rgba(255, 255, 255, 0.12);
+  --brand-ink:    #ffffff;
+  --on-brand:     var(--green);
+  --edge:         rgba(255, 255, 255, 0.16);
+  --edge-strong:  rgba(255, 255, 255, 0.38);
+  --ring:         rgba(255, 255, 255, 0.60);
+  --invert-bg:    #ffffff;
+  --invert-ink:   #000000;
+  --shadow-card:  0 1px 3px rgba(0, 0, 0, 0.25), 0 8px 30px rgba(0, 0, 0, 0.25);
+  --chart-grid:   rgba(255, 255, 255, 0.10);
+  --chart-cursor: rgba(255, 255, 255, 0.25);
+}
+/* white surfaces inside a green band carry black ink + green accents again */
+.section-brand :is(.card, .card-dark, .card-glass, .input-field, .input-dark) {
+  --ink:          rgba(0, 0, 0, 0.92);
+  --ink-strong:   #000000;
+  --ink-muted:    rgba(0, 0, 0, 0.60);
+  --ink-faint:    rgba(0, 0, 0, 0.40);
+  --brand:        var(--green);
+  --brand-hover:  color-mix(in srgb, var(--green) 82%, #000000);
+  --brand-soft:   rgba(11, 46, 20, 0.08);
+  --brand-ink:    var(--green);
+  --on-brand:     #ffffff;
+  --edge:         rgba(0, 0, 0, 0.10);
+  --edge-strong:  rgba(0, 0, 0, 0.22);
+  --ring:         rgba(11, 46, 20, 0.55);
+  color: var(--ink);
+}
+.section-brand :is(.card-dark, .card-glass) { --surface-2: color-mix(in srgb, var(--green) 6%, #ffffff); }
+
+/* ── Cards ─────────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border-radius: 1rem;
+  border: 1px solid var(--edge);
+  box-shadow: var(--shadow-card);
+}
+.card-lift { transition: transform 0.18s ease, box-shadow 0.18s ease; }
+.card-lift:hover { transform: translateY(-2px); box-shadow: var(--shadow-pop); }
+
+/* Legacy aliases (pre-redesign pages) — same surface in the token system.   */
+.card-dark, .card-glass { background: var(--surface-2); border-radius: 1rem; border: 1px solid var(--edge); box-shadow: var(--shadow-card); color: var(--ink); }
+
+/* ── Buttons ───────────────────────────────────────────────────────────────── */
+.btn-primary {
+  background: var(--brand);
+  color: var(--on-brand);
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-family: inherit;
+  min-height: 40px;
+  padding: 0 22px;
+  transition: background 0.15s, transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+}
+.btn-primary:hover:not(:disabled) { background: var(--brand-hover); transform: translateY(-1px); box-shadow: var(--shadow-pop); }
+.btn-primary:active:not(:disabled) { transform: translateY(0); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-outline {
+  background: transparent;
+  border: 1.5px solid var(--edge-strong);
+  color: var(--ink);
+  border-radius: 9999px;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: inherit;
+  min-height: 40px;
+  padding: 0 20px;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-outline:hover { background: var(--brand-soft); border-color: var(--ink-strong); }
+
+.btn-ghost {
+  background: transparent;
+  border: none;
+  color: var(--ink-muted);
+  border-radius: 9999px;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: inherit;
+  min-height: 40px;
+  padding: 0 16px;
+  transition: background 0.15s, color 0.15s;
+}
+.btn-ghost:hover { background: var(--brand-soft); color: var(--ink); }
+
+.btn-lg { min-height: 52px; padding: 0 34px; font-size: 16px; }
+
+/* ── Badges / pills ────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 9999px;
+  padding: 3px 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.badge-solid   { background: var(--brand); color: var(--on-brand); }
+.badge-soft    { background: var(--brand-soft); color: var(--brand-ink); }
+.badge-outline { background: transparent; border: 1px solid var(--edge-strong); color: var(--ink-muted); }
+.badge-invert  { background: var(--invert-bg); color: var(--invert-ink); }
+
+/* ── Form inputs ───────────────────────────────────────────────────────────── */
+.input-field {
+  border: 1.5px solid var(--edge-strong);
+  border-radius: 0.625rem;
+  background: var(--surface);
+  color: var(--ink);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.5;
+}
+.input-field:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+.input-field::placeholder { color: var(--ink-faint); }
+.input-field option { background: var(--surface); color: var(--ink); }
+
+/* Legacy alias */
+.input-dark { border: 1.5px solid var(--edge-strong); border-radius: 0.625rem; background: var(--surface); color: var(--ink); outline: none; width: 100%; padding: 10px 14px; font-size: 14px; font-family: inherit; }
+.input-dark:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+.input-dark::placeholder { color: var(--ink-faint); }
+.input-dark option { background: var(--surface); color: var(--ink); }
+
+/* ── Table ─────────────────────────────────────────────────────────────────── */
+.table-pro { width: 100%; border-collapse: collapse; }
+.table-pro thead th {
+  background: var(--surface-2);
+  color: var(--ink-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding: 13px 20px;
+  border-bottom: 1px solid var(--edge);
+  white-space: nowrap;
+  text-align: left;
+}
+.table-pro tbody td {
+  padding: 13px 20px;
+  border-bottom: 1px solid var(--edge);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.table-pro tbody tr:last-child td { border-bottom: none; }
+.table-pro tbody tr:hover td { background: var(--brand-soft); }
+
+/* ── Stat number highlight ─────────────────────────────────────────────────── */
+.stat-number { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1; color: var(--ink-strong); }
+.stat-label  { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-muted); }
+
+/* ── Pulse dot ─────────────────────────────────────────────────────────────── */
 .live-dot {
   width: 7px; height: 7px;
   border-radius: 50%;
-  background: #34D399;
+  background: var(--brand-ink);
   display: inline-block;
   animation: pulse-dot 1.8s ease-in-out infinite;
 }
 @keyframes pulse-dot {
-  0%,100% { opacity:1; transform:scale(1); }
-  50%      { opacity:0.4; transform:scale(0.8); }
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(0.8); }
 }
 
-/* ── Animations ───────────────────────────────────────── */
-@keyframes slide-up {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+/* ── Animations ────────────────────────────────────────────────────────────── */
+@keyframes slide-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 .animate-slide-up { animation: slide-up 0.25s ease-out; }
-
-@keyframes fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 .animate-fade-in { animation: fade-in 0.3s ease-out; }
 
-/* ── Skeleton loader pulse ───────────────────────────── */
-@keyframes skeleton-pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.5; }
-}
-.skeleton { animation: skeleton-pulse 1.6s ease-in-out infinite; background: #F3F4F6; border-radius: 8px; }
+/* ── Skeleton loader ───────────────────────────────────────────────────────── */
+@keyframes skeleton-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+.skeleton { animation: skeleton-pulse 1.6s ease-in-out infinite; background: var(--surface-2); border-radius: 8px; }
 
-/* ── Scrollbar ────────────────────────────────────────── */
+/* ── Leaflet dark mode (admin location map) ────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .leaflet-tile { filter: invert(1) hue-rotate(180deg) brightness(0.9) saturate(0.4); }
+}
+:root[data-theme="dark"] .leaflet-tile { filter: invert(1) hue-rotate(180deg) brightness(0.9) saturate(0.4); }
+
+/* ── Scrollbar / focus / selection ─────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 9999px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.22); }
+::-webkit-scrollbar-thumb { background: var(--edge-strong); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-faint); }
 
-/* ── Focus ring for keyboard nav ─────────────────────── */
-:focus-visible { outline: 2px solid #1A5C38; outline-offset: 2px; }
-a:focus-visible { outline: 2px solid #1A5C38; outline-offset: 2px; border-radius: 4px; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+a:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; border-radius: 4px; }
 
-/* ── Selection ────────────────────────────────────────── */
-::selection { background: rgba(26,92,56,0.15); color: inherit; }
+::selection { background: var(--brand-soft); color: inherit; }

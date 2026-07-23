@@ -75,7 +75,7 @@ class _ConsumerOrdersScreenState extends State<ConsumerOrdersScreen> {
             child: _loading
               ? const Center(child: CircularProgressIndicator())
               : _orders.isEmpty
-                ? const Center(child: Text('No orders yet', style: TextStyle(color: AppColors.textMuted)))
+                ? Center(child: Text('No orders yet', style: TextStyle(color: AppColors.textMuted)))
                 : RefreshIndicator(
                     onRefresh: () async { setState(() => _loading = true); await _load(); },
                     child: ListView.builder(
@@ -92,8 +92,8 @@ class _ConsumerOrdersScreenState extends State<ConsumerOrdersScreen> {
 
   Widget _stat(String value, String label) => Column(
     children: [
-      Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.brand)),
-      Text(label, style: const TextStyle(color: AppColors.textSecond, fontSize: 11)),
+      Text(value, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.brand)),
+      Text(label, style: TextStyle(color: AppColors.textSecond, fontSize: 11)),
     ],
   );
 
@@ -116,8 +116,8 @@ class _ConsumerOrdersScreenState extends State<ConsumerOrdersScreen> {
               Text('${o.cropType ?? 'Order'} — ${o.quantityKg.toInt()} kg',
                 style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
               Text('GH₵ ${o.total.toStringAsFixed(2)} · ${o.location ?? ''}',
-                style: const TextStyle(color: AppColors.textSecond, fontSize: 12)),
-              Text(o.createdAt.split('T').first, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                style: TextStyle(color: AppColors.textSecond, fontSize: 12)),
+              Text(o.createdAt.split('T').first, style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
             ],
           ),
         ),

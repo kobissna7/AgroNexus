@@ -63,7 +63,7 @@ class _ConsumerBrowseScreenState extends State<ConsumerBrowseScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text('Available: ${listing.quantityKg.toInt()} kg · GH₵ ${listing.pricePerKg.toStringAsFixed(2)}/kg',
-                style: const TextStyle(color: AppColors.textSecond, fontSize: 13)),
+                style: TextStyle(color: AppColors.textSecond, fontSize: 13)),
               const SizedBox(height: 12),
               TextField(
                 controller: ctrl,
@@ -102,13 +102,13 @@ class _ConsumerBrowseScreenState extends State<ConsumerBrowseScreen> {
         await ApiService.placeOrder(listing.id, qty!);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Order placed!'), backgroundColor: AppColors.brand),
+            SnackBar(content: Text('Order placed!'), backgroundColor: AppColors.brand),
           );
         }
       } catch (_) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Order failed'), backgroundColor: AppColors.redText),
+            SnackBar(content: Text('Order failed'), backgroundColor: AppColors.redText),
           );
         }
       }
@@ -194,7 +194,7 @@ class _ConsumerBrowseScreenState extends State<ConsumerBrowseScreen> {
             child: _loading
               ? const Center(child: CircularProgressIndicator())
               : _listings.isEmpty
-                ? const Center(child: Text('No listings available', style: TextStyle(color: AppColors.textMuted)))
+                ? Center(child: Text('No listings available', style: TextStyle(color: AppColors.textMuted)))
                 : RefreshIndicator(
                     onRefresh: () async { setState(() => _loading = true); await _load(); },
                     child: ListView.builder(
@@ -229,7 +229,7 @@ class _ConsumerBrowseScreenState extends State<ConsumerBrowseScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(l.cropType, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                  Text(l.location, style: const TextStyle(color: AppColors.textSecond, fontSize: 12)),
+                  Text(l.location, style: TextStyle(color: AppColors.textSecond, fontSize: 12)),
                 ],
               ),
             ),
@@ -237,8 +237,8 @@ class _ConsumerBrowseScreenState extends State<ConsumerBrowseScreen> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text('GH₵ ${l.pricePerKg.toStringAsFixed(2)}',
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.brand, fontSize: 15)),
-                Text('per kg', style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                  style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.brand, fontSize: 15)),
+                Text('per kg', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
               ],
             ),
           ],
@@ -248,7 +248,7 @@ class _ConsumerBrowseScreenState extends State<ConsumerBrowseScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text('${l.quantityKg.toInt()} kg available',
-              style: const TextStyle(color: AppColors.textSecond, fontSize: 13)),
+              style: TextStyle(color: AppColors.textSecond, fontSize: 13)),
             ElevatedButton(
               onPressed: () => _placeOrder(l),
               style: ElevatedButton.styleFrom(

@@ -33,7 +33,7 @@ agronexus/
 
 ## Database Schema
 
-Base schema: `supabase_setup.sql`. Then run `migration_v2_roles_and_market.sql` (idempotent) in the Supabase SQL Editor — it adds buyer roles, auto-location, allocations, the anonymized marketplace view, and demand-signal capture.
+Base schema: `supabase_setup.sql`. Then run `migration_v2_roles_and_market.sql`, then `migration_v3_payments_and_events.sql` (both idempotent) in the Supabase SQL Editor. v2 adds buyer roles, auto-location, allocations, the anonymized marketplace view, and demand-signal capture. v3 adds `payments`, `site_events`, the `interest_weekly` view, the `pending_payment` order status, and excludes unpaid orders from `demand_weekly`.
 
 **Roles:** `farmer`, `wholesaler`, `retailer`, `direct_consumer`, `transporter`, `admin`. (`consumer` is legacy — pre-v2 JWTs still validate, but no new users get it.)
 
@@ -52,40 +52,28 @@ Row Level Security enabled on all tables.
 
 ---
 
-## Design System
+## Design System (v2 — strict 3-color)
 
-**Colour tokens** (add to `tailwind.config.js`):
+**Only three colors exist:** `#0b2e14` (brand green), `#000000`, `#ffffff` — every other value is a tint/alpha/`color-mix` of these. **Never introduce any other hue** (no gold, no red, no blue).
 
-```js
-colors: {
-  brand: {
-    dark:    '#0D2B1F',  // sidebar bg
-    DEFAULT: '#1A5C38',  // primary buttons, active nav
-    mid:     '#2E7D52',  // hover states
-    light:   '#D6EFE1',
-    pale:    '#F0FAF4',
-  },
-  accent: { gold: '#C9A84C' },
-  sidebar: { bg: '#0D2B1F', icon: '#4A7C5E', active: '#FFFFFF', hover: '#1A3D2B', text: '#A3C4B0' },
-}
-```
+**Typography:** `'Paralucent', 'Mulish', ui-sans-serif, sans-serif`. Mulish (variable) is vendored in `web/public/fonts/`; drop licensed `Paralucent-Variable.woff2` into that folder to activate Paralucent with zero code changes.
 
-**Layout:** dark sidebar (#0D2B1F) + light content area (#F9FAFB) + white cards (rounded-2xl shadow-card)
+**Theming:** follows device light/dark (`prefers-color-scheme`) with a manual toggle persisted as `agronexus_theme` in localStorage (`data-theme` on `<html>`, applied pre-paint in `index.html`). **Dark mode is green-dominant, not black:** `--canvas` is brand green; black appears only in mixes/shadows/overlays. All colors are semantic CSS vars defined in `web/src/index.css`:
 
-**Buttons:** rounded-full — primary `bg #1A5C38`, secondary `bg #F59E0B`, outline `border border-gray-200`
+- Surfaces: `--canvas`, `--canvas-soft`, `--surface`, `--surface-2`
+- Ink: `--ink`, `--ink-strong`, `--ink-muted`, `--ink-faint`
+- Brand: `--brand` (green in light, white in dark), `--on-brand`, `--brand-soft`, `--brand-ink`
+- Structure: `--edge`, `--edge-strong`, `--ring`, `--overlay`, `--invert-bg`/`--invert-ink` (attention/errors)
+- Charts: `--chart-1..3` (single-green lightness ramp), `--chart-grid`, `--chart-cursor`
+- Bands: `--band` + `.section-brand`
 
-**Status badges:** rounded-full pills — green `#D1FAE5/#065F46`, amber `#FEF3C7/#92400E`, red `#FEE2E2/#991B1B`
+**Page rhythm (public pages):** sections alternate white (green + black content) → green band (white + black content) → repeat. Wrap any `<section>` in `.section-brand` and every primitive inside adapts automatically (white ink on green; `.card`/`.input-field` float white with black ink + green accents restored). In dark mode the band renders a deeper green so it still alternates against the green canvas. Reference: `web/src/pages/Home.tsx`.
 
-**Charts:** recharts — gold line `#C9A84C` + green dashed `#1A5C38`, no dots, clean grid
+**Logo:** the mark is a white sprout on a green rounded tile — source of truth `web/public/favicon.svg` (= `logo.svg`); PNG/ICO fallbacks and the mobile copies (`mobile/assets/images/`) are rasterized from it.
 
-**UI Prefix (paste at top of every frontend prompt):**
-```
-Apply the AgroNexus design system: Sidebar bg #0D2B1F, active nav #1A5C38, icons #4A7C5E.
-Cards: white rounded-2xl shadow-card p-6 on #F9FAFB background.
-Primary #1A5C38, accent gold #C9A84C. Buttons rounded-full.
-Status badges rounded-full: green=#D1FAE5/#065F46, amber=#FEF3C7/#92400E, red=#FEE2E2/#991B1B.
-Charts: recharts, gold line + green dashed, no dots.
-```
+**Mobile parity:** `mobile/lib/config/theme.dart` mirrors this system — `AppColors` getters resolve light/dark from device brightness (`themeMode: ThemeMode.system`; dark = green-dominant like the web), Mulish 400–800 is bundled in `mobile/assets/fonts/`, and the home screen uses the same alternating band rhythm. `AppColors.green`/`brandDark` are the only const-safe members; everything else is a getter, so don't use them inside `const` expressions. Cards on green bands stay white with FIXED black-alpha inks (never dynamic tokens). Never reintroduce gold/red/blue/gray hues in Flutter screens.
+
+**Rules for new UI:** use the CSS vars (or the Tailwind tokens mapped in `@theme`) — **never hardcode hex colors in components**. Reuse primitives in `web/src/components/ui/` (Button, Card, Input, Select, Badge, PageHeader, Modal, EmptyState) and utility classes (`.btn-primary`, `.btn-outline`, `.btn-ghost`, `.btn-lg`, `.card`, `.badge-*`, `.input-field`, `.table-pro`, `.page-title`, `.container-page`). Status is expressed structurally (solid pill = done, soft = in progress, outlined = waiting, strikethrough = dead, inverted black/white = errors) — never by extra hues. Charts must ship a legend + dash/direct-label secondary encoding (single-hue ramp carries limited identity). Aesthetic reference: Karma landing (big bold display type, pill buttons, generous space) + shopify.com polish; sidebar and auth brand panels stay permanently dark (green-over-black).
 
 ---
 
@@ -98,7 +86,16 @@ SUPABASE_SERVICE_KEY=
 JWT_SECRET=
 FLASK_SERVICE_URL=http://localhost:5000
 PORT=3001
+PAYSTACK_SECRET_KEY=        # fallback gateway
+RUSHPAY_API_KEY=            # primary gateway (rushpay.cash) — wins over Paystack when set
+RUSHPAY_WEBHOOK_SECRET=     # for webhook signature verification (pending RushPay onboarding)
+BACKEND_PUBLIC_URL=http://localhost:3001   # this API's public URL — RushPay callback/webhook target
+WEB_URL=http://localhost:3000
 ```
+Both payment keys blank → checkout runs in payment-skipped test mode.
+Manual go-live steps (Supabase migration, RushPay onboarding, webhook URL, deploys): see `SETUP.md`.
+
+**One-command dev:** from the repo root, `npm run dev` starts backend + web together (`npm run dev:all` adds the Flask ML service).
 
 **web/.env:**
 ```
@@ -111,9 +108,24 @@ VITE_SUPABASE_ANON_KEY=
 
 ## API Routes
 
+### Marketplace (public — no auth; guests browse before signing up)
+- `GET /api/v1/marketplace` — anonymized active listings, same filters as /listings
+- `GET /api/v1/marketplace/:id` — single anonymized listing (used by checkout)
+
+### Payments (GHS; provider = RushPay if RUSHPAY_API_KEY set, else Paystack, else visible "test mode")
+- `GET /api/v1/payments/config` — public; { enabled, currency, provider }
+- `POST /api/v1/payments/initialize` — buyer roles; { listing_id, quantity_kg, transporter_id? } → order `pending_payment` + stock reserved. RushPay: returns `{ provider:'rushpay', reference, widget:{ script_url, api_base, session } }` and the browser renders the embedded RushPayV2 widget. Paystack: returns `authorization_url` redirect. (Or `payment_required:false` fallback.) Stale holds >30 min auto-release stock.
+- `GET /api/v1/payments/verify/:reference` — idempotent; routes by the provider stamped on the payment row; success → order `pending` + fulfillment; failure → order cancelled + stock restored
+- `POST /api/v1/payments/webhook` — Paystack, raw-body HMAC-SHA512 verified (mounted before express.json)
+- `POST /api/v1/payments/webhook/rushpay` — raw body; treated as a wake-up signal only — always reconciled via server-side `GET merchant/payments/status` before settling (signature verification lands once RushPay issues the webhook secret)
+- RushPay service: `backend/src/services/rushpay.ts` (core.rushpay.cash, `X-API-Key` header, amounts in GHS major units as strings; status-string mapping in `classifyStatus` is permissive pending live-key testing)
+
+### Events (behavior tracking → ML)
+- `POST /api/v1/events` — optional auth (never 401s); { session_id, events:[{event_type, listing_id?, crop_type?, region?, metadata?}] } batches ≤50; types: page_view, listing_view, listing_click, search, filter, checkout_start, payment_success, payment_failed, order_placed. Web tracker: `web/src/lib/analytics.ts` (10 s flush + sendBeacon on tab hide).
+
 ### Auth
-- `POST /api/v1/auth/register` — { email, password, full_name, role, phone, location_lat?, location_lng? } — no region field; it's derived from coordinates server-side
-- `POST /api/v1/auth/login` — { email, password } → { token, user }
+- `POST /api/v1/auth/register` — { email, password, full_name, role, phone, location_lat?, location_lng? } — no region field; it's derived from coordinates server-side. Honors `?next=` redirect intent after signup.
+- `POST /api/v1/auth/login` — { email, password } → { token, user }. Honors `?next=` (guest Buy → login → resumes at /checkout/:listingId).
 
 ### Users
 - `PUT /api/v1/users/location` — { lat, lng } — updates coordinates; DB trigger re-derives region
@@ -293,6 +305,7 @@ Attach to prompts:
 - Artifacts: `model.h5`, `scaler_X.pkl`, `scaler_y.pkl`
 - Fallback: gradient boosting model if `model.h5` missing
 - Retraining on real orders: `cd backend && npm run export:demand` writes the `demand_weekly` view to `ml/data/platform_demand.csv` (gitignored); `train.py` blends it automatically when present, platform rows winning on overlap
+- Retraining on behavior: `npm run export:interest` writes `interest_weekly` to `ml/data/platform_interest.csv`; `train.py` left-merges `listing_views`/`searches`/`checkouts` as features (zeros when absent). Retrained models and `ml/app.py` must deploy together (feature vector length); serving pads missing interest features with 0.
 
 ---
 

@@ -36,7 +36,7 @@ export default function LiveToast() {
     <div
       key={toast.id}
       className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium shadow-xl animate-slide-up"
-      style={{ backgroundColor: '#0D2B1F', color: '#fff', maxWidth: 320 }}
+      style={{ backgroundColor: 'var(--invert-bg)', color: 'var(--invert-ink)', maxWidth: 320 }}
     >
       <span className="shrink-0">{toast.icon}</span>
       <span>{toast.message}</span>
