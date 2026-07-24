@@ -5,6 +5,7 @@ import {
 } from 'recharts'
 import Layout from '../../components/Layout'
 import { CropIcon } from '../../components/CropIcon'
+import { DarkHero } from '../../components/ui'
 import api from '../../lib/api'
 import {
   CHART, axisTick, gridProps, tooltipStyle, tooltipLabelStyle, tooltipItemStyle, barCursor,
@@ -52,33 +53,19 @@ export default function ForecastsPage() {
 
   return (
     <Layout>
-      {/* Dark hero */}
-      <div style={{
-        background: 'linear-gradient(170deg, #000 0%, color-mix(in srgb, #0b2e14 55%, #000) 100%)',
-        borderRadius: 20, padding: 32, marginBottom: 24,
-        border: '1px solid var(--edge)',
-        boxShadow: '0 4px 32px rgba(0,0,0,0.4)',
-        position: 'relative', overflow: 'hidden',
-      }}>
-        <div style={{ position: 'absolute', top: -60, right: -60, width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
-          <div>
-            <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--brand-ink)', marginBottom: 8 }}>ML Forecasting</p>
-            <h1 style={{ fontSize: '1.7rem', fontWeight: 800, color: 'var(--ink)', letterSpacing: '-0.02em' }}>Demand Forecast</h1>
-            <p style={{ fontSize: 14, color: 'var(--ink-faint)', marginTop: 6 }}>
-              7-day demand projections · MLP neural network · Ghana Western Region
+      <DarkHero
+        eyebrow="ML Forecasting"
+        title="Demand Forecast"
+        sub="7-day demand projections · MLP neural network · Ghana Western Region"
+        right={selected && (
+          <div style={{ textAlign: 'right' }}>
+            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Model Accuracy</p>
+            <p style={{ fontSize: '1.4rem', fontWeight: 800, color: 'rgba(134,239,172,0.9)', letterSpacing: '-0.02em', marginTop: 4 }}>
+              {selected.mape_pct.toFixed(1)}% MAPE
             </p>
           </div>
-          {selected && (
-            <div style={{ textAlign: 'right' }}>
-              <p style={{ fontSize: 11, color: 'var(--ink-faint)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Model Accuracy</p>
-              <p style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--brand-ink)', letterSpacing: '-0.02em', marginTop: 4 }}>
-                {selected.mape_pct.toFixed(1)}% MAPE
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
+        )}
+      />
 
       {/* Selectors */}
       <div style={{ display: 'flex', gap: 12, marginBottom: 24, flexWrap: 'wrap' }}>
@@ -123,31 +110,31 @@ export default function ForecastsPage() {
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, marginBottom: 24 }}>
         {/* Stat cards */}
         <div style={{ flex: '1 1 260px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div className="card-dark" style={{ padding: 20 }}>
-            <p style={{ fontSize: 11, color: 'var(--ink-faint)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Week 1 (next 7 days)</p>
-            <p style={{ fontSize: '1.9rem', fontWeight: 800, color: 'var(--ink)', letterSpacing: '-0.03em', lineHeight: 1 }}>
-              {w1 ? Math.round(w1).toLocaleString() : '—'} <span style={{ fontSize: 14, fontWeight: 400 }}>kg</span>
+        <div className="card" style={{ padding: 20 }}>
+            <p style={{ fontSize: 11, color: 'var(--ink-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Week 1 (next 7 days)</p>
+            <p style={{ fontSize: '1.9rem', fontWeight: 800, color: 'var(--ink-strong)', letterSpacing: '-0.03em', lineHeight: 1 }}>
+              {w1 ? Math.round(w1).toLocaleString() : '—'} <span style={{ fontSize: 14, fontWeight: 400, color: 'var(--ink-muted)' }}>kg</span>
             </p>
-            <p style={{ fontSize: 12, color: 'var(--ink-faint)', marginTop: 6, textTransform: 'capitalize' }}>{crop} · {region}</p>
+            <p style={{ fontSize: 12, color: 'var(--ink-muted)', marginTop: 6, textTransform: 'capitalize' }}>{crop} · {region}</p>
           </div>
-          <div className="card-dark" style={{ padding: 20 }}>
-            <p style={{ fontSize: 11, color: 'var(--ink-faint)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Week 2 Outlook</p>
-            <p style={{ fontSize: '1.9rem', fontWeight: 800, color: 'var(--ink)', letterSpacing: '-0.03em', lineHeight: 1 }}>
-              {w2 ? Math.round(w2).toLocaleString() : '—'} <span style={{ fontSize: 14, fontWeight: 400 }}>kg</span>
+          <div className="card" style={{ padding: 20 }}>
+            <p style={{ fontSize: 11, color: 'var(--ink-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Week 2 Outlook</p>
+            <p style={{ fontSize: '1.9rem', fontWeight: 800, color: 'var(--ink-strong)', letterSpacing: '-0.03em', lineHeight: 1 }}>
+              {w2 ? Math.round(w2).toLocaleString() : '—'} <span style={{ fontSize: 14, fontWeight: 400, color: 'var(--ink-muted)' }}>kg</span>
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 10 }}>
               <span style={{ fontSize: 11, fontWeight: 800, padding: '4px 10px', borderRadius: 9999, background: tStyle.bg, color: tStyle.text, border: `1px solid ${tStyle.border}` }}>
                 {trend === 'up' ? '↑ Rising' : trend === 'down' ? '↓ Falling' : '→ Stable'}
               </span>
-              {w1 && w2 ? <span style={{ fontSize: 11, color: 'var(--ink-faint)' }}>{((w2 - w1) / w1 * 100).toFixed(1)}% vs w1</span> : null}
+              {w1 && w2 ? <span style={{ fontSize: 11, color: 'var(--ink-muted)' }}>{((w2 - w1) / w1 * 100).toFixed(1)}% vs w1</span> : null}
             </div>
           </div>
           {selected && (
-            <div className="card-dark" style={{ padding: 20 }}>
-              <p style={{ fontSize: 11, color: 'var(--ink-faint)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Model Info</p>
-              <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{selected.model_used}</p>
-              <p style={{ fontSize: 12, color: 'var(--ink-faint)', marginTop: 4 }}>MAPE: {selected.mape_pct.toFixed(2)}%</p>
-              {selected.cached && <p style={{ fontSize: 11, color: 'var(--ink-faint)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 5 }}><span className="live-dot" style={{ background: 'var(--brand-ink)' } as React.CSSProperties} /> cached result</p>}
+            <div className="card" style={{ padding: 20 }}>
+              <p style={{ fontSize: 11, color: 'var(--ink-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Model Info</p>
+              <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink-strong)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{selected.model_used}</p>
+              <p style={{ fontSize: 12, color: 'var(--ink-muted)', marginTop: 4 }}>MAPE: {selected.mape_pct.toFixed(2)}%</p>
+              {selected.cached && <p style={{ fontSize: 11, color: 'var(--ink-muted)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 5 }}><span className="live-dot" style={{ background: 'var(--brand-ink)' } as React.CSSProperties} /> cached result</p>}
             </div>
           )}
         </div>
@@ -209,11 +196,11 @@ export default function ForecastsPage() {
             <table className="table-pro" style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr>
-                  <th style={{ textAlign: 'left' }}>Crop</th>
-                  <th style={{ textAlign: 'right' }}>Forecast (kg/wk)</th>
-                  <th style={{ textAlign: 'right' }}>Week 2</th>
-                  <th style={{ textAlign: 'right' }}>Trend</th>
-                  <th style={{ textAlign: 'right' }}>MAPE</th>
+                  <th style={{ textAlign: 'left', minWidth: 90 }}>Crop</th>
+                  <th style={{ textAlign: 'right', minWidth: 100 }}>Forecast (kg/wk)</th>
+                  <th style={{ textAlign: 'right', minWidth: 72 }}>Week 2</th>
+                  <th style={{ textAlign: 'right', minWidth: 80 }}>Trend</th>
+                  <th style={{ textAlign: 'right', minWidth: 60 }}>MAPE</th>
                 </tr>
               </thead>
               <tbody>
@@ -247,11 +234,12 @@ export default function ForecastsPage() {
                       <td style={{ textAlign: 'right', color: 'var(--ink-muted)' }}>{Math.round(fc.weekly_pred_w2).toLocaleString()}</td>
                       <td style={{ textAlign: 'right' }}>
                         <span style={{
-                          display: 'inline-flex', alignItems: 'center', gap: 4,
-                          fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 9999,
-                          background: pill.bg, color: pill.text, textTransform: 'capitalize',
+                          display: 'inline-flex', alignItems: 'center', gap: 3,
+                          fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 9999,
+                          background: pill.bg, color: pill.text,
+                          whiteSpace: 'nowrap',
                         }}>
-                          {t === 'up' ? '↑' : t === 'down' ? '↓' : '→'} {t}
+                          {t === 'up' ? '↑ Up' : t === 'down' ? '↓ Down' : '→ Stable'}
                         </span>
                       </td>
                       <td style={{ textAlign: 'right', color: 'var(--ink-muted)' }}>{fc.mape_pct.toFixed(1)}%</td>

@@ -21,12 +21,12 @@ export default function NotFound() {
         border: '1px solid var(--edge)', borderRadius: 24, padding: '48px 40px',
         boxShadow: '0 24px 64px rgba(0,0,0,0.5)',
       }}>
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20, color: 'var(--brand-ink)' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20, color: 'rgba(134,239,172,0.9)' }}>
           <SeedlingIcon className="w-16 h-16" />
         </div>
-        <h1 style={{ fontSize: '4rem', fontWeight: 900, color: 'var(--ink)', letterSpacing: '-0.04em', lineHeight: 1, marginBottom: 8 }}>404</h1>
-        <p style={{ fontWeight: 700, color: 'var(--ink)', fontSize: 16, marginBottom: 8 }}>Page not found</p>
-        <p style={{ fontSize: 13, color: 'var(--ink-faint)', marginBottom: 32 }}>This crop hasn't been planted yet.</p>
+        <h1 style={{ fontSize: '4rem', fontWeight: 900, color: '#ffffff', letterSpacing: '-0.04em', lineHeight: 1, marginBottom: 8 }}>404</h1>
+        <p style={{ fontWeight: 700, color: '#ffffff', fontSize: 16, marginBottom: 8 }}>Page not found</p>
+        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', marginBottom: 32 }}>This crop hasn't been planted yet.</p>
         <Link
           to={homeHref}
           style={{

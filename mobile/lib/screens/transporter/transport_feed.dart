@@ -11,6 +11,7 @@ import '../../services/storage_service.dart';
 import '../../widgets/offline_banner.dart';
 import '../../widgets/metric_card.dart';
 import '../../widgets/status_badge.dart';
+import '../../widgets/crop_icon.dart';
 
 class TransportFeedScreen extends StatefulWidget {
   const TransportFeedScreen({super.key});
@@ -63,7 +64,7 @@ class _TransportFeedScreenState extends State<TransportFeedScreen>
       await _load();
     } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to accept'), backgroundColor: AppColors.redText),
+        SnackBar(content: Text('Failed to accept'), backgroundColor: AppColors.redBg),
       );
     }
   }
@@ -78,7 +79,7 @@ class _TransportFeedScreenState extends State<TransportFeedScreen>
       await _load();
     } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Update failed'), backgroundColor: AppColors.redText),
+        SnackBar(content: Text('Update failed'), backgroundColor: AppColors.redBg),
       );
     }
   }
@@ -203,7 +204,7 @@ class _TransportFeedScreenState extends State<TransportFeedScreen>
         children: [
           Row(
             children: [
-              Text(AppConstants.cropIcons[req.cropType] ?? '📦', style: const TextStyle(fontSize: 22)),
+              CropIcon(req.cropType, size: 22.0, color: AppColors.textSecond),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(

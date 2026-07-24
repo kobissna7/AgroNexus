@@ -8,6 +8,7 @@ import {
 import Layout from '../../components/Layout'
 import MetricCard from '../../components/MetricCard'
 import StatusBadge from '../../components/StatusBadge'
+import { DarkHero } from '../../components/ui'
 import ListingModal from './ListingModal'
 import { useAuth } from '../../hooks/useAuth'
 import { useRealtimeChannel } from '../../hooks/useRealtimeChannel'
@@ -68,54 +69,44 @@ export default function FarmerDashboard() {
 
   return (
     <Layout>
-      {/* Dark hero */}
-      <div style={{
-        background: 'linear-gradient(170deg, #000 0%, color-mix(in srgb, #0b2e14 55%, #000) 100%)',
-        borderRadius: 20, padding: 32, marginBottom: 24,
-        border: '1px solid var(--edge)',
-        boxShadow: '0 4px 32px rgba(0,0,0,0.4)',
-        position: 'relative', overflow: 'hidden',
-      }}>
-        <div style={{ position: 'absolute', top: -60, right: -60, width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(11,46,20,0.30) 0%, transparent 70%)', pointerEvents: 'none' }} />
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
-          <div>
-            <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--brand-ink)', marginBottom: 8 }}>Farmer Dashboard</p>
-            <h1 style={{ fontSize: '1.7rem', fontWeight: 800, color: 'var(--ink)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-              Welcome back, {user?.full_name?.split(' ')[0]}
-            </h1>
-            <p style={{ fontSize: 14, color: 'var(--ink-faint)', marginTop: 6 }}>Manage listings, track orders and view demand forecasts</p>
-            <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
-              <button
-                onClick={() => { setEditListing(null); setShowModal(true) }}
-                className="btn-primary"
-                style={{ padding: '10px 22px', fontSize: 13 }}
-              >
-                + Add Listing
-              </button>
-              <Link to="/forecasts" style={{
-                padding: '10px 22px', fontSize: 13, fontWeight: 600, borderRadius: 9999,
-                background: 'var(--brand-soft)', color: 'var(--brand-ink)',
-                border: '1px solid var(--edge)', textDecoration: 'none', display: 'inline-block',
-              }}>
-                View Forecasts
-              </Link>
-            </div>
-          </div>
+      <DarkHero
+        eyebrow="Farmer Dashboard"
+        title={`Welcome back, ${user?.full_name?.split(' ')[0] ?? ''}`}
+        sub="Manage listings, track orders and view demand forecasts"
+        glow={{ color: 'rgba(11,46,20,0.30)' }}
+        right={
           <div style={{ textAlign: 'right' }}>
-            <p style={{ fontSize: 11, color: 'var(--ink-faint)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Region</p>
-            <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)', marginTop: 4 }}>{(user as unknown as { region?: string })?.region ?? '—'}</p>
+            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Region</p>
+            <p style={{ fontSize: 14, fontWeight: 700, color: '#ffffff', marginTop: 4 }}>{user?.region ?? '—'}</p>
             {liveOrders > 0 && (
               <span style={{
                 display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 8,
                 fontSize: 11, fontWeight: 700, padding: '4px 12px', borderRadius: 9999,
-                background: 'var(--brand-soft)', color: 'var(--brand-ink)', border: '1px solid var(--edge)',
+                background: 'rgba(255,255,255,0.12)', color: 'rgba(134,239,172,0.9)', border: '1px solid rgba(255,255,255,0.18)',
               }}>
-                <span className="live-dot" /> {liveOrders} new order{liveOrders > 1 ? 's' : ''}
+                <span className="live-dot" style={{ background: 'rgba(134,239,172,0.9)' }} /> {liveOrders} new order{liveOrders > 1 ? 's' : ''}
               </span>
             )}
           </div>
+        }
+      >
+        <div style={{ display: 'flex', gap: 12, marginTop: 20, flexWrap: 'wrap' }}>
+          <button
+            onClick={() => { setEditListing(null); setShowModal(true) }}
+            className="btn-primary"
+            style={{ padding: '10px 22px', fontSize: 13 }}
+          >
+            + Add Listing
+          </button>
+          <Link to="/forecasts" style={{
+            padding: '10px 22px', fontSize: 13, fontWeight: 600, borderRadius: 9999,
+            background: 'rgba(255,255,255,0.12)', color: 'rgba(134,239,172,0.9)',
+            border: '1px solid rgba(255,255,255,0.18)', textDecoration: 'none', display: 'inline-block',
+          }}>
+            View Forecasts
+          </Link>
         </div>
-      </div>
+      </DarkHero>
 
       {/* Metric cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 24 }}>
@@ -203,13 +194,13 @@ export default function FarmerDashboard() {
             <table className="table-pro" style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr>
-                  <th style={{ borderRadius: '10px 0 0 0' }}>Crop</th>
-                  <th>Quantity</th>
-                  <th>Price / kg</th>
-                  <th>Location</th>
-                  <th>Available From</th>
-                  <th>Status</th>
-                  <th style={{ borderRadius: '0 10px 0 0' }}>Actions</th>
+                  <th style={{ borderRadius: '10px 0 0 0', minWidth: 100 }}>Crop</th>
+                  <th style={{ minWidth: 80 }}>Quantity</th>
+                  <th style={{ minWidth: 90 }}>Price / kg</th>
+                  <th style={{ minWidth: 100 }}>Location</th>
+                  <th style={{ minWidth: 110 }}>Available From</th>
+                  <th style={{ minWidth: 100 }}>Status</th>
+                  <th style={{ borderRadius: '0 10px 0 0', minWidth: 160 }}>Actions</th>
                 </tr>
               </thead>
               <tbody>

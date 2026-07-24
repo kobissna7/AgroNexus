@@ -11,8 +11,8 @@ interface Props {
 
 export default function MetricCard({ label, value, sub, trend, icon }: Props) {
   return (
-    <div className="card card-lift" style={{ padding: 20, position: 'relative' }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
+    <div className="card card-lift" style={{ padding: 16, position: 'relative' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
         <div style={{
           width: 44, height: 44, borderRadius: 12,
           background: 'var(--brand-soft)',
@@ -27,8 +27,8 @@ export default function MetricCard({ label, value, sub, trend, icon }: Props) {
       </div>
 
       <div>
-        <p className="stat-label" style={{ marginBottom: 6 }}>{label}</p>
-        <p style={{ fontSize: '1.9rem', fontWeight: 800, color: 'var(--ink-strong)', letterSpacing: '-0.03em', lineHeight: 1 }}>
+        <p className="stat-label" style={{ marginBottom: 4 }}>{label}</p>
+        <p style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--ink-strong)', letterSpacing: '-0.04em', lineHeight: 1 }}>
           {value}
         </p>
         {sub && <p style={{ fontSize: 12, color: 'var(--ink-muted)', marginTop: 6 }}>{sub}</p>}

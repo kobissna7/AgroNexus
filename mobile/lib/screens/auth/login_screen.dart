@@ -4,6 +4,10 @@ import 'package:provider/provider.dart';
 import '../../config/theme.dart';
 import '../../providers/auth_provider.dart';
 
+// Mirrors web/src/components/AuthShell.tsx's form panel as it renders at
+// phone width — the dark brand panel is `hidden lg:flex` on web, so on a
+// real phone visitors only ever see this: canvas background, no logo, a
+// centered label-above-input form.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -35,6 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final role = auth.user!.role;
       const buyerRoles = ['consumer', 'wholesaler', 'retailer', 'direct_consumer'];
       if (role == 'farmer')                context.go('/farmer');
+      else if (role == 'admin')            context.go('/admin');
       else if (buyerRoles.contains(role))  context.go('/consumer');
       else                                 context.go('/transporter');
     }
@@ -43,104 +48,102 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.brandDark,
+      backgroundColor: AppColors.background,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              const SizedBox(height: 48),
-              // Logo
-              Container(
-                width: 72, height: 72,
-                decoration: BoxDecoration(
-                  color: AppColors.brand,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Icon(Icons.eco, color: Colors.white, size: 36),
-              ),
-              const SizedBox(height: 16),
-              const Text('AgroNexus', style: TextStyle(
-                fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white,
-              )),
-              const Text('Agricultural Marketplace', style: TextStyle(
-                color: Color(0xFFA3C4B0), fontSize: 14,
-              )),
-              const SizedBox(height: 48),
-              // Card
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text('Sign in', style: TextStyle(
-                        fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.textPrimary,
-                      )),
-                      const SizedBox(height: 4),
-                      Text('Enter your credentials to continue', style: TextStyle(
-                        color: AppColors.textSecond, fontSize: 13,
-                      )),
-                      const SizedBox(height: 24),
-                      TextFormField(
-                        controller: _email,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: const InputDecoration(
-                          labelText: 'Email', prefixIcon: Icon(Icons.email_outlined),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text('Sign in', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppColors.textPrimary, letterSpacing: -0.5)),
+                    const SizedBox(height: 6),
+                    Text('Good to see you again', style: TextStyle(color: AppColors.textSecond, fontSize: 14)),
+                    const SizedBox(height: 28),
+                    _label('Email address'),
+                    TextFormField(
+                      controller: _email,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: const InputDecoration(hintText: 'you@example.com'),
+                      validator: (v) => (v?.contains('@') ?? false) ? null : 'Enter a valid email',
+                    ),
+                    const SizedBox(height: 16),
+                    _label('Password'),
+                    TextFormField(
+                      controller: _password,
+                      obscureText: _obscure,
+                      decoration: InputDecoration(
+                        hintText: '••••••••',
+                        suffixIcon: IconButton(
+                          icon: Icon(_obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 20, color: AppColors.textMuted),
+                          onPressed: () => setState(() => _obscure = !_obscure),
                         ),
-                        validator: (v) => (v?.contains('@') ?? false) ? null : 'Enter a valid email',
                       ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _password,
-                        obscureText: _obscure,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          prefixIcon: const Icon(Icons.lock_outline),
-                          suffixIcon: IconButton(
-                            icon: Icon(_obscure ? Icons.visibility_off : Icons.visibility),
-                            onPressed: () => setState(() => _obscure = !_obscure),
-                          ),
-                        ),
-                        validator: (v) => (v?.length ?? 0) >= 6 ? null : 'Min 6 characters',
+                      validator: (v) => (v?.length ?? 0) >= 6 ? null : 'Min 6 characters',
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () => context.push('/forgot-password'),
+                        style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 32)),
+                        child: Text('Forgot password?', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.brand)),
                       ),
-                      // Error
-                      Consumer<AuthProvider>(
-                        builder: (_, auth, __) => auth.error != null
-                          ? Padding(
-                              padding: const EdgeInsets.only(top: 12),
-                              child: Text(auth.error!,
-                                style: TextStyle(color: AppColors.redText, fontSize: 13),
-                                textAlign: TextAlign.center,
-                              ),
+                    ),
+                    Consumer<AuthProvider>(
+                      builder: (_, auth, __) => auth.error != null
+                          ? Container(
+                              margin: const EdgeInsets.only(bottom: 4),
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              decoration: BoxDecoration(color: AppColors.redBg, borderRadius: BorderRadius.circular(10)),
+                              child: Text(auth.error!, style: TextStyle(color: AppColors.redText, fontSize: 13, fontWeight: FontWeight.w600)),
                             )
                           : const SizedBox.shrink(),
-                      ),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      height: 52,
+                      child: ElevatedButton(
                         onPressed: _loading ? null : _submit,
                         child: _loading
-                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                          : const Text('Sign in'),
+                            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                            : const Text('Sign in', style: TextStyle(fontSize: 15)),
                       ),
-                      const SizedBox(height: 16),
-                      TextButton(
-                        onPressed: () => context.push('/register'),
-                        child: const Text("Don't have an account? Register"),
+                    ),
+                    const SizedBox(height: 20),
+                    Center(
+                      child: RichText(
+                        text: TextSpan(
+                          style: TextStyle(fontSize: 14, color: AppColors.textSecond),
+                          children: [
+                            const TextSpan(text: "Don't have an account? "),
+                            WidgetSpan(
+                              alignment: PlaceholderAlignment.middle,
+                              child: GestureDetector(
+                                onTap: () => context.push('/register'),
+                                child: Text('Create one', style: TextStyle(color: AppColors.brand, fontWeight: FontWeight.w700, fontSize: 14)),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
+
+  Widget _label(String text) => Padding(
+    padding: const EdgeInsets.only(bottom: 6),
+    child: Text(text, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecond)),
+  );
 }

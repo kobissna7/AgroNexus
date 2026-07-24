@@ -9,16 +9,11 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* ── Fonts ──────────────────────────────────────────────────────────────────
-   'Paralucent' files are not shipped yet: the @font-face below 404s silently
-   and the stack falls through to the vendored Mulish variable font. Drop
-   licensed Paralucent woff2s into /public/fonts to activate — no code change. */
-@font-face {
-  font-family: 'Paralucent';
-  src: url('/fonts/Paralucent-Variable.woff2') format('woff2');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
+   'Paralucent' is optional and registered from index.html, which probes the
+   file's content-type first — the SPA rewrite answers 200 text/html for
+   missing files, so a plain @font-face here would try to decode the HTML
+   page as a font (OTS errors). Drop licensed Paralucent-Variable.woff2 into
+   /public/fonts to activate — no code change. */
 @font-face {
   font-family: 'Mulish';
   src: url('/fonts/Mulish-Variable.woff2') format('woff2');
@@ -80,8 +75,8 @@
   :root:not([data-theme="light"]) {
     --canvas:       var(--green);
     --canvas-soft:  color-mix(in srgb, #000000 26%, var(--green));
-    --surface:      color-mix(in srgb, #ffffff 8%, var(--green));
-    --surface-2:    color-mix(in srgb, #ffffff 15%, var(--green));
+    --surface:      color-mix(in srgb, #ffffff 12%, var(--green));
+    --surface-2:    color-mix(in srgb, #ffffff 20%, var(--green));
     --ink:          rgba(255, 255, 255, 0.94);
     --ink-strong:   #ffffff;
     --ink-muted:    rgba(255, 255, 255, 0.68);
@@ -113,8 +108,8 @@
 :root[data-theme="dark"] {
   --canvas:       var(--green);
   --canvas-soft:  color-mix(in srgb, #000000 26%, var(--green));
-  --surface:      color-mix(in srgb, #ffffff 8%, var(--green));
-  --surface-2:    color-mix(in srgb, #ffffff 15%, var(--green));
+  --surface:      color-mix(in srgb, #ffffff 12%, var(--green));
+  --surface-2:    color-mix(in srgb, #ffffff 20%, var(--green));
   --ink:          rgba(255, 255, 255, 0.94);
   --ink-strong:   #ffffff;
   --ink-muted:    rgba(255, 255, 255, 0.68);
@@ -251,8 +246,9 @@ body {
 .card-lift { transition: transform 0.18s ease, box-shadow 0.18s ease; }
 .card-lift:hover { transform: translateY(-2px); box-shadow: var(--shadow-pop); }
 
-/* Legacy aliases (pre-redesign pages) — same surface in the token system.   */
-.card-dark, .card-glass { background: var(--surface-2); border-radius: 1rem; border: 1px solid var(--edge); box-shadow: var(--shadow-card); color: var(--ink); }
+/* Legacy aliases (pre-redesign pages) — use --surface so cards always lift
+   visibly above the canvas in both light and dark mode.                       */
+.card-dark, .card-glass { background: var(--surface); border-radius: 1rem; border: 1px solid var(--edge); box-shadow: var(--shadow-card); color: var(--ink); }
 
 /* ── Buttons ───────────────────────────────────────────────────────────────── */
 .btn-primary {
@@ -344,18 +340,18 @@ body {
 .table-pro { width: 100%; border-collapse: collapse; }
 .table-pro thead th {
   background: var(--surface-2);
-  color: var(--ink-muted);
-  font-size: 11px;
+  color: var(--ink-strong);
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.07em;
-  padding: 13px 20px;
+  padding: 16px 24px;
   border-bottom: 1px solid var(--edge);
   white-space: nowrap;
   text-align: left;
 }
 .table-pro tbody td {
-  padding: 13px 20px;
+  padding: 16px 24px;
   border-bottom: 1px solid var(--edge);
   color: var(--ink);
   font-size: 14px;

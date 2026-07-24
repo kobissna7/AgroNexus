@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../config/constants.dart';
 import '../../config/theme.dart';
 import '../../models/listing.dart';
+import '../../widgets/crop_icon.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/connectivity_provider.dart';
 import '../../services/api_service.dart';
@@ -91,7 +92,7 @@ class _ConsumerBrowseScreenState extends State<ConsumerBrowseScreen> {
     if (qty != null && qty! > 0 && qty! < minQty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Bulk buyers must order at least ${minQty.toInt()} kg'), backgroundColor: AppColors.redText),
+          SnackBar(content: Text('Bulk buyers must order at least ${minQty.toInt()} kg'), backgroundColor: AppColors.redBg),
         );
       }
       return;
@@ -108,7 +109,7 @@ class _ConsumerBrowseScreenState extends State<ConsumerBrowseScreen> {
       } catch (_) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Order failed'), backgroundColor: AppColors.redText),
+            SnackBar(content: Text('Order failed'), backgroundColor: AppColors.redBg),
           );
         }
       }
@@ -178,7 +179,11 @@ class _ConsumerBrowseScreenState extends State<ConsumerBrowseScreen> {
                   ...AppConstants.crops.map((c) => Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: FilterChip(
-                      label: Text('${AppConstants.cropIcons[c]} $c'),
+                      label: Row(mainAxisSize: MainAxisSize.min, children: [
+                        CropIcon(c, size: 14, color: _filterCrop == c ? Colors.white : AppColors.textSecond),
+                        const SizedBox(width: 5),
+                        Text(c),
+                      ]),
                       selected: _filterCrop == c,
                       onSelected: (_) { setState(() { _filterCrop = c; _loading = true; }); _load(); },
                       selectedColor: AppColors.brand,
@@ -222,7 +227,7 @@ class _ConsumerBrowseScreenState extends State<ConsumerBrowseScreen> {
       children: [
         Row(
           children: [
-            Text(AppConstants.cropIcons[l.cropType] ?? '🌱', style: const TextStyle(fontSize: 28)),
+            CropIcon(l.cropType, size: 28, color: AppColors.textSecond),
             const SizedBox(width: 12),
             Expanded(
               child: Column(

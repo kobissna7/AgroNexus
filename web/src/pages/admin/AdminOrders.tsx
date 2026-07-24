@@ -111,7 +111,7 @@ export default function AdminOrders() {
               <p style={{ fontSize: '1.625rem', fontWeight: 800, color: isActive ? '#fff' : 'rgba(255,255,255,0.72)', lineHeight: 1 }}>
                 {count}
               </p>
-              <p style={{ fontSize: '0.6875rem', color: 'var(--ink-muted)', textTransform: 'capitalize', marginTop: '0.25rem' }}>
+              <p style={{ fontSize: '0.6875rem', color: 'rgba(255,255,255,0.55)', textTransform: 'capitalize', marginTop: '0.25rem' }}>
                 {s.replace('_', ' ')}
               </p>
             </button>

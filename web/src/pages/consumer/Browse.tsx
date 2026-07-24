@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../../components/Layout'
-import MetricCard from '../../components/MetricCard'
 import ListingCard, { type MarketListing } from '../../components/ListingCard'
 import { CropIcon } from '../../components/CropIcon'
 import { WheatIcon } from '../../components/icons'
@@ -45,92 +44,165 @@ export default function ConsumerBrowse() {
       return sum + o.quantity_kg * (listing.produce_listings?.price_per_kg ?? 0)
     }, 0)
 
+  const activeOrders = orders.filter((o) => ['pending', 'confirmed', 'in_transit'].includes(o.status)).length
+
   return (
-    <Layout>
-      {/* Metric cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 24 }}>
-        <MetricCard label="Total Orders" value={orders.length} sub="All time" icon={<BagIcon />} />
-        <MetricCard
-          label="Active Orders"
-          value={orders.filter((o) => ['pending', 'confirmed', 'in_transit'].includes(o.status)).length}
-          sub="In progress"
-          icon={<TruckMetricIcon />}
-        />
-        <MetricCard label="Amount Spent" value={`GH₵ ${totalSpent.toFixed(0)}`} sub="Across all orders" icon={<CoinIcon />} />
-      </div>
+    <Layout title="Marketplace">
+      {/* ── Two-column layout: main listings + sticky sidebar dashboard ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 24 }} className="browse-layout">
 
-      {/* Filter bar — crop chips + region, same language as the public marketplace */}
-      <div className="card" style={{ padding: '14px 18px', marginBottom: 24, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-        <button
-          onClick={() => setCrop('')}
-          className={crop === '' ? 'btn-primary' : 'btn-outline'}
-          style={{ minHeight: 34, padding: '0 14px', fontSize: 13 }}
-        >
-          All
-        </button>
-        {CROPS.map(c => (
-          <button
-            key={c}
-            onClick={() => setCrop(prev => {
-              const nextCrop = prev === c ? '' : c
-              if (nextCrop) track('filter', { crop_type: nextCrop, region: region || undefined })
-              return nextCrop
-            })}
-            className={crop === c ? 'btn-primary' : 'btn-outline'}
-            style={{ minHeight: 34, padding: '0 12px', fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6, textTransform: 'capitalize' }}
-          >
-            <CropIcon type={c} className="w-4 h-4" />
-            {c}
-          </button>
-        ))}
-        <select
-          className="input-field"
-          style={{ width: 'auto', borderRadius: 9999, padding: '7px 14px', fontSize: 13, marginLeft: 'auto' }}
-          value={region}
-          onChange={e => {
-            setRegion(e.target.value)
-            if (e.target.value) track('filter', { region: e.target.value, crop_type: crop || undefined })
-          }}
-          aria-label="Filter by region"
-        >
-          {REGIONS.map((r) => <option key={r} value={r}>{r || 'All regions'}</option>)}
-        </select>
-      </div>
+        {/* ── LEFT / MAIN: filters + listings ── */}
+        <div style={{ minWidth: 0 }}>
+          {/* Filter bar */}
+          <div className="card" style={{ padding: '12px 16px', marginBottom: 16, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => setCrop('')}
+              className={crop === '' ? 'btn-primary' : 'btn-outline'}
+              style={{ minHeight: 34, padding: '0 14px', fontSize: 13 }}
+            >
+              All
+            </button>
+            {CROPS.map(c => (
+              <button
+                key={c}
+                onClick={() => setCrop(prev => {
+                  const nextCrop = prev === c ? '' : c
+                  if (nextCrop) track('filter', { crop_type: nextCrop, region: region || undefined })
+                  return nextCrop
+                })}
+                className={crop === c ? 'btn-primary' : 'btn-outline'}
+                style={{ minHeight: 34, padding: '0 12px', fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6, textTransform: 'capitalize' }}
+              >
+                <CropIcon type={c} className="w-4 h-4" />
+                {c}
+              </button>
+            ))}
+            <div style={{ width: 1, height: 24, background: 'var(--edge)', margin: '0 4px', marginLeft: 'auto' }} />
+            <select
+              style={{
+                width: 'auto', borderRadius: 9999, padding: '0 14px', minHeight: 34, fontSize: 13,
+                background: 'var(--surface)', border: '1px solid var(--edge)', color: 'var(--ink)',
+                cursor: 'pointer', outline: 'none'
+              }}
+              value={region}
+              onChange={e => {
+                setRegion(e.target.value)
+                if (e.target.value) track('filter', { region: e.target.value, crop_type: crop || undefined })
+              }}
+              aria-label="Filter by region"
+            >
+              {REGIONS.map((r) => <option key={r} value={r}>{r || 'All regions'}</option>)}
+            </select>
+          </div>
 
-      {/* Listings grid */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <h2 style={{ fontWeight: 700, fontSize: 15, color: 'var(--ink)' }}>
-          {listings.length} listing{listings.length !== 1 ? 's' : ''} available
-        </h2>
-      </div>
+          {/* Listings header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <h2 style={{ fontWeight: 800, fontSize: 16, color: 'var(--ink-strong)', letterSpacing: '-0.01em' }}>
+              {listings.length} listing{listings.length !== 1 ? 's' : ''} available
+            </h2>
+          </div>
 
-      {loading ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 16 }}>
-          {[1, 2, 3, 4, 5, 6].map((i) => <div key={i} className="skeleton" style={{ height: 190, borderRadius: 16 }} />)}
+          {loading ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 16 }}>
+              {[1, 2, 3, 4, 5, 6].map((i) => <div key={i} className="skeleton" style={{ height: 190, borderRadius: 16 }} />)}
+            </div>
+          ) : listings.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '80px 24px', color: 'var(--ink-muted)' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}><WheatIcon className="w-14 h-14" /></div>
+              <p style={{ fontWeight: 700, color: 'var(--ink)' }}>No listings match your filters</p>
+              <p style={{ fontSize: 13, marginTop: 6 }}>Try broadening your search</p>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 16 }} className="animate-fade-in">
+              {listings.map((l) => (
+                <ListingCard key={l.id} listing={l} onBuy={(listing) => navigate(`/checkout/${listing.id}`)} />
+              ))}
+            </div>
+          )}
         </div>
-      ) : listings.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '80px 24px', color: 'var(--ink-muted)' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}><WheatIcon className="w-14 h-14" /></div>
-          <p style={{ fontWeight: 700, color: 'var(--ink)' }}>No listings match your filters</p>
-          <p style={{ fontSize: 13, marginTop: 6 }}>Try broadening your search</p>
-        </div>
-      ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 16 }} className="animate-fade-in">
-          {listings.map((l) => (
-            <ListingCard key={l.id} listing={l} onBuy={(listing) => navigate(`/checkout/${listing.id}`)} />
+
+        {/* ── RIGHT: sticky dashboard sidebar ── */}
+        <aside style={{ display: 'flex', flexDirection: 'column', gap: 12 }} className="browse-sidebar">
+          {/* Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-muted)' }}>Your Activity</p>
+            <button
+              className="btn-ghost"
+              style={{ fontSize: 12, padding: '4px 8px', minHeight: 28 }}
+              onClick={() => navigate('/consumer/orders')}
+            >
+              View all →
+            </button>
+          </div>
+
+          {/* Stat cards */}
+          {[
+            { label: 'Total Orders', value: orders.length, sub: 'All time', icon: <BagIcon /> },
+            { label: 'Active Orders', value: activeOrders, sub: 'In progress', icon: <TruckIcon />, accent: activeOrders > 0 },
+            { label: 'Amount Spent', value: `GH₵ ${totalSpent.toFixed(0)}`, sub: 'Across all orders', icon: <CoinIcon /> },
+          ].map(({ label, value, sub, icon, accent }) => (
+            <div key={label} className="card" style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div style={{
+                width: 40, height: 40, borderRadius: 10, flexShrink: 0,
+                background: accent ? 'rgba(96,165,250,0.12)' : 'var(--brand-soft)',
+                color: accent ? '#60a5fa' : 'var(--brand-ink)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                {icon}
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--ink-muted)', marginBottom: 2 }}>{label}</p>
+                <p style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--ink-strong)', letterSpacing: '-0.03em', lineHeight: 1 }}>{value}</p>
+                <p style={{ fontSize: 11, color: 'var(--ink-faint)', marginTop: 3 }}>{sub}</p>
+              </div>
+            </div>
           ))}
-        </div>
-      )}
+
+          {/* Quick link to orders */}
+          <button
+            className="btn-outline"
+            style={{ width: '100%', fontSize: 13, minHeight: 40, marginTop: 4 }}
+            onClick={() => navigate('/consumer/orders')}
+          >
+            My Orders
+          </button>
+        </aside>
+      </div>
+
+      {/* Responsive grid: sidebar moves to the right on wider screens */}
+      <style>{`
+        @media (min-width: 900px) {
+          .browse-layout {
+            grid-template-columns: 1fr 260px !important;
+            align-items: start;
+          }
+          .browse-sidebar {
+            position: sticky;
+            top: 24px;
+            order: 2;
+          }
+        }
+        @media (max-width: 899px) {
+          .browse-sidebar {
+            flex-direction: row !important;
+            flex-wrap: wrap;
+            gap: 10px !important;
+          }
+          .browse-sidebar > *:first-child { width: 100%; }
+          .browse-sidebar .card { flex: 1 1 140px; }
+          .browse-sidebar > button { width: 100%; }
+        }
+      `}</style>
     </Layout>
   )
 }
 
 function BagIcon() {
-  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: 22, height: 22 }}><path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: 20, height: 20 }}><path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
 }
-function TruckMetricIcon() {
-  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: 22, height: 22 }}><path strokeLinecap="round" strokeLinejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/><path strokeLinecap="round" strokeLinejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2 1h8zm0 0l2 1h3l1-4-3-3h-3v6z" /></svg>
+function TruckIcon() {
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: 20, height: 20 }}><path strokeLinecap="round" strokeLinejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/><path strokeLinecap="round" strokeLinejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2 1h8zm0 0l2 1h3l1-4-3-3h-3v6z" /></svg>
 }
 function CoinIcon() {
-  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: 22, height: 22 }}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: 20, height: 20 }}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
 }

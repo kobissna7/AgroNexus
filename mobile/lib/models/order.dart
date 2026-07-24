@@ -1,3 +1,5 @@
+import 'transport_request.dart';
+
 class Order {
   final String id;
   final String listingId;
@@ -8,6 +10,7 @@ class Order {
   final String? cropType;
   final String? location;
   final double? pricePerKg;
+  final TransportRequest? delivery;
 
   const Order({
     required this.id,
@@ -19,10 +22,12 @@ class Order {
     this.cropType,
     this.location,
     this.pricePerKg,
+    this.delivery,
   });
 
   factory Order.fromJson(Map<String, dynamic> j) {
     final listing = j['produce_listings'] as Map<String, dynamic>?;
+    final transportList = j['transport_requests'] as List<dynamic>?;
     return Order(
       id:          j['id'] as String,
       listingId:   j['listing_id'] as String,
@@ -33,6 +38,9 @@ class Order {
       cropType:    listing?['crop_type'] as String?,
       location:    listing?['location'] as String?,
       pricePerKg:  listing != null ? (listing['price_per_kg'] as num?)?.toDouble() : null,
+      delivery:    (transportList != null && transportList.isNotEmpty)
+          ? TransportRequest.fromJson(transportList.first as Map<String, dynamic>)
+          : null,
     );
   }
 

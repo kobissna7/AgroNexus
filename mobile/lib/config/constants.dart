@@ -2,15 +2,6 @@ class AppConstants {
   // Physical device: dev machine's LAN IP. For the emulator use http://10.0.2.2:3001
   static const String baseUrl = 'http://172.20.10.7:3001';
 
-  static const Map<String, String> cropIcons = {
-    'maize':    '🌽',
-    'tomatoes': '🍅',
-    'plantain': '🍌',
-    'cassava':  '🥔',
-    'pepper':   '🌶️',
-    'rice':     '🌾',
-  };
-
   static const List<String> crops = [
     'maize', 'tomatoes', 'plantain', 'cassava', 'pepper', 'rice',
   ];

@@ -31,6 +31,14 @@ const ROLE_LABEL: Record<string, string> = {
   direct_consumer: 'Consumer', consumer: 'Consumer', transporter: 'Transporter', admin: 'Admin',
 }
 
+// Bounding box around the platform's three served markets (same centroids as
+// the derive_region() DB function in migration_v2_roles_and_market.sql) —
+// the default view frames this area instead of a wide, mostly-empty region.
+const SERVICE_AREA_BOUNDS: [[number, number], [number, number]] = [
+  [5.28, -2.18],
+  [5.60, -1.95],
+]
+
 function svgMarker(color: string, size: number): string {
   return `
     <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size * 1.4}" viewBox="0 0 24 34">
@@ -51,8 +59,10 @@ export default function LocationMap({ users }: Props) {
     const L = (window as any).L
     if (!L || !mapRef.current || mapObj.current) return
 
-    // Centre on Ghana Western Region
-    const map = L.map(mapRef.current, { zoomControl: true }).setView([5.4, -2.0], 10)
+    // Frame the actual service area (Tarkwa/Bogoso/Prestea) rather than a
+    // wide default zoom that dilutes sparse pins into empty forest reserve.
+    const map = L.map(mapRef.current, { zoomControl: true })
+      .fitBounds(SERVICE_AREA_BOUNDS, { padding: [24, 24], maxZoom: 12 })
     mapObj.current = map
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

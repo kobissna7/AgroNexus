@@ -70,7 +70,7 @@ export default function Home() {
       <PublicHeader />
 
       {/* ── HERO — big type, marketplace-first ── */}
-      <section style={{ padding: '72px 0 40px' }}>
+      <section style={{ padding: '72px 0 40px', minHeight: 'calc(100vh - 68px)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         <div className="container-page">
           <p className="section-label">Western Region, Ghana · Live market</p>
           <h1 className="page-title" style={{ maxWidth: 720 }}>
@@ -82,20 +82,20 @@ export default function Home() {
           </p>
 
           {/* search */}
-          <form onSubmit={submitSearch} style={{ display: 'flex', gap: 10, maxWidth: 520, flexWrap: 'wrap' }}>
+          <form onSubmit={submitSearch} style={{ display: 'flex', gap: 10, maxWidth: 520 }}>
             <input
               className="input-field"
-              style={{ flex: 1, minWidth: 220, borderRadius: 9999, padding: '12px 20px' }}
+              style={{ flex: 1, minWidth: 0, borderRadius: 9999, padding: '12px 20px' }}
               placeholder="Search produce — maize, tomatoes…"
               value={search}
               onChange={e => setSearch(e.target.value)}
               aria-label="Search produce"
             />
-            <button type="submit" className="btn-primary btn-lg" style={{ minHeight: 46 }}>Search</button>
+            <button type="submit" className="btn-primary btn-lg" style={{ minHeight: 46, whiteSpace: 'nowrap' }}>Search</button>
           </form>
 
           {/* live stats strip */}
-          <div style={{ display: 'flex', gap: 28, marginTop: 36, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '12px 24px', marginTop: 36, flexWrap: 'wrap', alignItems: 'center' }}>
             {[
               { v: stats.count, l: 'live listings' },
               { v: `${stats.kg.toLocaleString()} kg`, l: 'on the market' },
@@ -158,7 +158,7 @@ export default function Home() {
       </section>
 
       {/* ── LISTINGS GRID — green band: white cards, white ink ── */}
-      <section className="section-brand" style={{ padding: '36px 0 72px', minHeight: 420 }}>
+      <section className="section-brand" style={{ padding: '36px 0 72px', minHeight: '100vh' }}>
         <div className="container-page">
           {loading ? (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 18 }}>
@@ -178,8 +178,8 @@ export default function Home() {
       </section>
 
       {/* ── VALUE STRIP — back to white (green + black content) ── */}
-      <section style={{ padding: '64px 0' }}>
-        <div className="container-page" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 32 }}>
+      <section style={{ padding: '64px 0', minHeight: '100vh', display: 'flex', alignItems: 'center' }}>
+        <div className="container-page" style={{ width: '100%', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 32 }}>
           {[
             { t: 'Sell as a farmer', d: 'List your harvest in minutes and reach wholesalers, retailers, and households across the region.', cta: 'Start selling', to: '/register' },
             { t: 'Deliver as a transporter', d: 'Pick up delivery jobs near you the moment orders are placed. Update status on the go.', cta: 'Start delivering', to: '/register' },

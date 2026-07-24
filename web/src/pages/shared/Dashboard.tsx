@@ -11,6 +11,7 @@ import {
 import MetricCard from '../../components/MetricCard'
 import StatusBadge from '../../components/StatusBadge'
 import { CropIcon } from '../../components/CropIcon'
+import { DarkHero } from '../../components/ui'
 import api from '../../lib/api'
 
 interface MoaCropData {
@@ -84,27 +85,17 @@ export default function MarketDashboard() {
 
   return (
     <Layout>
-      {/* Dark hero */}
-      <div style={{
-        background: 'linear-gradient(170deg, #000 0%, color-mix(in srgb, #0b2e14 55%, #000) 100%)',
-        borderRadius: 20, padding: 32, marginBottom: 24,
-        border: '1px solid var(--edge)',
-        boxShadow: '0 4px 32px rgba(0,0,0,0.4)',
-        position: 'relative', overflow: 'hidden',
-      }}>
-        <div style={{ position: 'absolute', top: -60, right: -60, width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
-          <div>
-            <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--brand-ink)', marginBottom: 8 }}>Market Intelligence</p>
-            <h1 style={{ fontSize: '1.7rem', fontWeight: 800, color: 'var(--ink)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Market Dashboard</h1>
-            <p style={{ fontSize: 14, color: 'var(--ink-faint)', marginTop: 6 }}>Real-time prices and regional supply · Western Region, Ghana</p>
+      <DarkHero
+        eyebrow="Market Intelligence"
+        title="Market Dashboard"
+        sub="Real-time prices and regional supply · Western Region, Ghana"
+        right={
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 14px', borderRadius: 9999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)' }}>
+            <span className="live-dot" style={{ background: 'rgba(134,239,172,0.9)' }} />
+            <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(134,239,172,0.9)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Live</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 14px', borderRadius: 9999, background: 'var(--brand-soft)', border: '1px solid var(--edge)' }}>
-            <span className="live-dot" />
-            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--brand-ink)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Live</span>
-          </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* Metric cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 24 }}>

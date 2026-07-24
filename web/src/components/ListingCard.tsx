@@ -72,14 +72,14 @@ export default function ListingCard({ listing, onBuy, buyLabel = 'Buy now', styl
         </p>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 'auto' }}>
-        <div>
+      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 'auto', gap: 8 }}>
+        <div style={{ whiteSpace: 'nowrap' }}>
           <span style={{ fontSize: 22, fontWeight: 800, color: 'var(--ink-strong)', letterSpacing: '-0.02em' }}>
             GH₵{Number(listing.price_per_kg).toFixed(2)}
           </span>
           <span style={{ fontSize: 13, color: 'var(--ink-muted)' }}> /kg</span>
         </div>
-        <button className="btn-primary" style={{ minHeight: 38, padding: '0 18px', fontSize: 13 }} onClick={handleBuy}>
+        <button className="btn-primary" style={{ minHeight: 38, padding: '0 18px', fontSize: 13, whiteSpace: 'nowrap' }} onClick={handleBuy}>
           {buyLabel}
         </button>
       </div>

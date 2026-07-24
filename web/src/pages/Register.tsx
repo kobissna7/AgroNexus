@@ -98,36 +98,15 @@ export default function Register() {
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {/* Role selector */}
         <div>
-          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ink-muted)', marginBottom: 8 }}>
+          <label htmlFor="role" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ink-muted)', marginBottom: 6 }}>
             I am a…
           </label>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
-            {roleOptions.map(({ value, label, desc }) => {
-              const isSelected = form.role === value
-              return (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setForm((f) => ({ ...f, role: value }))}
-                  style={{
-                    padding: '0.55rem 0.65rem',
-                    borderRadius: 12,
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    transition: 'all 0.18s',
-                    fontFamily: 'inherit',
-                    border: isSelected ? '1.5px solid var(--brand)' : '1.5px solid var(--edge)',
-                    background: isSelected ? 'var(--brand-soft)' : 'var(--surface)',
-                  }}
-                >
-                  <p style={{ fontSize: 13, fontWeight: 700, color: isSelected ? 'var(--brand-ink)' : 'var(--ink)', marginBottom: 3 }}>
-                    {label}
-                  </p>
-                  <p style={{ fontSize: 11, color: 'var(--ink-muted)', lineHeight: 1.4 }}>{desc}</p>
-                </button>
-              )
-            })}
-          </div>
+          <select id="role" className="input-field" value={form.role} onChange={set('role')} required>
+            <option value="" disabled>Select your role</option>
+            {roleOptions.map(({ value, label, desc }) => (
+              <option key={value} value={value}>{label} — {desc}</option>
+            ))}
+          </select>
         </div>
 
         {/* two-up rows keep the whole form inside one viewport */}

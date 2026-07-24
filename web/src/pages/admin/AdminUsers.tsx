@@ -208,7 +208,7 @@ export default function AdminUsers() {
                     <th key={col} style={{
                       padding: '0.875rem 1.5rem', textAlign: 'left',
                       fontSize: '0.6875rem', fontWeight: 600,
-                      color: 'var(--ink-faint)', textTransform: 'uppercase', letterSpacing: '0.06em',
+                      color: 'rgba(255, 255, 255, 0.8)', textTransform: 'uppercase', letterSpacing: '0.06em',
                       border: 'none',
                     }}>
                       {col}

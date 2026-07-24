@@ -106,6 +106,73 @@ export function Modal({ open, onClose, title, children, maxWidth = 480 }: {
   )
 }
 
+/* ── DarkHero ────────────────────────────────────────────────────────────── */
+// Fixed light-on-dark palette for surfaces that stay permanently dark
+// regardless of the light/dark theme toggle (hero banners, the 404 backdrop
+// — see CLAUDE.md: "sidebar and auth brand panels stay permanently dark").
+// Never use theme-semantic vars (--ink, --brand-ink, --ink-muted, --ink-faint)
+// inside one of these: they invert to near-black in light mode and vanish
+// against a background that never changes.
+export const HERO_GRADIENT = 'linear-gradient(170deg, #000 0%, color-mix(in srgb, #0b2e14 55%, #000) 100%)'
+export const HERO_INK = {
+  eyebrow:    'rgba(134,239,172,0.9)',
+  title:      '#ffffff',
+  body:       'rgba(255,255,255,0.55)',
+  faint:      'rgba(255,255,255,0.45)',
+  chipBg:     'rgba(255,255,255,0.12)',
+  chipBorder: 'rgba(255,255,255,0.18)',
+} as const
+
+interface HeroGlow { color?: string; top?: number; right?: number; bottom?: number; size?: number }
+interface DarkHeroProps {
+  eyebrow: ReactNode
+  title: ReactNode
+  sub?: ReactNode
+  /** Rendered in the right-hand slot of the header row (badge, stat block, actions). */
+  right?: ReactNode
+  /** Extra content below the subtitle, inside the left column (buttons, stat chips). */
+  children?: ReactNode
+  /** Vertical alignment of the left/right row — 'end' bottom-aligns (e.g. a tall stat block). */
+  align?: 'start' | 'end'
+  padding?: string | number
+  glow?: HeroGlow
+  style?: CSSProperties
+}
+export function DarkHero({
+  eyebrow, title, sub, right, children, align = 'start', padding = 32,
+  glow = {}, style,
+}: DarkHeroProps) {
+  const { color = 'rgba(255,255,255,0.08)', top = -60, right: glowRight = -60, bottom, size = 200 } = glow
+  return (
+    <div style={{
+      background: HERO_GRADIENT,
+      borderRadius: 20, padding, marginBottom: 24,
+      border: '1px solid var(--edge)',
+      boxShadow: '0 4px 32px rgba(0,0,0,0.4)',
+      position: 'relative', overflow: 'hidden',
+      ...style,
+    }}>
+      <div style={{
+        position: 'absolute', width: size, height: size, borderRadius: '50%',
+        background: `radial-gradient(circle, ${color} 0%, transparent 70%)`,
+        pointerEvents: 'none', top, right: glowRight, bottom,
+      }} />
+      <div style={{
+        display: 'flex', alignItems: align === 'end' ? 'flex-end' : 'flex-start',
+        justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
+      }}>
+        <div>
+          <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: HERO_INK.eyebrow, marginBottom: 8 }}>{eyebrow}</p>
+          <h1 style={{ fontSize: '1.7rem', fontWeight: 800, color: HERO_INK.title, letterSpacing: '-0.02em', lineHeight: 1.2 }}>{title}</h1>
+          {sub && <p style={{ fontSize: 14, color: HERO_INK.body, marginTop: 6 }}>{sub}</p>}
+          {children}
+        </div>
+        {right}
+      </div>
+    </div>
+  )
+}
+
 /* ── EmptyState ──────────────────────────────────────────────────────────── */
 export function EmptyState({ icon, title, sub, action }: { icon?: ReactNode; title: string; sub?: string; action?: ReactNode }) {
   return (

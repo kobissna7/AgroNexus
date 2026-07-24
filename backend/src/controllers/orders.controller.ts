@@ -21,7 +21,7 @@ export async function placeOrder(req: Request, res: Response): Promise<void> {
 export async function getMyOrders(req: Request, res: Response): Promise<void> {
   const { data, error } = await supabaseAdmin
     .from('orders')
-    .select('*, produce_listings(crop_type, location, price_per_kg)')
+    .select('*, produce_listings(crop_type, location, price_per_kg), transport_requests(*, users(full_name, phone))')
     .eq('consumer_id', req.user!.id)
     .order('created_at', { ascending: false })
 

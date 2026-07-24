@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../config/constants.dart';
 import '../../config/theme.dart';
+import '../../models/listing.dart';
 import '../../services/api_service.dart';
+import '../../widgets/crop_icon.dart';
 
 class CreateListingScreen extends StatefulWidget {
-  const CreateListingScreen({super.key});
+  final Listing? editing;
+  const CreateListingScreen({super.key, this.editing});
 
   @override
   State<CreateListingScreen> createState() => _CreateListingScreenState();
@@ -21,6 +24,21 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
   bool _loading   = false;
   String? _error;
 
+  bool get _isEditing => widget.editing != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final l = widget.editing;
+    if (l != null) {
+      _crop = l.cropType;
+      _qty.text = l.quantityKg.toString();
+      _price.text = l.pricePerKg.toString();
+      _location.text = l.location;
+      _availableFrom = DateTime.tryParse(l.availableFrom) ?? DateTime.now();
+    }
+  }
+
   @override
   void dispose() {
     _qty.dispose(); _price.dispose(); _location.dispose();
@@ -30,22 +48,27 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() { _loading = true; _error = null; });
+    final data = {
+      'crop_type':      _crop,
+      'quantity_kg':    double.parse(_qty.text),
+      'price_per_kg':   double.parse(_price.text),
+      'location':       _location.text.trim(),
+      'available_from': _availableFrom.toIso8601String().split('T').first,
+    };
     try {
-      await ApiService.createListing({
-        'crop_type':      _crop,
-        'quantity_kg':    double.parse(_qty.text),
-        'price_per_kg':   double.parse(_price.text),
-        'location':       _location.text.trim(),
-        'available_from': _availableFrom.toIso8601String().split('T').first,
-      });
+      if (_isEditing) {
+        await ApiService.updateListing(widget.editing!.id, data);
+      } else {
+        await ApiService.createListing(data);
+      }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Listing created!'), backgroundColor: AppColors.brand),
+          SnackBar(content: Text(_isEditing ? 'Listing updated!' : 'Listing created!'), backgroundColor: AppColors.brand),
         );
         context.pop();
       }
     } catch (e) {
-      setState(() { _error = 'Failed to create listing'; _loading = false; });
+      setState(() { _error = _isEditing ? 'Failed to update listing' : 'Failed to create listing'; _loading = false; });
     }
   }
 
@@ -63,7 +86,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('New Listing'), backgroundColor: AppColors.brandDark),
+      appBar: AppBar(title: Text(_isEditing ? 'Edit Listing' : 'New Listing'), backgroundColor: AppColors.brandDark),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -77,8 +100,11 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
               Wrap(
                 spacing: 8, runSpacing: 8,
                 children: AppConstants.crops.map((c) => ChoiceChip(
-                  label: Text('${AppConstants.cropIcons[c]} $c',
-                    style: TextStyle(fontSize: 12, color: _crop == c ? Colors.white : AppColors.textSecond)),
+                  label: Row(mainAxisSize: MainAxisSize.min, children: [
+                    CropIcon(c, size: 13, color: _crop == c ? Colors.white : AppColors.textSecond),
+                    const SizedBox(width: 5),
+                    Text(c, style: TextStyle(fontSize: 12, color: _crop == c ? Colors.white : AppColors.textSecond)),
+                  ]),
                   selected: _crop == c,
                   selectedColor: AppColors.brand,
                   onSelected: (_) => setState(() => _crop = c),
@@ -145,7 +171,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                 onPressed: _loading ? null : _submit,
                 child: _loading
                   ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                  : const Text('Create Listing'),
+                  : Text(_isEditing ? 'Save Changes' : 'Create Listing'),
               ),
             ],
           ),

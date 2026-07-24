@@ -25,13 +25,30 @@
     <!-- Fonts -->
     <link rel="preload" href="/fonts/Mulish-Variable.woff2" as="font" type="font/woff2" crossorigin />
 
+    <!-- Optional Paralucent: the SPA rewrite serves index.html (200, text/html)
+         for missing files, so probe the content-type before registering the
+         @font-face — a blind @font-face would decode the HTML as a font. -->
+    <script>
+      fetch('/fonts/Paralucent-Variable.woff2')
+        .then(function (r) {
+          var ct = r.headers.get('content-type') || '';
+          if (r.ok && (ct.indexOf('font') !== -1 || ct.indexOf('woff') !== -1)) {
+            var s = document.createElement('style');
+            s.textContent =
+              "@font-face{font-family:'Paralucent';src:url('/fonts/Paralucent-Variable.woff2') format('woff2');font-weight:100 900;font-style:normal;font-display:swap;}";
+            document.head.appendChild(s);
+          }
+        })
+        .catch(function () {});
+    </script>
+
     <!-- SEO -->
-    <title>AgroNexus — Ghana's Intelligent Agricultural Marketplace</title>
+    <title>AgroNexus</title>
     <meta name="description" content="Connect farmers, consumers, and transporters across Ghana's Western Region. AI-powered demand forecasts, real-time order tracking, and offline-ready mobile app." />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="AgroNexus — Ghana's Intelligent Agricultural Marketplace" />
+    <meta property="og:title" content="AgroNexus" />
     <meta property="og:description" content="AI-powered agricultural distribution platform for Tarkwa, Bogoso, and Prestea." />
     <meta property="og:image" content="/logo.png" />
 

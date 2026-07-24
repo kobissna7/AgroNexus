@@ -15,6 +15,7 @@ export interface AuthUser {
   email: string
   role: UserRole
   full_name: string
+  region?: string
 }
 
 export interface ProduceListing {

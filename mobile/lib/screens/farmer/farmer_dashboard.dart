@@ -13,7 +13,7 @@ import '../../services/storage_service.dart';
 import '../../widgets/offline_banner.dart';
 import '../../widgets/metric_card.dart';
 import '../../widgets/status_badge.dart';
-import 'create_listing_screen.dart';
+import '../../widgets/crop_icon.dart';
 
 class FarmerDashboardScreen extends StatefulWidget {
   const FarmerDashboardScreen({super.key});
@@ -161,7 +161,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(AppConstants.cropIcons[fc.cropType] ?? '🌱', style: const TextStyle(fontSize: 20)),
+                                    CropIcon(fc.cropType, size: 20.0, color: AppColors.textSecond),
                                     const SizedBox(height: 4),
                                     Text(fc.cropType, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
                                     Text('${fc.weeklyPredW1.toInt()} kg/wk', style: TextStyle(fontSize: 10, color: AppColors.textSecond)),
@@ -220,7 +220,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
     ),
     child: Row(
       children: [
-        Text(AppConstants.cropIcons[l.cropType] ?? '🌱', style: const TextStyle(fontSize: 24)),
+        CropIcon(l.cropType, size: 24.0, color: AppColors.textSecond),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -248,7 +248,7 @@ class _FarmerDashboardScreenState extends State<FarmerDashboardScreen> {
     ),
     child: Row(
       children: [
-        Text(AppConstants.cropIcons[o.cropType ?? ''] ?? '📦', style: const TextStyle(fontSize: 24)),
+        CropIcon(o.cropType ?? '', size: 24.0, color: AppColors.textSecond),
         const SizedBox(width: 12),
         Expanded(
           child: Column(

@@ -49,7 +49,7 @@ export async function register(req: Request, res: Response): Promise<void> {
   const { data: userData, error: dbError } = await supabaseAdmin
     .from('users')
     .insert(profileData)
-    .select('id, email, role, full_name')
+    .select('id, email, role, full_name, region')
     .single()
 
   if (dbError || !userData) {
@@ -87,7 +87,7 @@ export async function login(req: Request, res: Response): Promise<void> {
   // Fetch user profile using admin client (service_role, bypasses RLS)
   const { data: userData, error: dbError } = await supabaseAdmin
     .from('users')
-    .select('id, email, role, full_name')
+    .select('id, email, role, full_name, region')
     .eq('id', authData.user.id)
     .single()
 

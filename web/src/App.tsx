@@ -16,9 +16,11 @@ import FarmerListings from './pages/farmer/Listings'
 import FarmerOrders from './pages/farmer/Orders'
 import ConsumerBrowse from './pages/consumer/Browse'
 import ConsumerOrders from './pages/consumer/Orders'
+import ConsumerDeliveries from './pages/consumer/Deliveries'
 import Checkout from './pages/checkout/Checkout'
 import PaymentCallback from './pages/checkout/PaymentCallback'
 import TransporterFeed from './pages/transporter/Feed'
+import TransporterDeliveries from './pages/transporter/Deliveries'
 import MarketDashboard from './pages/shared/Dashboard'
 import ForecastsPage from './pages/shared/Forecasts'
 import AdminDashboard from './pages/admin/AdminDashboard'
@@ -59,16 +61,19 @@ export default function App() {
         <Route element={<ProtectedRoute allowedRoles={['consumer', 'wholesaler', 'retailer', 'direct_consumer']} />}>
           <Route path="/consumer/browse" element={<ConsumerBrowse />} />
           <Route path="/consumer/orders" element={<ConsumerOrders />} />
+          <Route path="/consumer/deliveries" element={<ConsumerDeliveries />} />
           <Route path="/checkout/:listingId" element={<Checkout />} />
           <Route path="/payment/callback" element={<PaymentCallback />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['transporter']} />}>
-          <Route path="/transporter/feed" element={<TransporterFeed />} />
-          <Route path="/transporter/deliveries" element={<TransporterFeed />} />
+          <Route path="/transporter/feed"       element={<TransporterFeed />} />
+          <Route path="/transporter/deliveries" element={<TransporterDeliveries />} />
         </Route>
 
-        <Route element={<ProtectedRoute allowedRoles={['farmer','admin']} />}>
+        {/* Market + Forecasts: read-only market intelligence, useful to
+            farmers deciding what to list and buyers deciding what to order. */}
+        <Route element={<ProtectedRoute allowedRoles={['farmer', 'admin', 'consumer', 'wholesaler', 'retailer', 'direct_consumer']} />}>
           <Route path="/market" element={<MarketDashboard />} />
           <Route path="/forecasts" element={<ForecastsPage />} />
         </Route>

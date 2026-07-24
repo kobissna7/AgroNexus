@@ -195,11 +195,11 @@ export default function Checkout() {
         {!listing ? (
           <div className="skeleton" style={{ height: 320, borderRadius: 16 }} />
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 24, alignItems: 'start' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24, alignItems: 'start' }}>
             {/* ── Left: order details ── */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               {/* Product */}
-              <div className="card" style={{ padding: 22, display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div className="card" style={{ padding: 22, display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
                 <div style={{
                   width: 52, height: 52, borderRadius: 14, flexShrink: 0,
                   background: 'var(--brand-soft)', color: 'var(--brand-ink)',

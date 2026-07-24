@@ -6,6 +6,7 @@ import {
 import Layout from '../../components/Layout'
 import MetricCard from '../../components/MetricCard'
 import { CropIcon } from '../../components/CropIcon'
+import { DarkHero } from '../../components/ui'
 import api from '../../lib/api'
 import {
   CHART, REGION_COLORS, DIVERGE,
@@ -140,21 +141,11 @@ export default function ForecastInsights() {
 
   return (
     <Layout>
-      {/* Dark hero */}
-      <div style={{
-        background: 'linear-gradient(170deg, #000 0%, color-mix(in srgb, #0b2e14 55%, #000) 100%)',
-        borderRadius: 20, padding: 32, marginBottom: 24,
-        border: '1px solid var(--edge)',
-        boxShadow: '0 4px 32px rgba(0,0,0,0.4)',
-        position: 'relative', overflow: 'hidden',
-      }}>
-        <div style={{ position: 'absolute', top: -60, right: -60, width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
-        <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--brand-ink)', marginBottom: 8 }}>Admin · ML Forecasting</p>
-        <h1 style={{ fontSize: '1.7rem', fontWeight: 800, color: 'var(--ink)', letterSpacing: '-0.02em' }}>Forecast Insights</h1>
-        <p style={{ fontSize: 14, color: 'var(--ink-faint)', marginTop: 6 }}>
-          Cross-region demand analytics · next 14 days · all tracked crops
-        </p>
-      </div>
+      <DarkHero
+        eyebrow="Admin · ML Forecasting"
+        title="Forecast Insights"
+        sub="Cross-region demand analytics · next 14 days · all tracked crops"
+      />
 
       {loading ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -338,9 +329,9 @@ export default function ForecastInsights() {
                 <table className="table-pro" style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr>
-                      <th style={{ textAlign: 'left' }}>Crop</th>
-                      {REGIONS.map((r) => <th key={r} style={{ textAlign: 'right' }}>{r} (kg)</th>)}
-                      <th style={{ textAlign: 'right' }}>Total (kg)</th>
+                      <th style={{ textAlign: 'left', minWidth: 90 }}>Crop</th>
+                      {REGIONS.map((r) => <th key={r} style={{ textAlign: 'right', minWidth: 80 }}>{r} (kg)</th>)}
+                      <th style={{ textAlign: 'right', minWidth: 90 }}>Total (kg)</th>
                     </tr>
                   </thead>
                   <tbody>

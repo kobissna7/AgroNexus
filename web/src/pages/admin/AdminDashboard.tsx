@@ -3,6 +3,7 @@ import Layout from '../../components/Layout'
 import api from '../../lib/api'
 import LocationMap from './LocationMap'
 import { ROLE_COLORS } from '../../lib/chartTheme'
+import { DarkHero } from '../../components/ui'
 
 interface Stats {
   users: { total: number; farmers: number; consumers: number; transporters: number; admins: number }
@@ -80,30 +81,22 @@ export default function AdminDashboard() {
 
   return (
     <Layout>
-      {/* Dark hero with revenue */}
-      <div style={{
-        background: 'linear-gradient(170deg, #000 0%, color-mix(in srgb, #0b2e14 55%, #000) 100%)',
-        borderRadius: 20, padding: 32, marginBottom: 24,
-        border: '1px solid var(--edge)',
-        boxShadow: '0 4px 32px rgba(0,0,0,0.4)',
-        position: 'relative', overflow: 'hidden',
-      }}>
-        <div style={{ position: 'absolute', top: -60, right: -60, width: 220, height: 220, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap' }}>
-          <div>
-            <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--brand-ink)', marginBottom: 8 }}>Platform Administration</p>
-            <h1 style={{ fontSize: '1.7rem', fontWeight: 800, color: 'var(--ink)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Admin Dashboard</h1>
-            <p style={{ fontSize: 14, color: 'var(--ink-faint)', marginTop: 6 }}>Platform-wide overview · Western Region, Ghana</p>
-          </div>
+      <DarkHero
+        eyebrow="Platform Administration"
+        title="Admin Dashboard"
+        sub="Platform-wide overview · Western Region, Ghana"
+        align="end"
+        glow={{ size: 220 }}
+        right={
           <div style={{ textAlign: 'right' }}>
-            <p style={{ fontSize: 11, color: 'var(--ink-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700, marginBottom: 8 }}>Total Platform Revenue</p>
-            <p style={{ fontSize: '2.6rem', fontWeight: 800, color: 'var(--brand-ink)', letterSpacing: '-0.03em', lineHeight: 1 }}>
+            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700, marginBottom: 8 }}>Total Platform Revenue</p>
+            <p style={{ fontSize: '2.6rem', fontWeight: 800, color: 'rgba(134,239,172,0.9)', letterSpacing: '-0.03em', lineHeight: 1 }}>
               {loading || !stats ? '—' : <>GH₵ {stats.revenue_ghs.toLocaleString()}</>}
             </p>
-            <p style={{ fontSize: 11, color: 'var(--ink-faint)', marginTop: 6 }}>confirmed + in-transit + delivered orders</p>
+            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 6 }}>confirmed + in-transit + delivered orders</p>
           </div>
-        </div>
-      </div>
+        }
+      />
 
       {loading ? (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 14 }}>
@@ -193,12 +186,12 @@ export default function AdminDashboard() {
                       <table className="table-pro">
                         <thead>
                           <tr>
-                            <th>Region</th>
-                            <th>Farmers</th>
-                            <th>Buyers</th>
-                            <th>Transporters</th>
-                            <th>Listed (kg)</th>
-                            <th>Ordered (kg)</th>
+                            <th style={{ minWidth: 90 }}>Region</th>
+                            <th style={{ minWidth: 80 }}>Farmers</th>
+                            <th style={{ minWidth: 80 }}>Buyers</th>
+                            <th style={{ minWidth: 100 }}>Transporters</th>
+                            <th style={{ minWidth: 100 }}>Listed (kg)</th>
+                            <th style={{ minWidth: 100 }}>Ordered (kg)</th>
                           </tr>
                         </thead>
                         <tbody>

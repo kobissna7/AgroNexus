@@ -18,7 +18,7 @@ export default function PublicHeader() {
       borderBottom: '1px solid var(--edge)',
     }}>
       <div className="container-page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 68 }}>
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', flexShrink: 0 }}>
           <img src="/logo.svg" alt="" style={{ width: 34, height: 34, borderRadius: 8, objectFit: 'contain' }} />
           <span style={{ color: 'var(--ink-strong)', fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em' }}>AgroNexus</span>
         </Link>
@@ -26,15 +26,15 @@ export default function PublicHeader() {
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <ThemeToggle />
           {user ? (
-            <button className="btn-primary" style={{ minHeight: 40 }} onClick={() => navigate(dashboardByRole[user.role] ?? '/')}>
-              Go to dashboard →
+            <button className="btn-primary" style={{ minHeight: 40, whiteSpace: 'nowrap' }} onClick={() => navigate(dashboardByRole[user.role] ?? '/')}>
+              Dashboard →
             </button>
           ) : (
             <>
-              <Link to="/login" className="btn-ghost" style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}>
+              <Link to="/login" className="btn-ghost" style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none', whiteSpace: 'nowrap' }}>
                 Sign in →
               </Link>
-              <Link to="/register" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}>
+              <Link to="/register" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none', whiteSpace: 'nowrap' }}>
                 Get started
               </Link>
             </>

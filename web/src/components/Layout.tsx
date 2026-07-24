@@ -17,8 +17,11 @@ const farmerNav: NavItem[] = [
   { label: 'Forecasts',   to: '/forecasts',        icon: <ForecastIcon /> },
 ]
 const consumerNav: NavItem[] = [
-  { label: 'Marketplace', to: '/consumer/browse', icon: <BrowseIcon /> },
-  { label: 'My Orders',   to: '/consumer/orders', icon: <OrderIcon /> },
+  { label: 'Marketplace', to: '/consumer/browse',     icon: <BrowseIcon /> },
+  { label: 'My Orders',   to: '/consumer/orders',     icon: <OrderIcon /> },
+  { label: 'Deliveries',  to: '/consumer/deliveries', icon: <TruckIcon /> },
+  { label: 'Market',      to: '/market',              icon: <ChartIcon /> },
+  { label: 'Forecasts',   to: '/forecasts',           icon: <ForecastIcon /> },
 ]
 const transporterNav: NavItem[] = [
   { label: 'Feed',       to: '/transporter/feed',       icon: <HomeIcon /> },
@@ -53,15 +56,30 @@ const SIDEBAR = {
   hover: 'rgba(255,255,255,0.06)',
 }
 
-export default function Layout({ children }: { children: ReactNode }) {
+export default function Layout({ children, title }: { children: ReactNode; title?: string }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [collapsed, setCollapsed] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const [unread, setUnread] = useState(0)
   const [showBell, setShowBell] = useState(false)
   const [notifications, setNotifications] = useState<{ id: string; message: string; read: boolean; created_at: string }[]>([])
   const bellRef = useRef<HTMLDivElement>(null)
   const navItems = navByRole[user?.role ?? ''] ?? []
+
+  // Detect mobile breakpoint
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)')
+    const handler = (e: MediaQueryListEvent) => {
+      setIsMobile(e.matches)
+      if (e.matches) setCollapsed(true)
+    }
+    setIsMobile(mq.matches)
+    if (mq.matches) setCollapsed(true)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
 
   const handleLogout = () => { logout(); navigate('/login') }
 
@@ -118,30 +136,51 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   const initials = user?.full_name?.[0]?.toUpperCase() ?? '?'
 
+  // Sidebar visibility logic
+  const sidebarVisible = isMobile ? mobileOpen : true
+  const sidebarWidth   = isMobile ? 240 : (collapsed ? 64 : 220)
+  // Labels/user-info show when: mobile drawer is open, OR desktop is expanded
+  const showLabels = isMobile || !collapsed
+
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: 'var(--canvas)' }}>
+      {/* Mobile overlay backdrop */}
+      {isMobile && mobileOpen && (
+        <div
+          onClick={() => setMobileOpen(false)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 40,
+            background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)',
+          }}
+        />
+      )}
       {/* ── Sidebar ──────────────────────────────────────── */}
       <aside style={{
-        width: collapsed ? 64 : 220,
-        transition: 'width 0.22s cubic-bezier(0.4,0,0.2,1)',
+        width: sidebarWidth,
+        transition: 'width 0.22s cubic-bezier(0.4,0,0.2,1), transform 0.22s cubic-bezier(0.4,0,0.2,1)',
         flexShrink: 0,
         display: 'flex', flexDirection: 'column',
         background: SIDEBAR.bg,
         borderRight: `1px solid ${SIDEBAR.edge}`,
-        position: 'relative',
+        position: isMobile ? 'fixed' : 'relative',
+        top: isMobile ? 0 : undefined,
+        left: isMobile ? 0 : undefined,
+        bottom: isMobile ? 0 : undefined,
+        zIndex: isMobile ? 50 : undefined,
+        transform: isMobile ? (sidebarVisible ? 'translateX(0)' : 'translateX(-100%)') : undefined,
         overflow: 'hidden',
       }}>
         {/* Logo */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: 10,
-          padding: collapsed ? '20px 14px' : '20px 16px',
+          padding: showLabels ? '20px 16px' : '20px 14px',
           borderBottom: `1px solid ${SIDEBAR.edge}`,
           overflow: 'hidden',
         }}>
           <div style={{ width: 34, height: 34, borderRadius: 9, flexShrink: 0, overflow: 'hidden', background: '#fff', boxShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
             <img src="/logo.png" alt="AgroNexus" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
-          {!collapsed && (
+          {showLabels && (
             <div style={{ overflow: 'hidden' }}>
               <p style={{ color: SIDEBAR.ink, fontWeight: 700, fontSize: 14, letterSpacing: '-0.2px', lineHeight: '1.2' }}>AgroNexus</p>
               <p style={{ color: SIDEBAR.muted, fontSize: 10, fontWeight: 500, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Platform</p>
@@ -150,7 +189,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         </div>
 
         {/* Role pill */}
-        {!collapsed && user?.role && (
+        {showLabels && user?.role && (
           <div style={{ padding: '10px 16px 4px' }}>
             <span style={{
               display: 'inline-block', fontSize: 10, fontWeight: 700,
@@ -170,9 +209,10 @@ export default function Layout({ children }: { children: ReactNode }) {
             <NavLink
               key={item.to}
               to={item.to}
+              end
               style={({ isActive }) => ({
                 display: 'flex', alignItems: 'center', gap: 10,
-                padding: collapsed ? '10px 13px' : '10px 12px',
+                padding: showLabels ? '10px 12px' : '10px 13px',
                 borderRadius: 10,
                 textDecoration: 'none',
                 fontSize: 13, fontWeight: 500,
@@ -197,14 +237,14 @@ export default function Layout({ children }: { children: ReactNode }) {
               }}
             >
               <span style={{ width: 18, height: 18, flexShrink: 0 }}>{item.icon}</span>
-              {!collapsed && <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>}
+              {showLabels && <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>}
             </NavLink>
           ))}
         </nav>
 
         {/* User + logout */}
         <div style={{ padding: '10px', borderTop: `1px solid ${SIDEBAR.edge}` }}>
-          {!collapsed && (
+          {showLabels && (
             <div style={{
               padding: '10px 10px 8px',
               background: SIDEBAR.hover,
@@ -219,7 +259,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             onClick={handleLogout}
             style={{
               display: 'flex', alignItems: 'center', gap: 8,
-              padding: collapsed ? '9px 13px' : '9px 10px',
+              padding: showLabels ? '9px 10px' : '9px 13px',
               borderRadius: 9, width: '100%',
               background: 'transparent', border: 'none', cursor: 'pointer',
               color: SIDEBAR.muted, fontSize: 12, fontWeight: 500,
@@ -229,7 +269,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = SIDEBAR.muted }}
           >
             <LogoutIcon />
-            {!collapsed && <span>Sign out</span>}
+            {showLabels && <span>Sign out</span>}
           </button>
         </div>
       </aside>
@@ -246,13 +286,22 @@ export default function Layout({ children }: { children: ReactNode }) {
         }}>
           {/* Collapse toggle */}
           <button
-            onClick={() => setCollapsed(!collapsed)}
+            onClick={() => {
+              if (isMobile) setMobileOpen(v => !v)
+              else setCollapsed(v => !v)
+            }}
             className="btn-ghost"
             style={{ minHeight: 36, padding: '0 8px' }}
             aria-label="Toggle sidebar"
           >
             <MenuIcon />
           </button>
+          
+          {title && (
+            <h1 style={{ fontSize: 16, fontWeight: 700, color: 'var(--ink-strong)', margin: 0, marginRight: 'auto', marginLeft: 16 }}>
+              {title}
+            </h1>
+          )}
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <ThemeToggle />

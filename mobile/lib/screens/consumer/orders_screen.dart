@@ -8,6 +8,7 @@ import '../../services/api_service.dart';
 import '../../services/storage_service.dart';
 import '../../widgets/offline_banner.dart';
 import '../../widgets/status_badge.dart';
+import '../../widgets/crop_icon.dart';
 
 class ConsumerOrdersScreen extends StatefulWidget {
   const ConsumerOrdersScreen({super.key});
@@ -107,7 +108,7 @@ class _ConsumerOrdersScreenState extends State<ConsumerOrdersScreen> {
     ),
     child: Row(
       children: [
-        Text(AppConstants.cropIcons[o.cropType ?? ''] ?? '📦', style: const TextStyle(fontSize: 24)),
+        CropIcon(o.cropType ?? '', size: 24.0, color: AppColors.textSecond),
         const SizedBox(width: 12),
         Expanded(
           child: Column(

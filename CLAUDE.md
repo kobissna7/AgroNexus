@@ -33,7 +33,7 @@ agronexus/
 
 ## Database Schema
 
-Base schema: `supabase_setup.sql`. Then run `migration_v2_roles_and_market.sql`, then `migration_v3_payments_and_events.sql` (both idempotent) in the Supabase SQL Editor. v2 adds buyer roles, auto-location, allocations, the anonymized marketplace view, and demand-signal capture. v3 adds `payments`, `site_events`, the `interest_weekly` view, the `pending_payment` order status, and excludes unpaid orders from `demand_weekly`.
+Base schema: `supabase_setup.sql`. Then run `migration_v2_roles_and_market.sql`, `migration_v3_payments_and_events.sql`, then `migration_v4_rls_hardening.sql` (all idempotent) in the Supabase SQL Editor. v2 adds buyer roles, auto-location, allocations, the anonymized marketplace view, and demand-signal capture. v3 adds `payments`, `site_events`, the `interest_weekly` view, the `pending_payment` order status, and excludes unpaid orders from `demand_weekly`. v4 adds the missing RLS policies on `users`/`orders`/`transport_requests` — dormant today since the backend always queries via `service_role` and the web app's Supabase client only does Realtime Broadcast, but they'll matter the moment any client authenticates to Supabase directly.
 
 **Roles:** `farmer`, `wholesaler`, `retailer`, `direct_consumer`, `transporter`, `admin`. (`consumer` is legacy — pre-v2 JWTs still validate, but no new users get it.)
 

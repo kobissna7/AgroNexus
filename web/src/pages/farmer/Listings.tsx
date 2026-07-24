@@ -92,13 +92,13 @@ export default function FarmerListings() {
             <table className="table-pro" style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr>
-                  <th style={{ borderRadius: '16px 0 0 0' }}>Crop</th>
-                  <th>Quantity</th>
-                  <th>Price / kg</th>
-                  <th>Location</th>
-                  <th>Available From</th>
-                  <th>Status</th>
-                  <th style={{ borderRadius: '0 16px 0 0' }}>Actions</th>
+                  <th style={{ borderRadius: '16px 0 0 0', minWidth: 100 }}>Crop</th>
+                  <th style={{ minWidth: 80 }}>Quantity</th>
+                  <th style={{ minWidth: 90 }}>Price / kg</th>
+                  <th style={{ minWidth: 100 }}>Location</th>
+                  <th style={{ minWidth: 110 }}>Available From</th>
+                  <th style={{ minWidth: 100 }}>Status</th>
+                  <th style={{ borderRadius: '0 16px 0 0', minWidth: 160 }}>Actions</th>
                 </tr>
               </thead>
               <tbody>

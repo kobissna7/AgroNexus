@@ -44,6 +44,25 @@ class ApiService {
     await _dio.put('/api/v1/users/location', data: {'lat': lat, 'lng': lng});
   }
 
+  static Future<void> forgotPassword(String email) async {
+    await _dio.post('/api/v1/auth/forgot-password', data: {'email': email});
+  }
+
+  static Future<void> resetPassword(String accessToken, String newPassword) async {
+    await _dio.post('/api/v1/auth/reset-password', data: {
+      'access_token': accessToken, 'new_password': newPassword,
+    });
+  }
+
+  // ── Marketplace (public, no auth — guest browsing) ───────────────────────────
+  static Future<List<dynamic>> getMarketplace({String? cropType, String? region}) async {
+    final r = await _dio.get('/api/v1/marketplace', queryParameters: {
+      if (cropType != null && cropType.isNotEmpty) 'crop_type': cropType,
+      if (region   != null && region.isNotEmpty)   'region':    region,
+    });
+    return r.data as List<dynamic>;
+  }
+
   // ── Listings ───────────────────────────────────────────────────────────────
   static Future<List<dynamic>> getListings({String? cropType, String? region}) async {
     final r = await _dio.get('/api/v1/listings', queryParameters: {
@@ -62,8 +81,17 @@ class ApiService {
     await _dio.post('/api/v1/listings', data: data);
   }
 
+  static Future<void> updateListing(String id, Map<String, dynamic> data) async {
+    await _dio.put('/api/v1/listings/$id', data: data);
+  }
+
   static Future<void> deleteListing(String id) async {
     await _dio.delete('/api/v1/listings/$id');
+  }
+
+  static Future<List<dynamic>> getFarmerOrders() async {
+    final r = await _dio.get('/api/v1/listings/orders');
+    return r.data as List<dynamic>;
   }
 
   // ── Orders ─────────────────────────────────────────────────────────────────
@@ -92,9 +120,34 @@ class ApiService {
     await _dio.put('/api/v1/transport/$id/status', data: {'status': status});
   }
 
+  static Future<List<dynamic>> getMyDeliveries() async {
+    final r = await _dio.get('/api/v1/transport/mine');
+    return r.data as List<dynamic>;
+  }
+
+  // ── Notifications ──────────────────────────────────────────────────────────
+  static Future<List<dynamic>> getNotifications() async {
+    final r = await _dio.get('/api/v1/notifications');
+    return r.data as List<dynamic>;
+  }
+
+  static Future<void> markNotificationsRead(List<String> ids) async {
+    await _dio.post('/api/v1/notifications/mark-read', data: {'ids': ids});
+  }
+
   // ── Dashboard / Forecasts ──────────────────────────────────────────────────
   static Future<List<dynamic>> getDashboardPrices() async {
     final r = await _dio.get('/api/v1/dashboard/prices');
+    return r.data as List<dynamic>;
+  }
+
+  static Future<List<dynamic>> getDashboardSupply() async {
+    final r = await _dio.get('/api/v1/dashboard/supply');
+    return r.data as List<dynamic>;
+  }
+
+  static Future<List<dynamic>> getDashboardActivity() async {
+    final r = await _dio.get('/api/v1/dashboard/activity');
     return r.data as List<dynamic>;
   }
 
@@ -107,6 +160,44 @@ class ApiService {
     final r = await _dio.post('/api/v1/forecasts/predict', data: {
       'crop_type': cropType, 'region': region,
     });
+    return r.data as Map<String, dynamic>;
+  }
+
+  // ── Admin ──────────────────────────────────────────────────────────────────
+  static Future<Map<String, dynamic>> getAdminStats() async {
+    final r = await _dio.get('/api/v1/admin/stats');
+    return r.data as Map<String, dynamic>;
+  }
+
+  static Future<List<dynamic>> getAdminUsers() async {
+    final r = await _dio.get('/api/v1/admin/users');
+    return r.data as List<dynamic>;
+  }
+
+  static Future<void> updateUserRole(String id, String role) async {
+    await _dio.patch('/api/v1/admin/users/$id/role', data: {'role': role});
+  }
+
+  static Future<void> deleteUser(String id) async {
+    await _dio.delete('/api/v1/admin/users/$id');
+  }
+
+  static Future<List<dynamic>> getAdminListings() async {
+    final r = await _dio.get('/api/v1/admin/listings');
+    return r.data as List<dynamic>;
+  }
+
+  static Future<void> updateListingStatus(String id, String status) async {
+    await _dio.patch('/api/v1/admin/listings/$id/status', data: {'status': status});
+  }
+
+  static Future<List<dynamic>> getAdminOrders() async {
+    final r = await _dio.get('/api/v1/admin/orders');
+    return r.data as List<dynamic>;
+  }
+
+  static Future<Map<String, dynamic>> getAdminLocations() async {
+    final r = await _dio.get('/api/v1/admin/locations');
     return r.data as Map<String, dynamic>;
   }
 }
