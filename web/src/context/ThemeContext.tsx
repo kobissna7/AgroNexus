@@ -1,11 +1,9 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useContext, useState, type ReactNode } from 'react'
 
-export type ThemePreference = 'system' | 'light' | 'dark'
+export type Theme = 'light' | 'dark'
 
 interface ThemeContextValue {
-  preference: ThemePreference
-  resolved: 'light' | 'dark'
-  setPreference: (p: ThemePreference) => void
+  resolved: Theme
   toggle: () => void
 }
 
@@ -13,44 +11,28 @@ const ThemeContext = createContext<ThemeContextValue | null>(null)
 
 const STORAGE_KEY = 'agronexus_theme'
 
-function systemTheme(): 'light' | 'dark' {
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-}
-
-function storedPreference(): ThemePreference {
+// Light is the default regardless of OS preference — dark is opt-in only,
+// chosen via the toggle and persisted from then on. Mirrors the pre-paint
+// script in index.html, which must resolve the same way to avoid a flash.
+function storedTheme(): Theme {
   try {
-    const t = localStorage.getItem(STORAGE_KEY)
-    if (t === 'light' || t === 'dark') return t
+    return localStorage.getItem(STORAGE_KEY) === 'dark' ? 'dark' : 'light'
   } catch { /* private mode */ }
-  return 'system'
+  return 'light'
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [preference, setPreferenceState] = useState<ThemePreference>(storedPreference)
-  const [system, setSystem] = useState<'light' | 'dark'>(systemTheme)
+  const [resolved, setResolved] = useState<Theme>(storedTheme)
 
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-color-scheme: dark)')
-    const onChange = () => setSystem(systemTheme())
-    mq.addEventListener('change', onChange)
-    return () => mq.removeEventListener('change', onChange)
-  }, [])
-
-  const setPreference = (p: ThemePreference) => {
-    setPreferenceState(p)
-    try {
-      if (p === 'system') localStorage.removeItem(STORAGE_KEY)
-      else localStorage.setItem(STORAGE_KEY, p)
-    } catch { /* private mode */ }
-    if (p === 'system') document.documentElement.removeAttribute('data-theme')
-    else document.documentElement.setAttribute('data-theme', p)
+  const toggle = () => {
+    const next: Theme = resolved === 'dark' ? 'light' : 'dark'
+    setResolved(next)
+    try { localStorage.setItem(STORAGE_KEY, next) } catch { /* private mode */ }
+    document.documentElement.setAttribute('data-theme', next)
   }
 
-  const resolved = preference === 'system' ? system : preference
-  const toggle = () => setPreference(resolved === 'dark' ? 'light' : 'dark')
-
   return (
-    <ThemeContext.Provider value={{ preference, resolved, setPreference, toggle }}>
+    <ThemeContext.Provider value={{ resolved, toggle }}>
       {children}
     </ThemeContext.Provider>
   )

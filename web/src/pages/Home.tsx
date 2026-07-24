@@ -54,7 +54,6 @@ export default function Home() {
     } else if (BUYER_ROLES.includes(user.role)) {
       navigate(checkout)
     } else {
-      // farmers/transporters browsing — send them to their own space
       navigate(user.role === 'farmer' ? '/farmer/dashboard' : '/transporter/feed')
     }
   }
@@ -69,124 +68,127 @@ export default function Home() {
     <div style={{ background: 'var(--canvas)', minHeight: '100vh' }}>
       <PublicHeader />
 
-      {/* ── HERO — big type, marketplace-first ── */}
-      <section style={{ padding: '72px 0 40px', minHeight: 'calc(100vh - 68px)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+      {/* ── SECTION 1 — HERO (white) ── */}
+      <section style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingTop: 'calc(var(--header-h) + clamp(16px, 4vw, 48px))', paddingBottom: 'clamp(28px, 6vw, 56px)' }}>
         <div className="container-page">
           <p className="section-label">Western Region, Ghana · Live market</p>
           <h1 className="page-title" style={{ maxWidth: 720 }}>
             Fresh produce,<br />straight from the farm.
           </h1>
-          <p style={{ color: 'var(--ink-muted)', fontSize: 'clamp(1rem, 2vw, 1.15rem)', lineHeight: 1.7, maxWidth: 540, margin: '20px 0 32px' }}>
+          <p style={{ color: 'var(--ink-muted)', fontSize: 'clamp(0.95rem, 2.5vw, 1.1rem)', lineHeight: 1.7, maxWidth: 540, margin: '16px 0 28px' }}>
             Browse what farmers in Tarkwa, Bogoso, and Prestea are selling right now.
             Order in a few taps — delivery is matched automatically.
           </p>
 
-          {/* search */}
-          <form onSubmit={submitSearch} style={{ display: 'flex', gap: 10, maxWidth: 520 }}>
+          {/* search bar — always a single row */}
+          <form onSubmit={submitSearch} style={{ display: 'flex', gap: 8, maxWidth: 520 }}>
             <input
               className="input-field"
-              style={{ flex: 1, minWidth: 0, borderRadius: 9999, padding: '12px 20px' }}
+              style={{ flex: 1, minWidth: 0, borderRadius: 9999, padding: '11px 18px', fontSize: 14 }}
               placeholder="Search produce — maize, tomatoes…"
               value={search}
               onChange={e => setSearch(e.target.value)}
               aria-label="Search produce"
             />
-            <button type="submit" className="btn-primary btn-lg" style={{ minHeight: 46, whiteSpace: 'nowrap' }}>Search</button>
+            <button type="submit" className="btn-primary" style={{ flexShrink: 0, padding: '0 20px', minHeight: 46, whiteSpace: 'nowrap', fontSize: 14 }}>
+              Search
+            </button>
           </form>
 
           {/* live stats strip */}
-          <div style={{ display: 'flex', gap: '12px 24px', marginTop: 36, flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px 20px', marginTop: 28, alignItems: 'center' }}>
             {[
               { v: stats.count, l: 'live listings' },
               { v: `${stats.kg.toLocaleString()} kg`, l: 'on the market' },
               { v: stats.cropsLive, l: 'crops available' },
             ].map((s, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                <span style={{ fontSize: 22, fontWeight: 800, color: 'var(--ink-strong)', letterSpacing: '-0.02em' }}>{s.v}</span>
-                <span style={{ fontSize: 13, color: 'var(--ink-muted)' }}>{s.l}</span>
+              <div key={i} style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                <span style={{ fontSize: 'clamp(18px, 4vw, 22px)', fontWeight: 800, color: 'var(--ink-strong)', letterSpacing: '-0.02em' }}>{s.v}</span>
+                <span style={{ fontSize: 12, color: 'var(--ink-muted)' }}>{s.l}</span>
               </div>
             ))}
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 13, color: 'var(--ink-muted)' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--ink-muted)' }}>
               <span className="live-dot" /> updating live
             </span>
           </div>
         </div>
       </section>
 
-      {/* ── FILTERS — start of the green band ── */}
-      <section className="section-brand" style={{ position: 'sticky', top: 68, zIndex: 40, backdropFilter: 'blur(12px)', borderBottom: '1px solid var(--edge)', padding: '14px 0' }}>
-        <div className="container-page" style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-          <button
-            onClick={() => { setCrop(''); setSearch('') }}
-            className={crop === '' ? 'btn-primary' : 'btn-outline'}
-            style={{ minHeight: 36, padding: '0 16px', fontSize: 13 }}
-          >
-            All
-          </button>
-          {CROPS.map(c => (
+      {/* ── SECTION 2 — MARKETPLACE (green): sticky filters + listings grid live in one band ── */}
+      <section className="section-brand" style={{ minHeight: '100vh' }}>
+        <div style={{ position: 'sticky', top: 'var(--header-h)', zIndex: 40, backdropFilter: 'blur(12px)', borderBottom: '1px solid var(--edge)', padding: '10px 0' }}>
+          <div className="container-page scroll-fade-x" style={{ display: 'flex', gap: 8, alignItems: 'center', overflowX: 'auto', WebkitOverflowScrolling: 'touch' as 'touch', paddingBottom: 2 }}>
             <button
-              key={c}
-              onClick={() => {
-                setSearch('')
-                setCrop(prev => {
-                  const nextCrop = prev === c ? '' : c
-                  if (nextCrop) track('filter', { crop_type: nextCrop, region: region || undefined })
-                  return nextCrop
-                })
-              }}
-              className={crop === c ? 'btn-primary' : 'btn-outline'}
-              style={{ minHeight: 36, padding: '0 14px', fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6, textTransform: 'capitalize' }}
+              onClick={() => { setCrop(''); setSearch('') }}
+              className={crop === '' ? 'btn-primary' : 'btn-outline'}
+              style={{ minHeight: 34, padding: '0 14px', fontSize: 13, flexShrink: 0 }}
             >
-              <CropIcon type={c} className="w-4 h-4" />
-              {c}
+              All
             </button>
-          ))}
-          <select
-            className="input-field"
-            style={{ width: 'auto', borderRadius: 9999, padding: '8px 14px', fontSize: 13, marginLeft: 'auto' }}
-            value={region}
-            onChange={e => {
-              setRegion(e.target.value)
-              if (e.target.value) track('filter', { region: e.target.value, crop_type: crop || undefined })
-            }}
-            aria-label="Filter by region"
-          >
-            <option value="">All regions</option>
-            {REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
-          </select>
+            {CROPS.map(c => (
+              <button
+                key={c}
+                onClick={() => {
+                  setSearch('')
+                  setCrop(prev => {
+                    const nextCrop = prev === c ? '' : c
+                    if (nextCrop) track('filter', { crop_type: nextCrop, region: region || undefined })
+                    return nextCrop
+                  })
+                }}
+                className={crop === c ? 'btn-primary' : 'btn-outline'}
+                style={{ minHeight: 34, padding: '0 12px', fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 5, textTransform: 'capitalize', flexShrink: 0, whiteSpace: 'nowrap' }}
+              >
+                <CropIcon type={c} className="w-4 h-4" />
+                {c}
+              </button>
+            ))}
+            <div style={{ marginLeft: 'auto', flexShrink: 0 }}>
+              <select
+                className="input-field"
+                style={{ width: 'auto', borderRadius: 9999, padding: '7px 14px', fontSize: 13 }}
+                value={region}
+                onChange={e => {
+                  setRegion(e.target.value)
+                  if (e.target.value) track('filter', { region: e.target.value, crop_type: crop || undefined })
+                }}
+                aria-label="Filter by region"
+              >
+                <option value="">All regions</option>
+                {REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
+              </select>
+            </div>
+          </div>
         </div>
-      </section>
 
-      {/* ── LISTINGS GRID — green band: white cards, white ink ── */}
-      <section className="section-brand" style={{ padding: '36px 0 72px', minHeight: '100vh' }}>
-        <div className="container-page">
+        <div className="container-page" style={{ padding: 'clamp(24px, 5vw, 48px) 0 clamp(40px, 8vw, 80px)' }}>
           {loading ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 18 }}>
-              {Array.from({ length: 8 }).map((_, i) => <div key={i} className="skeleton" style={{ height: 190, borderRadius: 16 }} />)}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(240px, 100%), 1fr))', gap: 16 }}>
+              {Array.from({ length: 6 }).map((_, i) => <div key={i} className="skeleton" style={{ height: 190, borderRadius: 16 }} />)}
             </div>
           ) : listings.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '72px 20px', color: 'var(--ink-muted)' }}>
+            <div style={{ textAlign: 'center', padding: 'clamp(40px, 10vw, 80px) 20px', color: 'var(--ink-muted)' }}>
               <p style={{ fontSize: 17, fontWeight: 700, color: 'var(--ink)' }}>Nothing on the market for that filter yet</p>
               <p style={{ fontSize: 14, marginTop: 8 }}>Try another crop or region — new produce is listed daily.</p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 18 }} className="animate-fade-in">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(240px, 100%), 1fr))', gap: 16 }} className="animate-fade-in">
               {listings.map(l => <ListingCard key={l.id} listing={l} onBuy={handleBuy} />)}
             </div>
           )}
         </div>
       </section>
 
-      {/* ── VALUE STRIP — back to white (green + black content) ── */}
-      <section style={{ padding: '64px 0', minHeight: '100vh', display: 'flex', alignItems: 'center' }}>
-        <div className="container-page" style={{ width: '100%', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 32 }}>
+      {/* ── SECTION 3 — CLOSING (white): value strip + footer share the one closing band ── */}
+      <section style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 'clamp(48px, 10vw, 96px) 0' }}>
+        <div className="container-page" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: 'clamp(24px, 5vw, 48px)' }}>
           {[
             { t: 'Sell as a farmer', d: 'List your harvest in minutes and reach wholesalers, retailers, and households across the region.', cta: 'Start selling', to: '/register' },
             { t: 'Deliver as a transporter', d: 'Pick up delivery jobs near you the moment orders are placed. Update status on the go.', cta: 'Start delivering', to: '/register' },
             { t: 'Smarter prices for everyone', d: 'AI demand forecasts built on Ministry of Agriculture data keep prices fair and food where it is needed.', cta: 'Create account', to: '/register' },
           ].map((b, i) => (
             <div key={i}>
-              <h3 style={{ fontSize: 19, fontWeight: 800, color: 'var(--ink-strong)', letterSpacing: '-0.01em', marginBottom: 10 }}>{b.t}</h3>
+              <h3 style={{ fontSize: 'clamp(16px, 3vw, 19px)', fontWeight: 800, color: 'var(--ink-strong)', letterSpacing: '-0.01em', marginBottom: 10 }}>{b.t}</h3>
               <p style={{ fontSize: 14, color: 'var(--ink-muted)', lineHeight: 1.7, marginBottom: 16 }}>{b.d}</p>
               <button className="btn-outline" style={{ fontSize: 13 }} onClick={() => navigate(b.to)}>{b.cta} →</button>
             </div>
@@ -194,8 +196,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── FOOTER — green band closes the rhythm ── */}
-      <footer className="section-brand" style={{ padding: '28px 0' }}>
+      <footer style={{ padding: 'clamp(20px, 4vw, 32px) 0', borderTop: '1px solid var(--edge)' }}>
         <div className="container-page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <img src="/logo.svg" alt="" style={{ width: 22, height: 22, borderRadius: 6, objectFit: 'contain' }} />

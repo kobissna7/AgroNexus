@@ -14,12 +14,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0b2e14" />
 
-    <!-- Apply stored theme override before first paint (avoids theme flash) -->
+    <!-- Apply theme before first paint (avoids theme flash). Light is the
+         default regardless of OS preference — dark is opt-in only, via the
+         toggle, and persists once chosen. -->
     <script>
       try {
         var t = localStorage.getItem('agronexus_theme');
-        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
-      } catch (e) {}
+        document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
     </script>
 
     <!-- Fonts -->

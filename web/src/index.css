@@ -32,6 +32,10 @@
 /* ── Semantic tokens ───────────────────────────────────────────────────────── */
 :root {
   --green: #0b2e14;
+  /* Single source of truth for PublicHeader's height — the sticky filter
+     bar on Home.tsx offsets from this instead of a second hardcoded number,
+     so the two can never drift apart if the header ever grows. */
+  --header-h: 68px;
 
   /* light theme (default) */
   --canvas:       #ffffff;
@@ -161,6 +165,8 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+html, body { overflow-x: hidden; }
+
 body {
   font-family: 'Paralucent', 'Mulish', ui-sans-serif, system-ui, sans-serif;
   background: var(--canvas);
@@ -169,7 +175,15 @@ body {
 }
 
 /* ── Layout helpers ────────────────────────────────────────────────────────── */
-.container-page { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+.container-page { max-width: 1240px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 32px); }
+
+/* Signals a horizontally-scrollable row (mobile filter chips etc.) by fading
+   the trailing edge toward transparent, so content cut off at the viewport
+   edge visibly invites a swipe instead of looking like the row just ends. */
+.scroll-fade-x {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent 100%);
+          mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent 100%);
+}
 
 .page-title {
   font-size: clamp(2.2rem, 5vw, 4rem);

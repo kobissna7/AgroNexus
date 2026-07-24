@@ -58,7 +58,7 @@ Row Level Security enabled on all tables.
 
 **Typography:** `'Paralucent', 'Mulish', ui-sans-serif, sans-serif`. Mulish (variable) is vendored in `web/public/fonts/`; drop licensed `Paralucent-Variable.woff2` into that folder to activate Paralucent with zero code changes.
 
-**Theming:** follows device light/dark (`prefers-color-scheme`) with a manual toggle persisted as `agronexus_theme` in localStorage (`data-theme` on `<html>`, applied pre-paint in `index.html`). **Dark mode is green-dominant, not black:** `--canvas` is brand green; black appears only in mixes/shadows/overlays. All colors are semantic CSS vars defined in `web/src/index.css`:
+**Theming:** light is the default regardless of device preference; dark is opt-in only, via a manual toggle persisted as `agronexus_theme` in localStorage (`data-theme` on `<html>`, applied pre-paint in `index.html` before OS `prefers-color-scheme` gets a chance to paint the page dark first). **Dark mode is green-dominant, not black:** `--canvas` is brand green; black appears only in mixes/shadows/overlays. All colors are semantic CSS vars defined in `web/src/index.css`:
 
 - Surfaces: `--canvas`, `--canvas-soft`, `--surface`, `--surface-2`
 - Ink: `--ink`, `--ink-strong`, `--ink-muted`, `--ink-faint`
