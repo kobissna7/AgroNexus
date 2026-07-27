@@ -12,12 +12,7 @@ type RichOrder = Order & {
   produce_listings?: { crop_type: string; location: string; price_per_kg: number }
 }
 
-const STAT_COLORS = {
-  total:      { bg: 'var(--brand-soft)', text: 'var(--brand-ink)' },
-  pending:    { bg: 'var(--surface-2)',  text: 'var(--ink-muted)' },
-  in_transit: { bg: 'var(--brand-soft)', text: 'var(--ink)' },
-  delivered:  { bg: 'var(--brand-soft)', text: 'var(--brand-ink)' },
-}
+
 
 export default function ConsumerOrders() {
   const { user } = useAuth()

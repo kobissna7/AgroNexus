@@ -185,6 +185,25 @@ body {
           mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent 100%);
 }
 
+/* Photo container — displays images in their natural colors.
+   Usage: a div with background-image + this class. */
+.photo-duotone {
+  position: relative;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Hero: single column with the photo hidden by default — protects the
+   mobile layout (fits the fold, no wasted scroll before the search bar).
+   The photo only earns its place once there's room for it beside the text. */
+.hero-grid { display: grid; grid-template-columns: 1fr; gap: clamp(24px, 4vw, 56px); align-items: center; }
+.hero-photo { display: none; }
+@media (min-width: 900px) {
+  .hero-grid { grid-template-columns: 1.15fr 0.85fr; }
+  .hero-photo { display: block; }
+}
+
 .page-title {
   font-size: clamp(2.2rem, 5vw, 4rem);
   font-weight: 800;

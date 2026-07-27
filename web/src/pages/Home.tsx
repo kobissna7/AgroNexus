@@ -70,47 +70,56 @@ export default function Home() {
 
       {/* ── SECTION 1 — HERO (white) ── */}
       <section style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingTop: 'calc(var(--header-h) + clamp(16px, 4vw, 48px))', paddingBottom: 'clamp(28px, 6vw, 56px)' }}>
-        <div className="container-page">
-          <p className="section-label">Western Region, Ghana · Live market</p>
-          <h1 className="page-title" style={{ maxWidth: 720 }}>
-            Fresh produce,<br />straight from the farm.
-          </h1>
-          <p style={{ color: 'var(--ink-muted)', fontSize: 'clamp(0.95rem, 2.5vw, 1.1rem)', lineHeight: 1.7, maxWidth: 540, margin: '16px 0 28px' }}>
-            Browse what farmers in Tarkwa, Bogoso, and Prestea are selling right now.
-            Order in a few taps — delivery is matched automatically.
-          </p>
+        <div className="container-page hero-grid">
+          <div>
+            <p className="section-label">Western Region, Ghana · Live market</p>
+            <h1 className="page-title" style={{ maxWidth: 720 }}>
+              Fresh produce,<br />straight from the farm.
+            </h1>
+            <p style={{ color: 'var(--ink-muted)', fontSize: 'clamp(0.95rem, 2.5vw, 1.1rem)', lineHeight: 1.7, maxWidth: 540, margin: '16px 0 28px' }}>
+              Browse what farmers in Tarkwa, Bogoso, and Prestea are selling right now.
+              Order in a few taps — delivery is matched automatically.
+            </p>
 
-          {/* search bar — always a single row */}
-          <form onSubmit={submitSearch} style={{ display: 'flex', gap: 8, maxWidth: 520 }}>
-            <input
-              className="input-field"
-              style={{ flex: 1, minWidth: 0, borderRadius: 9999, padding: '11px 18px', fontSize: 14 }}
-              placeholder="Search produce — maize, tomatoes…"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              aria-label="Search produce"
-            />
-            <button type="submit" className="btn-primary" style={{ flexShrink: 0, padding: '0 20px', minHeight: 46, whiteSpace: 'nowrap', fontSize: 14 }}>
-              Search
-            </button>
-          </form>
+            {/* search bar — always a single row */}
+            <form onSubmit={submitSearch} style={{ display: 'flex', gap: 8, maxWidth: 520 }}>
+              <input
+                className="input-field"
+                style={{ flex: 1, minWidth: 0, borderRadius: 9999, padding: '11px 18px', fontSize: 14 }}
+                placeholder="Search produce — maize, tomatoes…"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                aria-label="Search produce"
+              />
+              <button type="submit" className="btn-primary" style={{ flexShrink: 0, padding: '0 20px', minHeight: 46, whiteSpace: 'nowrap', fontSize: 14 }}>
+                Search
+              </button>
+            </form>
 
-          {/* live stats strip */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px 20px', marginTop: 28, alignItems: 'center' }}>
-            {[
-              { v: stats.count, l: 'live listings' },
-              { v: `${stats.kg.toLocaleString()} kg`, l: 'on the market' },
-              { v: stats.cropsLive, l: 'crops available' },
-            ].map((s, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                <span style={{ fontSize: 'clamp(18px, 4vw, 22px)', fontWeight: 800, color: 'var(--ink-strong)', letterSpacing: '-0.02em' }}>{s.v}</span>
-                <span style={{ fontSize: 12, color: 'var(--ink-muted)' }}>{s.l}</span>
-              </div>
-            ))}
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--ink-muted)' }}>
-              <span className="live-dot" /> updating live
-            </span>
+            {/* live stats strip */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px 20px', marginTop: 28, alignItems: 'center' }}>
+              {[
+                { v: stats.count, l: 'live listings' },
+                { v: `${stats.kg.toLocaleString()} kg`, l: 'on the market' },
+                { v: stats.cropsLive, l: 'crops available' },
+              ].map((s, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                  <span style={{ fontSize: 'clamp(18px, 4vw, 22px)', fontWeight: 800, color: 'var(--ink-strong)', letterSpacing: '-0.02em' }}>{s.v}</span>
+                  <span style={{ fontSize: 12, color: 'var(--ink-muted)' }}>{s.l}</span>
+                </div>
+              ))}
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--ink-muted)' }}>
+                <span className="live-dot" /> updating live
+              </span>
+            </div>
           </div>
+
+          <div
+            className="hero-photo photo-duotone"
+            style={{ backgroundImage: "url('/images/hero-market.jpg')", borderRadius: 28, aspectRatio: '4 / 5', boxShadow: 'var(--shadow-pop)' }}
+            role="img"
+            aria-label="Tomato sellers at a market in Tamale, Ghana"
+          />
         </div>
       </section>
 
@@ -183,11 +192,17 @@ export default function Home() {
       <section style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 'clamp(48px, 10vw, 96px) 0' }}>
         <div className="container-page" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: 'clamp(24px, 5vw, 48px)' }}>
           {[
-            { t: 'Sell as a farmer', d: 'List your harvest in minutes and reach wholesalers, retailers, and households across the region.', cta: 'Start selling', to: '/register' },
-            { t: 'Deliver as a transporter', d: 'Pick up delivery jobs near you the moment orders are placed. Update status on the go.', cta: 'Start delivering', to: '/register' },
-            { t: 'Smarter prices for everyone', d: 'AI demand forecasts built on Ministry of Agriculture data keep prices fair and food where it is needed.', cta: 'Create account', to: '/register' },
+            { t: 'Sell as a farmer', d: 'List your harvest in minutes and reach wholesalers, retailers, and households across the region.', cta: 'Start selling', to: '/register', img: '/images/farmer.jpg', alt: 'A maize farm in Ghana' },
+            { t: 'Deliver as a transporter', d: 'Pick up delivery jobs near you the moment orders are placed. Update status on the go.', cta: 'Start delivering', to: '/register', img: '/images/transport.jpg', alt: 'A delivery truck on the road in Ghana' },
+            { t: 'Smarter prices for everyone', d: 'AI demand forecasts built on Ministry of Agriculture data keep prices fair and food where it is needed.', cta: 'Create account', to: '/register', img: '/images/market.jpg', alt: 'Produce sellers at a Ghanaian market' },
           ].map((b, i) => (
             <div key={i}>
+              <div
+                className="photo-duotone"
+                style={{ backgroundImage: `url('${b.img}')`, aspectRatio: '4 / 3', borderRadius: 16, marginBottom: 18 }}
+                role="img"
+                aria-label={b.alt}
+              />
               <h3 style={{ fontSize: 'clamp(16px, 3vw, 19px)', fontWeight: 800, color: 'var(--ink-strong)', letterSpacing: '-0.01em', marginBottom: 10 }}>{b.t}</h3>
               <p style={{ fontSize: 14, color: 'var(--ink-muted)', lineHeight: 1.7, marginBottom: 16 }}>{b.d}</p>
               <button className="btn-outline" style={{ fontSize: 13 }} onClick={() => navigate(b.to)}>{b.cta} →</button>
@@ -197,13 +212,20 @@ export default function Home() {
       </section>
 
       <footer style={{ padding: 'clamp(20px, 4vw, 32px) 0', borderTop: '1px solid var(--edge)' }}>
-        <div className="container-page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <img src="/logo.svg" alt="" style={{ width: 22, height: 22, borderRadius: 6, objectFit: 'contain' }} />
-            <span style={{ color: 'var(--ink-strong)', fontWeight: 700, fontSize: 14 }}>AgroNexus</span>
+        <div className="container-page" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <img src="/logo.svg" alt="" style={{ width: 22, height: 22, borderRadius: 6, objectFit: 'contain' }} />
+              <span style={{ color: 'var(--ink-strong)', fontWeight: 700, fontSize: 14 }}>AgroNexus</span>
+            </div>
+            <p style={{ margin: 0, fontSize: 13, color: 'var(--ink-muted)' }}>
+              Intelligent Agricultural Distribution · Western Region, Ghana · © {new Date().getFullYear()}
+            </p>
           </div>
-          <p style={{ margin: 0, fontSize: 13, color: 'var(--ink-muted)' }}>
-            Intelligent Agricultural Distribution · Western Region, Ghana · © {new Date().getFullYear()}
+          <p style={{ margin: 0, fontSize: 11, color: 'var(--ink-faint)' }}>
+            Photos: Ibn Shiraz, Fanti Salms, Fquasie, Runjiv — via{' '}
+            <a href="https://commons.wikimedia.org" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>Wikimedia Commons</a>,{' '}
+            <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>CC BY-SA 4.0</a>
           </p>
         </div>
       </footer>

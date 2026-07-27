@@ -39,7 +39,7 @@ function loadScript(src: string): Promise<void> {
 
 /** Embedded RushPay checkout — the widget takes over in-page; whatever way it
     ends we land on /payment/callback where the server-side verify decides. */
-async function launchRushPayWidget(widget: RushPayWidget, reference: string, onDone: () => void) {
+async function launchRushPayWidget(widget: RushPayWidget, onDone: () => void) {
   await loadScript(widget.script_url)
   if (!window.RushPayV2) throw new Error('Payment widget unavailable')
   const session = widget.session ?? {}
@@ -116,7 +116,7 @@ export default function Checkout() {
       if (data.payment_required && data.provider === 'rushpay' && data.widget && data.reference) {
         // Embedded RushPay widget; verification happens on /payment/callback
         const reference = data.reference
-        await launchRushPayWidget(data.widget, reference, () =>
+        await launchRushPayWidget(data.widget, () =>
           navigate(`/payment/callback?reference=${encodeURIComponent(reference)}`))
       } else if (data.payment_required && data.authorization_url) {
         // Hand off to Paystack's hosted checkout; we return via /payment/callback

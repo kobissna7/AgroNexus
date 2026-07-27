@@ -1,0 +1,22 @@
+[Unit]
+Description=AgroNexus ML Forecast Service (Flask/Gunicorn)
+Documentation=https://github.com/your-org/agronexus
+# Start after the network is available
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/AgroNexus/ml
+# Use the venv Python directly — no activation needed
+ExecStart=%h/AgroNexus/ml/venv/bin/python %h/AgroNexus/ml/app.py
+Restart=on-failure
+RestartSec=5s
+# Log output goes to journald (view with: journalctl --user -u agronexus-ml -f)
+StandardOutput=journal
+StandardError=journal
+# Env vars — edit ml/.env for PORT / FLASK_ENV
+EnvironmentFile=-%h/AgroNexus/ml/.env
+
+[Install]
+# Start whenever the user session starts (loginctl enable-linger ekko-7 for boot-time)
+WantedBy=default.target

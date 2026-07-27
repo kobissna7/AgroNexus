@@ -23,6 +23,19 @@ export default function AuthShell({ headline, sub, children }: {
           overflow: 'hidden',
         }}
       >
+        {/* Real photo, duotoned to the brand palette, sitting under the
+            panel's own dark gradient so headline text stays fully legible. */}
+        <div
+          className="photo-duotone"
+          style={{ position: 'absolute', inset: 0, backgroundImage: "url('/images/hero-market.jpg')", opacity: 0.5 }}
+          role="img"
+          aria-label="Tomato sellers at a market in Tamale, Ghana"
+        />
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(170deg, rgba(0,0,0,0.55) 0%, color-mix(in srgb, #0b2e14 65%, #000) 100%)',
+        }} />
+
         <div style={{
           position: 'absolute', bottom: '-160px', right: '-160px',
           width: 520, height: 520, borderRadius: '50%',
