@@ -5,6 +5,42 @@ import supabase, { supabaseAdmin } from '../services/supabase'
 const FLASK_URL    = process.env.FLASK_SERVICE_URL ?? 'http://localhost:5000'
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000  // 6 hours
 
+// ─── Baseline defaults (mirrors ml/ml_defaults.py) ────────────────────────────
+const MOFA_BASE_DEMAND: Record<string, number> = {
+  maize: 320, tomatoes: 180, plantain: 420,
+  cassava: 560, pepper: 90, rice: 210,
+}
+const DOW_WEIGHTS = [0.12, 0.15, 0.16, 0.17, 0.15, 0.14, 0.11]
+
+/** Produce a simple 7-day estimate from MOFA baseline when ML is unreachable. */
+function buildFallbackForecast(crop_type: string, region: string) {
+  const baseWeeklyKg = MOFA_BASE_DEMAND[crop_type] ?? 300
+  const now = new Date()
+  const forecast = DOW_WEIGHTS.map((w, i) => {
+    const d = new Date(now)
+    d.setDate(d.getDate() + i + 1)
+    return {
+      day:         i + 1,
+      date:        d.toISOString().slice(0, 10),
+      demand_kg:   Math.round(baseWeeklyKg * w * 10) / 10,
+      festival:    false,
+      day_of_week: d.toLocaleDateString('en-US', { weekday: 'long' }),
+    }
+  })
+  return {
+    crop_type,
+    region,
+    forecast,
+    model_used:      'baseline',
+    mape_pct:        null,
+    weekly_pred_w1:  baseWeeklyKg,
+    weekly_pred_w2:  baseWeeklyKg,
+    generated_at:    now.toISOString().replace(/\.\d{3}Z$/, 'Z'),
+    fallback:        true,
+    fallback_reason: 'ML service offline — showing MOFA baseline estimates',
+  }
+}
+
 interface CacheEntry {
   data: unknown
   expiresAt: number
@@ -94,9 +130,11 @@ export async function getForecast(req: Request, res: Response): Promise<void> {
 
     setCache(cacheKey, data)
     res.json({ ...data, cached: false })
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'ML service unavailable'
-    res.status(502).json({ error: message })
+  } catch {
+    // ML service unreachable — return MOFA baseline so the UI stays functional
+    const fallback = buildFallbackForecast(crop_type, region)
+    setCache(cacheKey, fallback)
+    res.json({ ...fallback, cached: false })
   }
 }
 
@@ -121,7 +159,10 @@ export async function getForecastSummary(req: Request, res: Response): Promise<v
             setCache(key, data)
             return { ...data, cached: false }
           } catch {
-            return { crop_type: crop, region, error: 'unavailable' }
+            // Return baseline instead of error so summary grid is always populated
+            const fallback = buildFallbackForecast(crop, region)
+            setCache(key, fallback)
+            return { ...fallback, cached: false }
           }
         })
       )

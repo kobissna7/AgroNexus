@@ -18,8 +18,9 @@ interface ForecastDay {
 }
 interface CropForecast {
   crop_type: string; region: string; forecast: ForecastDay[]
-  weekly_pred_w1: number; weekly_pred_w2: number; mape_pct: number
+  weekly_pred_w1: number; weekly_pred_w2: number; mape_pct: number | null
   model_used: string; cached: boolean; error?: string
+  fallback?: boolean; fallback_reason?: string
 }
 interface RegionStat { farmers: number; consumers: number; transporters: number; volume_listed_kg: number; volume_ordered_kg: number }
 interface LocationData { users: unknown[]; regions: Record<string, RegionStat> }
@@ -66,10 +67,14 @@ export default function ForecastInsights() {
 
   useEffect(() => {
     Promise.all([
-      api.get<CropForecast[]>('/api/v1/forecasts/summary').then((r) => setForecasts(r.data.filter((f) => !f.error))).catch(() => setForecasts([])),
+      api.get<CropForecast[]>('/api/v1/forecasts/summary')
+        .then((r) => setForecasts(r.data.filter((f) => !f.error)))
+        .catch(() => setForecasts([])),
       api.get<LocationData>('/api/v1/admin/locations').then((r) => setLocData(r.data)).catch(() => setLocData(null)),
     ]).finally(() => setLoading(false))
   }, [])
+
+  const isFallback = forecasts.length > 0 && forecasts.some((f) => f.fallback)
 
   const {
     dailyByRegion, cropByRegion, demandVsSupply, weekChange,
@@ -158,11 +163,29 @@ export default function ForecastInsights() {
         <div className="card" style={{ padding: 32, textAlign: 'center' }}>
           <p style={{ fontWeight: 700, color: 'var(--ink-strong)', marginBottom: 6 }}>No forecast data available</p>
           <p style={{ fontSize: 13, color: 'var(--ink-muted)' }}>
-            The ML service (port 5000) may be down — check <code>/api/v1/forecasts/health</code>.
+            The forecast summary returned no results. Check <code>/api/v1/forecasts/health</code>.
           </p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+
+          {/* ── Fallback notice ── */}
+          {isFallback && (
+            <div style={{
+              display: 'flex', alignItems: 'flex-start', gap: 10,
+              padding: '12px 16px', borderRadius: 12,
+              background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.3)',
+            }}>
+              <span style={{ fontSize: 16, lineHeight: 1.4 }}>⚠️</span>
+              <div>
+                <p style={{ fontSize: 13, fontWeight: 700, color: '#92400e', margin: 0 }}>ML service offline — showing MOFA baseline estimates</p>
+                <p style={{ fontSize: 12, color: '#b45309', margin: '2px 0 0' }}>
+                  The Flask ML service is not reachable. Charts display statistical baseline figures from Ministry of Agriculture data, not live AI predictions.
+                  Deploy the ML service on Render and set <code>FLASK_SERVICE_URL</code> in the backend env to restore live forecasts.
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* ── KPI row ── */}
           <section>
@@ -182,8 +205,10 @@ export default function ForecastInsights() {
                 icon={<CalendarIcon />}
               />
               <MetricCard
-                label="Model Accuracy" value={mape != null ? `${mape.toFixed(1)}%` : '—'}
-                sub="MAPE · lower is better" icon={<ChipIcon />}
+                label={isFallback ? 'Model (Offline)' : 'Model Accuracy'}
+                value={mape != null ? `${mape.toFixed(1)}%` : 'N/A'}
+                sub={isFallback ? 'MOFA baseline · ML service down' : 'MAPE · lower is better'}
+                icon={<ChipIcon />}
               />
             </div>
           </section>
