@@ -415,6 +415,7 @@ body {
 .animate-slide-up { animation: slide-up 0.25s ease-out; }
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 .animate-fade-in { animation: fade-in 0.3s ease-out; }
+@keyframes slideUpIn { from { opacity: 0; transform: translateY(100%); } to { opacity: 1; transform: translateY(0); } }
 
 /* ── Skeleton loader ───────────────────────────────────────────────────────── */
 @keyframes skeleton-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }

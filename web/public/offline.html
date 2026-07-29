@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgroNexus — Offline</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        --brand: #1a6b35;
+        --brand-soft: #e8f5ec;
+        --ink: #1a2e1d;
+        --ink-muted: #4a6651;
+        --surface: #f8fbf8;
+        --edge: #d4e6d9;
+      }
+
+      html, body {
+        height: 100%;
+        font-family: 'Mulish', system-ui, -apple-system, sans-serif;
+        background: var(--surface);
+        color: var(--ink);
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 24px;
+        text-align: center;
+        gap: 0;
+      }
+
+      .card {
+        background: #fff;
+        border: 1px solid var(--edge);
+        border-radius: 24px;
+        padding: 48px 40px;
+        max-width: 420px;
+        width: 100%;
+        box-shadow: 0 4px 32px rgba(0,0,0,0.06);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .icon-wrap {
+        width: 72px;
+        height: 72px;
+        border-radius: 20px;
+        background: var(--brand-soft);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .icon-wrap svg {
+        width: 36px;
+        height: 36px;
+        color: var(--brand);
+      }
+
+      h1 {
+        font-size: 1.375rem;
+        font-weight: 800;
+        color: var(--ink);
+        line-height: 1.2;
+      }
+
+      p {
+        font-size: 0.9375rem;
+        color: var(--ink-muted);
+        line-height: 1.6;
+        max-width: 320px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 28px;
+        background: var(--brand);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-size: 0.9375rem;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none;
+        transition: opacity 0.15s, transform 0.15s;
+        margin-top: 4px;
+      }
+
+      .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+      .btn:active { transform: translateY(0); opacity: 1; }
+
+      .logo {
+        font-size: 0.8125rem;
+        font-weight: 700;
+        color: var(--brand);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .logo img {
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
+      }
+
+      .pulse {
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="logo">
+        <img src="/favicon-48.png" alt="" />
+        AgroNexus
+      </div>
+
+      <div class="icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0" class="pulse" stroke-dasharray="4 3"/>
+          <path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/>
+        </svg>
+      </div>
+
+      <div>
+        <h1>You're offline</h1>
+      </div>
+
+      <p>
+        AgroNexus needs an internet connection to load your farm data, listings, and orders.
+        Check your connection and try again.
+      </p>
+
+      <button class="btn" onclick="window.location.reload()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16"/>
+        </svg>
+        Try again
+      </button>
+    </div>
+  </body>
+</html>

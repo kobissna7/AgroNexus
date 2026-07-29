@@ -31,6 +31,7 @@ import AdminOrders from './pages/admin/AdminOrders'
 import NotFound from './pages/NotFound'
 
 import ProtectedRoute from './components/ProtectedRoute'
+import { PWAInstallBanner, PWAUpdateToast } from './components/PWAPrompts'
 
 /** Emits a page_view event on every route change. */
 function PageViewTracker() {
@@ -45,6 +46,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <PageViewTracker />
+      <PWAInstallBanner />
+      <PWAUpdateToast />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
