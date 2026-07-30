@@ -9,7 +9,9 @@ import { usePWA } from '../hooks/usePWA'
  */
 export function PWAInstallBanner() {
   const { installable, installed, triggerInstall } = usePWA()
-  const [dismissed, setDismissed] = useState(false)
+  const [dismissed, setDismissed] = useState(() => {
+    return localStorage.getItem('pwa_prompt_dismissed') === 'true'
+  })
 
   if (!installable || installed || dismissed) return null
 
@@ -66,8 +68,10 @@ export function PWAInstallBanner() {
         >
           Install
         </button>
-        <button
-          onClick={() => setDismissed(true)}
+          onClick={() => {
+            setDismissed(true)
+            localStorage.setItem('pwa_prompt_dismissed', 'true')
+          }}
           aria-label="Dismiss"
           style={{
             padding: '9px 12px',
