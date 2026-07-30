@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import axios from 'axios'
 import supabase, { supabaseAdmin } from '../services/supabase'
 
-const FLASK_URL    = process.env.FLASK_SERVICE_URL ?? 'http://localhost:5000'
+const FLASK_URL    = process.env.FLASK_SERVICE_URL || 'http://localhost:5000'
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000  // 6 hours
 
 // ─── Real Ghana Western Region farming areas ──────────────────────────────────
