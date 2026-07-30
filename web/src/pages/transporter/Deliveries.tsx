@@ -124,7 +124,7 @@ export default function TransporterDeliveries() {
                             color: done ? 'var(--on-brand)' : 'var(--ink-faint)',
                             fontSize: 11, fontWeight: 700,
                           }}>
-                            {done ? '✓' : i + 1}
+                            {done ? <CheckIcon className="w-3 h-3" /> : i + 1}
                           </div>
                           <p style={{ fontSize: 10, color: done ? 'var(--brand-ink)' : 'var(--ink-faint)', marginTop: 4, fontWeight: done ? 700 : 400, whiteSpace: 'nowrap' }}>{labels[i]}</p>
                         </div>

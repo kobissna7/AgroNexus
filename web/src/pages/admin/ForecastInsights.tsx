@@ -7,6 +7,7 @@ import Layout from '../../components/Layout'
 import MetricCard from '../../components/MetricCard'
 import { CropIcon } from '../../components/CropIcon'
 import { DarkHero } from '../../components/ui'
+import { FireIcon } from '../../components/icons'
 import api from '../../lib/api'
 import {
   CHART, REGION_COLORS, DIVERGE,
@@ -432,8 +433,8 @@ export default function ForecastInsights() {
                             <td key={i} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: i === maxIdx ? 700 : 400, color: i === maxIdx ? 'var(--brand-ink)' : 'var(--ink)' }}>{v.toLocaleString()}</td>
                           ))}
                           <td style={{ textAlign: 'right', fontWeight: 700, color: 'var(--ink-strong)', fontVariantNumeric: 'tabular-nums' }}>{total.toLocaleString()}</td>
-                          <td style={{ fontSize: 12, color: 'var(--brand-ink)', fontWeight: 600 }}>
-                            🔥 {REGIONS[maxIdx]}
+                          <td style={{ fontSize: 12, color: 'var(--brand-ink)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <FireIcon className="w-3 h-3" /> {REGIONS[maxIdx]}
                           </td>
                         </tr>
                       )

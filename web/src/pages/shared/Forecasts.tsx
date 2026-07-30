@@ -6,6 +6,7 @@ import {
 import Layout from '../../components/Layout'
 import { CropIcon } from '../../components/CropIcon'
 import { DarkHero } from '../../components/ui'
+import { WarningIcon } from '../../components/icons'
 import api from '../../lib/api'
 import {
   CHART, axisTick, gridProps, tooltipStyle, tooltipLabelStyle, tooltipItemStyle, barCursor,
@@ -200,7 +201,7 @@ export default function ForecastsPage() {
               <p style={{ fontSize: 12, color: 'var(--ink-muted)', marginTop: 4 }}>MAPE: {typeof selected.mape_pct === 'number' ? selected.mape_pct.toFixed(2) : '-'}%</p>
               {selected.cached && <p style={{ fontSize: 11, color: 'var(--ink-muted)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 5 }}><span className="live-dot" style={{ background: 'var(--brand-ink)' } as React.CSSProperties} /> cached result</p>}
               {selected.fallback && (
-                <p style={{ fontSize: 11, color: '#b45309', marginTop: 4 }}>⚠ MOFA baseline (ML offline)</p>
+                <p style={{ fontSize: 11, color: '#b45309', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}><WarningIcon className="w-3 h-3" /> MOFA baseline (ML offline)</p>
               )}
             </div>
           )}

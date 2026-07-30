@@ -13,6 +13,7 @@ import ListingModal from './ListingModal'
 import { useAuth } from '../../hooks/useAuth'
 import { useRealtimeChannel } from '../../hooks/useRealtimeChannel'
 import api from '../../lib/api'
+import { PackageIcon, FireIcon, LightbulbIcon } from '../../components/icons'
 import type { ProduceListing, Order } from '../../types'
 
 interface ForecastDay { day: number; date: string; demand_kg: number }
@@ -140,8 +141,8 @@ export default function FarmerDashboard() {
         <div className="card" style={{ padding: 24, marginBottom: 24 }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
             <div>
-              <h2 style={{ fontWeight: 700, fontSize: 15, color: 'var(--ink-strong)' }}>
-                📦 Where to Send Your{' '}
+              <h2 style={{ fontWeight: 700, fontSize: 15, color: 'var(--ink-strong)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <PackageIcon className="w-4 h-4" /> Where to Send Your{' '}
                 <span style={{ textTransform: 'capitalize' }}>{primaryCrop}</span>
               </h2>
               <p style={{ fontSize: 12, color: 'var(--ink-muted)', marginTop: 3 }}>
@@ -169,7 +170,7 @@ export default function FarmerDashboard() {
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span style={{ fontWeight: 700, fontSize: 13, color: 'var(--ink-strong)' }}>{region}</span>
-                      {isTop && <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 9999, background: 'var(--brand)', color: '#fff' }}>🔥 Highest demand</span>}
+                      {isTop && <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 9999, background: 'var(--brand)', color: '#fff', display: 'inline-flex', alignItems: 'center', gap: 4 }}><FireIcon className="w-3 h-3" /> Highest demand</span>}
                       {isMyArea && !isTop && <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 9999, background: 'var(--brand-soft)', color: 'var(--brand-ink)' }}>Your area</span>}
                       {isMyArea && isTop && <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 9999, background: 'var(--brand-soft)', color: 'var(--brand-ink)' }}>Your area</span>}
                     </div>
@@ -186,8 +187,8 @@ export default function FarmerDashboard() {
             })}
           </div>
           {regionDemand.length > 0 && regionDemand[0].demand > 0 && (
-            <p style={{ fontSize: 12, color: 'var(--brand-ink)', marginTop: 12, fontWeight: 600 }}>
-              💡 Consider listing your {primaryCrop} towards <strong>{regionDemand[0].region}</strong>. It has the highest forecast demand this week.
+            <p style={{ fontSize: 12, color: 'var(--brand-ink)', marginTop: 12, fontWeight: 600, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+              <LightbulbIcon className="w-4 h-4" style={{ flexShrink: 0, marginTop: 1 }} /> Consider listing your {primaryCrop} towards <strong>{regionDemand[0].region}</strong>. It has the highest forecast demand this week.
             </p>
           )}
         </div>
