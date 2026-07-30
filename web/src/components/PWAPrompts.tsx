@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { usePWA } from '../hooks/usePWA'
 
 /**
@@ -8,8 +9,9 @@ import { usePWA } from '../hooks/usePWA'
  */
 export function PWAInstallBanner() {
   const { installable, installed, triggerInstall } = usePWA()
+  const [dismissed, setDismissed] = useState(false)
 
-  if (!installable || installed) return null
+  if (!installable || installed || dismissed) return null
 
   return (
     <div
@@ -65,11 +67,7 @@ export function PWAInstallBanner() {
           Install
         </button>
         <button
-          onClick={() => {
-            // Dismiss by hiding — the prompt won't re-fire this session
-            const el = document.querySelector('[data-pwa-banner]') as HTMLElement
-            if (el) el.style.display = 'none'
-          }}
+          onClick={() => setDismissed(true)}
           aria-label="Dismiss"
           style={{
             padding: '9px 12px',

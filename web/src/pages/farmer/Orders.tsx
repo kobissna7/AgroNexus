@@ -60,7 +60,7 @@ export default function FarmerOrders() {
       )}
 
       {/* Metric cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: 16, marginBottom: 24 }}>
         <MetricCard label="Total Orders" value={orders.length} sub="All time" icon={<TotalIcon />} />
         <MetricCard label="Pending" value={orders.filter(o => o.status === 'pending').length} sub="Awaiting action" icon={<PendingIcon />} />
         <MetricCard label="In Transit" value={orders.filter(o => o.status === 'in_transit').length} sub="Being delivered" icon={<TransitIcon />} />

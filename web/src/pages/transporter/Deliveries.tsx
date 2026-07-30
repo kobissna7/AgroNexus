@@ -70,7 +70,7 @@ export default function TransporterDeliveries() {
       />
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 100%), 1fr))', gap: 16, marginBottom: 24 }}>
         <MetricCard label="Active" value={active.length} sub="Accepted or in transit" trend={active.length > 0 ? `${active.length} active` : undefined} icon={<TruckMetricIcon />} />
         <MetricCard label="Completed" value={completed.length} sub="All time" icon={<CheckIcon className="w-5 h-5" />} />
         <MetricCard label="Total Jobs" value={mine.length} sub="Accepted by you" icon={<PackageIcon className="w-5 h-5" />} />

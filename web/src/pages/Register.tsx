@@ -141,7 +141,7 @@ export default function Register() {
         )}
 
         {/* two-up rows keep the whole form inside one viewport */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '0.75rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(170px, 100%), 1fr))', gap: '0.75rem' }}>
           <div>
             <label htmlFor="full_name" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ink-muted)', marginBottom: 6 }}>
               Full name

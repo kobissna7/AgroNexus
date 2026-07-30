@@ -129,7 +129,7 @@ export default function FarmerDashboard() {
       </DarkHero>
 
       {/* Metric cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: 16, marginBottom: 24 }}>
         <MetricCard label="Active Listings" value={activeListings} sub="Currently available" icon={<ListSvg />} />
         <MetricCard label="Pending Orders" value={pendingOrders} sub="Awaiting confirmation" icon={<OrderSvg />} />
         <MetricCard label="Confirmed Revenue" value={`GH₵ ${totalRevenue.toFixed(0)}`} sub="Confirmed + delivered" icon={<CoinSvg />} />
@@ -193,7 +193,7 @@ export default function FarmerDashboard() {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px, 100%), 1fr))', gap: 24, marginBottom: 24 }}>
         {/* Forecast chart */}
         <div className="card" style={{ padding: 24 }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>

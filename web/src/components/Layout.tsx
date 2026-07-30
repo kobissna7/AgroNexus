@@ -378,7 +378,7 @@ export default function Layout({ children, title }: { children: ReactNode; title
         </header>
 
         {/* Page content */}
-        <main style={{ flex: 1, overflowY: 'auto', padding: 28, background: 'var(--canvas-soft)' }}>
+        <main style={{ flex: 1, overflowY: 'auto', padding: isMobile ? 16 : 28, background: 'var(--canvas-soft)' }}>
           <div style={{ maxWidth: 1240, margin: '0 auto' }}>
             {children}
           </div>

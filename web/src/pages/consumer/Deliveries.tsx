@@ -98,7 +98,7 @@ export default function ConsumerDeliveries() {
         glow={{ bottom: -50, right: -50, size: 160 }}
       />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 100%), 1fr))', gap: 16, marginBottom: 24 }}>
         <MetricCard label="Awaiting Transporter" value={openCount}      sub="Not yet claimed"      icon={<InboxIcon />} />
         <MetricCard label="En Route"             value={activeCount}    sub="Accepted or in transit" icon={<TruckIcon />} />
         <MetricCard label="Delivered"            value={deliveredCount} sub="All time"             icon={<CheckIcon />} />

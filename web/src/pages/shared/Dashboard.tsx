@@ -100,13 +100,13 @@ export default function MarketDashboard() {
       />
 
       {/* Metric cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: 16, marginBottom: 24 }}>
         <MetricCard label="Crops Tracked" value={cropsTracked} sub="Western Region markets" icon={<LeafIcon />} />
         <MetricCard label="Active Supply" value={`${totalListings.toLocaleString()}kg`} sub="available across listings" icon={<BoxIcon />} />
         <MetricCard label="Orders Today" value={todayOrders} sub="Platform-wide" icon={<OrderIcon />} />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px, 100%), 1fr))', gap: 24, marginBottom: 24 }}>
         {/* Price trend chart */}
         <div className="card" style={{ padding: 24 }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16, gap: 12, flexWrap: 'wrap' }}>
@@ -219,7 +219,7 @@ export default function MarketDashboard() {
             </span>
           )}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(140px,1fr))', gap: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(140px, 100%),1fr))', gap: 12 }}>
           {loading
             ? [1,2,3,4,5,6].map(i => <div key={i} className="card" style={{ padding: 16, height: 120 }} />)
             : cropForecasts.map(({ crop_type, current_price, trend, weeklyKg }) => {
@@ -292,7 +292,7 @@ export default function MarketDashboard() {
             const chartData = crop.monthly.map(m => ({ month: m.month.slice(5), avg: m.avg }))
             const sortedRegions = Object.entries(crop.by_region).sort(([, a], [, b]) => b - a)
             return (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px, 100%), 1fr))', gap: 20 }}>
                 {/* Price trend chart */}
                 <div className="card" style={{ padding: 20 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>

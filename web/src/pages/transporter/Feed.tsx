@@ -54,7 +54,7 @@ export default function TransporterFeed() {
         }
       />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: 16, marginBottom: 24 }}>
         <MetricCard label="Open Requests" value={open.length} sub="Available in your region" icon={<BoxIcon />} />
         <MetricCard
           label="Newest Request"

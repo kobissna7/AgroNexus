@@ -103,7 +103,7 @@ export default function ConsumerBrowse() {
           </div>
 
           {loading ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(240px, 100%),1fr))', gap: 16 }}>
               {[1, 2, 3, 4, 5, 6].map((i) => <div key={i} className="skeleton" style={{ height: 190, borderRadius: 16 }} />)}
             </div>
           ) : listings.length === 0 ? (
@@ -113,7 +113,7 @@ export default function ConsumerBrowse() {
               <p style={{ fontSize: 13, marginTop: 6 }}>Try broadening your search</p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 16 }} className="animate-fade-in">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(240px, 100%),1fr))', gap: 16 }} className="animate-fade-in">
               {listings.map((l) => (
                 <ListingCard key={l.id} listing={l} onBuy={(listing) => navigate(`/checkout/${listing.id}`)} />
               ))}

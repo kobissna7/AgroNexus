@@ -99,7 +99,7 @@ export default function AdminDashboard() {
       />
 
       {loading ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 14 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(180px, 100%), 1fr))', gap: 14 }}>
           {[...Array(8)].map((_, i) => <div key={i} className="skeleton" style={{ height: 96, borderRadius: 16 }} />)}
         </div>
       ) : !stats ? (
@@ -110,7 +110,7 @@ export default function AdminDashboard() {
           {/* ── Users ── */}
           <section>
             <SectionHeader>Users</SectionHeader>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 14 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(180px, 100%), 1fr))', gap: 14 }}>
               <StatTile label="Total Users"  value={stats.users.total}        accent={STATUS_ACCENT.gold} />
               <StatTile label="Farmers"      value={stats.users.farmers}      accent={ROLE_COLORS.farmer} />
               <StatTile label="Buyers"       value={stats.users.consumers}    accent={ROLE_COLORS.buyer} sub="wholesale · retail · direct" />
@@ -122,7 +122,7 @@ export default function AdminDashboard() {
           {/* ── Listings ── */}
           <section>
             <SectionHeader>Listings</SectionHeader>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 14 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(180px, 100%), 1fr))', gap: 14 }}>
               <StatTile label="Total"   value={stats.listings.total}   accent={STATUS_ACCENT.neutral} />
               <StatTile label="Active"  value={stats.listings.active}  accent={STATUS_ACCENT.good} />
               <StatTile label="Sold"    value={stats.listings.sold}    accent={STATUS_ACCENT.gold} />
@@ -133,7 +133,7 @@ export default function AdminDashboard() {
           {/* ── Orders ── */}
           <section>
             <SectionHeader>Orders</SectionHeader>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 14 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(180px, 100%), 1fr))', gap: 14 }}>
               <StatTile label="Total"      value={stats.orders.total}      accent={STATUS_ACCENT.neutral} />
               <StatTile label="Pending"    value={stats.orders.pending}    accent={STATUS_ACCENT.warning} />
               <StatTile label="Confirmed"  value={stats.orders.confirmed}  accent={STATUS_ACCENT.info} />
@@ -146,7 +146,7 @@ export default function AdminDashboard() {
           {/* ── Transport ── */}
           <section>
             <SectionHeader>Transport</SectionHeader>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 14 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(180px, 100%), 1fr))', gap: 14 }}>
               <StatTile label="Total"      value={stats.transport.total}      accent={STATUS_ACCENT.neutral} />
               <StatTile label="Open"       value={stats.transport.open}       accent={STATUS_ACCENT.warning} />
               <StatTile label="In Transit" value={stats.transport.in_transit} accent={STATUS_ACCENT.transit} />
