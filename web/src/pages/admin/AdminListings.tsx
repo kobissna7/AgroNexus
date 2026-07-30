@@ -203,7 +203,7 @@ export default function AdminListings() {
                       </span>
                     </td>
                     <td style={{ padding: '1rem 1.5rem' }}>
-                      <p style={{ fontWeight: 600, color: 'var(--ink-strong)' }}>{l.users?.full_name ?? '—'}</p>
+                      <p style={{ fontWeight: 600, color: 'var(--ink-strong)' }}>{l.users?.full_name ?? '-'}</p>
                       <p style={{ fontSize: '0.75rem', color: 'var(--ink-muted)', marginTop: '0.125rem' }}>{l.users?.email}</p>
                     </td>
                     <td style={{ padding: '1rem 1.5rem', color: 'var(--ink-muted)' }}>

@@ -30,11 +30,13 @@ export const ROLE_COLORS = {
   admin:       'var(--ink-faint)',
 } as const
 
-// Region series — fixed assignment, never reordered per chart.
-export const REGION_COLORS = {
-  Tarkwa:  'var(--chart-1)',
-  Bogoso:  'var(--chart-2)',
-  Prestea: 'var(--chart-3)',
+// Region series — fixed assignment for real Ghana Western Region farming areas.
+export const REGION_COLORS: Record<string, string> = {
+  'Aowin':        'var(--chart-1)',
+  'Bibiani':      'var(--chart-2)',
+  'Juaboso':      'var(--chart-3)',
+  'Sefwi Wiawso': 'var(--brand-ink)',
+  'Wasa Amenfi':  'var(--ink-muted)',
 } as const
 
 // Polarity without a second hue: solid dark step up, light step down.

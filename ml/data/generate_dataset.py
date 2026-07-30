@@ -7,6 +7,10 @@ Produces two CSVs in ml/data/:
 
 Parameters follow MOFA (Ministry of Food and Agriculture) Ghana production estimates
 and WFP GIEWS price bulletin patterns for Western Region markets.
+
+REGIONS: Real farming/market areas in Ghana's Western Region, selected because
+  they are known mixed food-crop production zones (cassava, plantain, maize,
+  rice, tomatoes, pepper) per MOFA district agriculture reports.
 """
 
 import pandas as pd
@@ -16,11 +20,25 @@ from pathlib import Path
 RNG = np.random.default_rng(42)
 
 CROPS = ['maize', 'tomatoes', 'plantain', 'cassava', 'pepper', 'rice']
-REGIONS = ['Tarkwa', 'Bogoso', 'Prestea']
+
+# Real Ghana Western Region farming areas (MOFA district-level markets)
+REGIONS = ['Aowin', 'Bibiani', 'Juaboso', 'Sefwi Wiawso', 'Wasa Amenfi']
+
 MARKETS = {
-    'Tarkwa':  'Tarkwa Central Market',
-    'Bogoso':  'Bogoso Junction Market',
-    'Prestea': 'Prestea Main Market',
+    'Aowin':        'Enchi Market (Aowin)',
+    'Bibiani':      'Bibiani Central Market',
+    'Juaboso':      'Juaboso Weekly Market',
+    'Sefwi Wiawso': 'Sefwi Wiawso District Market',
+    'Wasa Amenfi':  'Asankragua Market (Wasa Amenfi)',
+}
+
+# Region-specific demand scale — larger/better-connected markets trade more
+REGION_DEMAND_SCALE = {
+    'Aowin':        0.90,
+    'Bibiani':      1.10,
+    'Juaboso':      0.85,
+    'Sefwi Wiawso': 1.05,
+    'Wasa Amenfi':  1.00,
 }
 
 # WFP base prices (GH₵/kg) — 2018 baseline, escalated ~8%/yr for inflation
@@ -117,6 +135,7 @@ def build_demand_series(prices_df: pd.DataFrame) -> pd.DataFrame:
     for crop in CROPS:
         base_demand = MOFA_BASE_DEMAND[crop]
         for region in REGIONS:
+            region_scale = REGION_DEMAND_SCALE[region]
             # Simple trend: +2% annual demand growth
             for dt in dates:
                 years   = (dt.year - 2018) + dt.month / 12
@@ -133,7 +152,7 @@ def build_demand_series(prices_df: pd.DataFrame) -> pd.DataFrame:
                 price_effect = 1 / (price_ratio ** 0.75)   # price elasticity ~-0.75
 
                 demand_kg = round(
-                    base_demand * trend * season * price_effect * noise * (1.0 + 0.15 * festival),
+                    base_demand * region_scale * trend * season * price_effect * noise * (1.0 + 0.15 * festival),
                     1
                 )
                 rows.append({

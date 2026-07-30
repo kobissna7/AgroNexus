@@ -62,7 +62,7 @@ export default function PaymentCallback() {
               <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--ink-strong)', marginBottom: 8 }}>Payment confirmed</h1>
               {orderId && <p style={{ color: 'var(--ink-muted)', fontSize: 14, marginBottom: 6 }}>Order ID: {orderId}</p>}
               <p style={{ color: 'var(--ink-muted)', fontSize: 14, marginBottom: 28 }}>
-                Your order is live — the farmer has been notified and delivery is being arranged.
+                Your order is live. The farmer has been notified and delivery is being arranged.
               </p>
               <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
                 <Link to="/consumer/orders" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}>Track my order</Link>
@@ -88,7 +88,7 @@ export default function PaymentCallback() {
               <p style={{ color: 'var(--ink-muted)', fontSize: 14, marginBottom: 28 }}>
                 {state === 'failed'
                   ? 'No money was taken and the produce was released back to the market. You can try again anytime.'
-                  : 'If you completed the payment, retry verification — nothing is lost.'}
+                  : 'If you completed the payment, retry verification. Nothing is lost.'}
               </p>
               <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
                 {state === 'error' && <button className="btn-primary" onClick={verify}>Retry verification</button>}

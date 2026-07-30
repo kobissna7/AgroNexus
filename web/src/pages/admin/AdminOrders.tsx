@@ -206,11 +206,11 @@ export default function AdminOrders() {
                         </p>
                       </td>
                       <td style={{ padding: '1rem 1.5rem' }}>
-                        <p style={{ fontWeight: 600, color: 'var(--ink-strong)' }}>{o.users?.full_name ?? '—'}</p>
+                        <p style={{ fontWeight: 600, color: 'var(--ink-strong)' }}>{o.users?.full_name ?? '-'}</p>
                         <p style={{ fontSize: '0.75rem', color: 'var(--ink-muted)', marginTop: '0.125rem' }}>{o.users?.email}</p>
                       </td>
                       <td style={{ padding: '1rem 1.5rem', color: 'var(--ink-muted)' }}>
-                        {o.produce_listings?.users?.full_name ?? '—'}
+                        {o.produce_listings?.users?.full_name ?? '-'}
                       </td>
                       <td style={{ padding: '1rem 1.5rem', color: 'var(--ink-muted)' }}>
                         {o.quantity_kg} kg

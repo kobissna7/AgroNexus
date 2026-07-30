@@ -40,9 +40,11 @@ CREATE OR REPLACE FUNCTION derive_region(lat double precision, lng double precis
 RETURNS text
 LANGUAGE sql IMMUTABLE AS $$
   SELECT name FROM (VALUES
-    ('Tarkwa',  5.3006, -1.9834),
-    ('Bogoso',  5.5710, -2.0089),
-    ('Prestea', 5.4323, -2.1431)
+    ('Aowin',        5.8167, -2.7833),
+    ('Bibiani',      6.4667, -2.3167),
+    ('Juaboso',      6.3333, -2.8167),
+    ('Sefwi Wiawso', 6.2167, -2.4833),
+    ('Wasa Amenfi',  5.8000, -2.4333)
   ) AS centroids(name, clat, clng)
   ORDER BY (clat - lat)^2 + (clng - lng)^2
   LIMIT 1

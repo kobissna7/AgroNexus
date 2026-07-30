@@ -3,7 +3,15 @@ import { XIcon } from '../../components/icons'
 import api from '../../lib/api'
 import type { ProduceListing, ListingAllocation } from '../../types'
 
-const REGIONS = ['Tarkwa', 'Bogoso', 'Prestea']
+// Real Ghana Western Region farming/market areas (MOFA district reports)
+const REGIONS = ['Aowin', 'Bibiani', 'Juaboso', 'Sefwi Wiawso', 'Wasa Amenfi']
+const REGION_DESC: Record<string, string> = {
+  'Aowin':        'plantain & pepper belt',
+  'Bibiani':      'cassava & maize hub',
+  'Juaboso':      'cassava/plantain surplus zone',
+  'Sefwi Wiawso': 'rice valley & veg area',
+  'Wasa Amenfi':  'maize & cassava area',
+}
 
 interface ForecastResponse {
   weekly_pred_w1?: number
@@ -106,7 +114,7 @@ export default function AllocationModal({ listing, onClose, onSaved }: Props) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
           <div>
             <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--brand-ink)', marginBottom: 4 }}>Regional Allocation</p>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--ink-strong)', textTransform: 'capitalize' }}>{listing.crop_type} — {listing.quantity_kg} kg</h2>
+            <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--ink-strong)', textTransform: 'capitalize' }}>{listing.crop_type} ({listing.quantity_kg} kg)</h2>
           </div>
           <button
             onClick={onClose}
@@ -142,27 +150,42 @@ export default function AllocationModal({ listing, onClose, onSaved }: Props) {
             </p>
           </div>
 
-          {REGIONS.map((region) => (
-            <div key={region} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, alignItems: 'end' }}>
-              <div>
-                <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-strong)' }}>{region}</p>
-                <p style={{ fontSize: 11, color: 'var(--ink-muted)', marginTop: 2 }}>
-                  {fetching
-                    ? 'Loading forecast…'
-                    : forecasts[region] != null
-                      ? `~${Math.round(forecasts[region]!)} kg/week demand`
-                      : 'Forecast unavailable'}
-                </p>
+          {REGIONS.map((region) => {
+            const forecast = forecasts[region]
+            const totalFc  = REGIONS.reduce((s, r) => s + (forecasts[r] ?? 0), 0)
+            const share    = totalFc > 0 && forecast != null ? forecast / totalFc : null
+            const isTop    = share != null && share === Math.max(...REGIONS.map(r => forecasts[r] ?? 0)) / totalFc
+            return (
+              <div key={region} style={{
+                display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, alignItems: 'end',
+                padding: '10px 12px', borderRadius: 10,
+                background: isTop ? 'rgba(11,46,20,0.05)' : 'transparent',
+                border: isTop ? '1px solid rgba(11,46,20,0.12)' : '1px solid transparent',
+              }}>
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-strong)' }}>
+                    {region}
+                    {isTop && <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, color: 'var(--brand-ink)', background: 'var(--brand-soft)', padding: '2px 7px', borderRadius: 9999 }}>Highest demand</span>}
+                  </p>
+                  <p style={{ fontSize: 11, color: 'var(--ink-muted)', marginTop: 2 }}>{REGION_DESC[region]}</p>
+                  <p style={{ fontSize: 11, color: 'var(--ink-muted)', marginTop: 2 }}>
+                    {fetching
+                      ? 'Loading forecast…'
+                      : forecast != null
+                        ? `~${Math.round(forecast)} kg/week demand${share != null ? ` · ${Math.round(share * 100)}% of total` : ''}`
+                        : 'Forecast unavailable'}
+                  </p>
+                </div>
+                <input
+                  type="number" min="0" step="1" max={listing.quantity_kg}
+                  value={alloc[region] || ''}
+                  onChange={setRegion(region)}
+                  placeholder="0"
+                  style={inputStyle}
+                />
               </div>
-              <input
-                type="number" min="0" step="1" max={listing.quantity_kg}
-                value={alloc[region] || ''}
-                onChange={setRegion(region)}
-                placeholder="0"
-                style={inputStyle}
-              />
-            </div>
-          ))}
+            )
+          })}
 
           <div style={{
             display: 'flex', justifyContent: 'space-between', fontSize: 13,

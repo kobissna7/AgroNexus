@@ -103,13 +103,13 @@ export default function ConsumerOrders() {
                   <tr key={o.id}>
                     <td style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--ink-muted)' }}>{o.id.slice(0, 8)}…</td>
                     <td style={{ fontWeight: 600, color: 'var(--ink-strong)', textTransform: 'capitalize' }}>
-                      {o.produce_listings?.crop_type ?? '—'}
+                      {o.produce_listings?.crop_type ?? '-'}
                     </td>
                     <td>{o.quantity_kg} kg</td>
                     <td style={{ fontWeight: 600, color: 'var(--ink-strong)' }}>
-                      {o.produce_listings ? (o.quantity_kg * o.produce_listings.price_per_kg).toFixed(2) : '—'}
+                      {o.produce_listings ? (o.quantity_kg * o.produce_listings.price_per_kg).toFixed(2) : '-'}
                     </td>
-                    <td style={{ color: 'var(--ink-muted)' }}>{o.produce_listings?.location ?? '—'}</td>
+                    <td style={{ color: 'var(--ink-muted)' }}>{o.produce_listings?.location ?? '-'}</td>
                     <td style={{ color: 'var(--ink-muted)' }}>{new Date(o.created_at).toLocaleDateString()}</td>
                     <td><StatusBadge status={o.status} /></td>
                   </tr>

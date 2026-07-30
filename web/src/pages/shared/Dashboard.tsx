@@ -75,7 +75,9 @@ export default function MarketDashboard() {
   ).length
 
   const cropForecasts = prices.map((p) => {
-    const fc = forecasts.find((f) => f.crop_type === p.crop_type && f.region === 'Tarkwa' && !f.error)
+    // Use Bibiani (largest market) as reference region for the market overview
+    const fc = forecasts.find((f) => f.crop_type === p.crop_type && f.region === 'Bibiani' && !f.error)
+      ?? forecasts.find((f) => f.crop_type === p.crop_type && !f.error)
     if (!fc) return { crop_type: p.crop_type, current_price: p.current_price, trend: 'stable' as const, weeklyKg: null }
     const trend: 'up' | 'down' | 'stable' =
       fc.weekly_pred_w2 > fc.weekly_pred_w1 * 1.03 ? 'up'
@@ -295,7 +297,7 @@ export default function MarketDashboard() {
                 <div className="card" style={{ padding: 20 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                     <div>
-                      <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-strong)', textTransform: 'capitalize' }}>{activeMoaCrop} — National Avg</p>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-strong)', textTransform: 'capitalize' }}>{activeMoaCrop}: National Avg</p>
                       <p style={{ fontSize: 22, fontWeight: 900, color: 'var(--ink-strong)', letterSpacing: '-0.03em', lineHeight: 1.1 }}>GH₵ {crop.national_avg.toFixed(2)}<span style={{ fontSize: 13, fontWeight: 400, color: 'var(--ink-muted)' }}>/kg</span></p>
                     </div>
                     <span style={{

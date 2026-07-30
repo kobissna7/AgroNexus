@@ -90,6 +90,8 @@ def load_data() -> pd.DataFrame:
 # ─── 2. Feature engineering ───────────────────────────────────────────────────
 
 def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
+    # Ensure date is always proper datetime regardless of CSV column types
+    df['date'] = pd.to_datetime(df['date'])
     out = []
     for (crop, region), grp in df.groupby(['crop_type', 'region']):
         grp = grp.sort_values('date').copy()
@@ -111,7 +113,7 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
         # Price elasticity proxy: (price - avg_price) / avg_price
         grp['price_dev'] = (grp['price_per_kg'] - grp['price_roll_4w']) / (grp['price_roll_4w'] + 1e-9)
 
-        # Calendar
+        # Calendar — re-derive from datetime to avoid int columns from CSV
         grp['month']        = grp['date'].dt.month
         grp['week_of_year'] = grp['date'].dt.isocalendar().week.astype(int)
         grp['year']         = grp['date'].dt.year

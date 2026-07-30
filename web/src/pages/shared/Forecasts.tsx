@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Cell,
@@ -18,16 +18,27 @@ interface CropForecast {
   crop_type: string; region: string; forecast: ForecastDay[]
   weekly_pred_w1: number; weekly_pred_w2: number; mape_pct: number
   model_used: string; cached: boolean; error?: string
+  fallback?: boolean
 }
 
+// ─── Real Ghana Western Region farming areas ──────────────────────────────────
 const CROPS   = ['maize', 'tomatoes', 'plantain', 'cassava', 'pepper', 'rice']
-const REGIONS = ['Tarkwa', 'Bogoso', 'Prestea']
+const REGIONS = ['Aowin', 'Bibiani', 'Juaboso', 'Sefwi Wiawso', 'Wasa Amenfi']
+
+// Short region descriptions shown in allocation hints
+const REGION_DESC: Record<string, string> = {
+  'Aowin':        'plantain & pepper belt',
+  'Bibiani':      'cassava & maize hub',
+  'Juaboso':      'cassava/plantain surplus zone',
+  'Sefwi Wiawso': 'rice valley & vegetable area',
+  'Wasa Amenfi':  'maize & cassava area',
+}
 
 export default function ForecastsPage() {
   const [forecasts, setForecasts] = useState<CropForecast[]>([])
   const [loading, setLoading]     = useState(true)
   const [crop, setCrop]           = useState('maize')
-  const [region, setRegion]       = useState('Tarkwa')
+  const [region, setRegion]       = useState('Bibiani')
 
   useEffect(() => {
     api.get<CropForecast[]>('/api/v1/forecasts/summary')
@@ -51,12 +62,25 @@ export default function ForecastsPage() {
     ? { bg: 'var(--surface-2)', text: 'var(--ink)', border: 'var(--edge)' }
     : { bg: 'var(--surface-2)', text: 'var(--ink-muted)', border: 'var(--edge)' }
 
+  // ── Allocation insight for farmer: which region needs this crop most? ────────
+  const allocationInsight = useMemo(() => {
+    if (!crop || forecasts.length === 0) return null
+    const cropRows = forecasts.filter((f) => f.crop_type === crop && !f.error)
+    if (cropRows.length === 0) return null
+    const sorted = [...cropRows].sort((a, b) => b.weekly_pred_w1 - a.weekly_pred_w1)
+    const top    = sorted[0]
+    const bottom = sorted[sorted.length - 1]
+    const allSameish = sorted[0].weekly_pred_w1 / Math.max(sorted[sorted.length - 1].weekly_pred_w1, 1) < 1.1
+    if (allSameish) return { type: 'balanced' as const, top, bottom }
+    return { type: 'gap' as const, top, bottom }
+  }, [crop, forecasts])
+
   return (
     <Layout>
       <DarkHero
         eyebrow="ML Forecasting"
         title="Demand Forecast"
-        sub="7-day demand projections · MLP neural network · Ghana Western Region"
+        sub="7-day demand projections · MLP neural network · Ghana Western Region farming areas"
         right={selected && (
           <div style={{ textAlign: 'right' }}>
             <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Model Accuracy</p>
@@ -68,8 +92,8 @@ export default function ForecastsPage() {
       />
 
       {/* Selectors */}
-      <div style={{ display: 'flex', gap: 12, marginBottom: 24, flexWrap: 'wrap' }}>
-        <div className="card" style={{ display: 'flex', gap: 4, padding: 6 }}>
+      <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
+        <div className="card" style={{ display: 'flex', gap: 4, padding: 6, flexWrap: 'wrap' }}>
           {CROPS.map((c) => (
             <button
               key={c}
@@ -88,11 +112,12 @@ export default function ForecastsPage() {
             </button>
           ))}
         </div>
-        <div className="card" style={{ display: 'flex', gap: 4, padding: 6 }}>
+        <div className="card" style={{ display: 'flex', gap: 4, padding: 6, flexWrap: 'wrap' }}>
           {REGIONS.map((r) => (
             <button
               key={r}
               onClick={() => setRegion(r)}
+              title={REGION_DESC[r]}
               style={{
                 fontSize: 12, padding: '7px 14px', borderRadius: 8,
                 cursor: 'pointer', fontWeight: 600, transition: 'all 0.15s',
@@ -107,20 +132,62 @@ export default function ForecastsPage() {
         </div>
       </div>
 
+      {/* ── Allocation insight banner (farmer-facing) ── */}
+      {!loading && allocationInsight && (
+        <div style={{
+          marginBottom: 20, padding: '14px 18px', borderRadius: 14,
+          background: allocationInsight.type === 'gap'
+            ? 'linear-gradient(135deg, rgba(11,46,20,0.18), rgba(11,46,20,0.08))'
+            : 'var(--surface-2)',
+          border: '1px solid var(--edge)',
+          display: 'flex', gap: 12, alignItems: 'flex-start',
+        }}>
+          <span style={{ fontSize: 20, lineHeight: 1.2, marginTop: 2 }}>
+            {allocationInsight.type === 'gap' ? '📦' : '⚖️'}
+          </span>
+          <div>
+            <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-strong)', margin: 0, marginBottom: 4 }}>
+              {allocationInsight.type === 'gap'
+                ? `Where to send your ${crop}:`
+                : `All areas have similar demand for ${crop}`}
+            </p>
+            {allocationInsight.type === 'gap' ? (
+              <p style={{ fontSize: 13, color: 'var(--ink)', margin: 0, lineHeight: 1.6 }}>
+                <strong>{allocationInsight.top.region}</strong> ({REGION_DESC[allocationInsight.top.region]}) has the
+                highest forecast demand: <strong>{Math.round(allocationInsight.top.weekly_pred_w1).toLocaleString()} kg/wk</strong>.
+                Consider prioritising produce allocation there.
+                {allocationInsight.bottom && allocationInsight.bottom.region !== allocationInsight.top.region && (
+                  <> <strong>{allocationInsight.bottom.region}</strong> has lower demand (<strong>{Math.round(allocationInsight.bottom.weekly_pred_w1).toLocaleString()} kg/wk</strong>). It is better supplied or less active this week.</> 
+                )}
+              </p>
+            ) : (
+              <p style={{ fontSize: 13, color: 'var(--ink-muted)', margin: 0 }}>
+                Demand is spread evenly. Distribute {crop} to the nearest market or where you have existing buyers.
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, marginBottom: 24 }}>
         {/* Stat cards */}
         <div style={{ flex: '1 1 260px', display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div className="card" style={{ padding: 20 }}>
             <p style={{ fontSize: 11, color: 'var(--ink-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Week 1 (next 7 days)</p>
             <p style={{ fontSize: '1.9rem', fontWeight: 800, color: 'var(--ink-strong)', letterSpacing: '-0.03em', lineHeight: 1 }}>
-              {w1 ? Math.round(w1).toLocaleString() : '—'} <span style={{ fontSize: 14, fontWeight: 400, color: 'var(--ink-muted)' }}>kg</span>
+              {w1 ? Math.round(w1).toLocaleString() : '-'} <span style={{ fontSize: 14, fontWeight: 400, color: 'var(--ink-muted)' }}>kg</span>
             </p>
             <p style={{ fontSize: 12, color: 'var(--ink-muted)', marginTop: 6, textTransform: 'capitalize' }}>{crop} · {region}</p>
+            {selected && (
+              <p style={{ fontSize: 11, color: 'var(--ink-muted)', marginTop: 4 }}>
+                {REGION_DESC[region]}
+              </p>
+            )}
           </div>
           <div className="card" style={{ padding: 20 }}>
             <p style={{ fontSize: 11, color: 'var(--ink-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Week 2 Outlook</p>
             <p style={{ fontSize: '1.9rem', fontWeight: 800, color: 'var(--ink-strong)', letterSpacing: '-0.03em', lineHeight: 1 }}>
-              {w2 ? Math.round(w2).toLocaleString() : '—'} <span style={{ fontSize: 14, fontWeight: 400, color: 'var(--ink-muted)' }}>kg</span>
+              {w2 ? Math.round(w2).toLocaleString() : '-'} <span style={{ fontSize: 14, fontWeight: 400, color: 'var(--ink-muted)' }}>kg</span>
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 10 }}>
               <span style={{ fontSize: 11, fontWeight: 800, padding: '4px 10px', borderRadius: 9999, background: tStyle.bg, color: tStyle.text, border: `1px solid ${tStyle.border}` }}>
@@ -135,6 +202,9 @@ export default function ForecastsPage() {
               <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink-strong)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{selected.model_used}</p>
               <p style={{ fontSize: 12, color: 'var(--ink-muted)', marginTop: 4 }}>MAPE: {selected.mape_pct.toFixed(2)}%</p>
               {selected.cached && <p style={{ fontSize: 11, color: 'var(--ink-muted)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 5 }}><span className="live-dot" style={{ background: 'var(--brand-ink)' } as React.CSSProperties} /> cached result</p>}
+              {selected.fallback && (
+                <p style={{ fontSize: 11, color: '#b45309', marginTop: 4 }}>⚠ MOFA baseline (ML offline)</p>
+              )}
             </div>
           )}
         </div>
@@ -144,7 +214,7 @@ export default function ForecastsPage() {
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
             <div>
               <h2 style={{ fontWeight: 700, fontSize: 15, color: 'var(--ink-strong)' }}>Daily Demand · Next 7 Days</h2>
-              <p style={{ fontSize: 12, color: 'var(--ink-muted)', marginTop: 3, marginBottom: 16 }}>projected kg per day</p>
+              <p style={{ fontSize: 12, color: 'var(--ink-muted)', marginTop: 3, marginBottom: 16 }}>projected kg per day · {region}</p>
             </div>
             <div style={{ display: 'flex', gap: 14 }}>
               {[{ c: CHART.green, l: 'Regular day' }, { c: CHART.gold, l: 'Festival day' }].map(({ c, l }) => (
@@ -182,10 +252,11 @@ export default function ForecastsPage() {
         </div>
       </div>
 
-      {/* Summary table */}
+      {/* Summary table — all crops for selected region */}
       <div className="card">
         <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--edge)' }}>
           <h2 style={{ fontWeight: 700, fontSize: 15, color: 'var(--ink-strong)' }}>All Crops · {region} · Week 1 Forecast</h2>
+          <p style={{ fontSize: 12, color: 'var(--ink-muted)', marginTop: 4 }}>{REGION_DESC[region]}</p>
         </div>
         {loading ? (
           <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -201,6 +272,7 @@ export default function ForecastsPage() {
                   <th style={{ textAlign: 'right', minWidth: 72 }}>Week 2</th>
                   <th style={{ textAlign: 'right', minWidth: 80 }}>Trend</th>
                   <th style={{ textAlign: 'right', minWidth: 60 }}>MAPE</th>
+                  <th style={{ textAlign: 'left', minWidth: 200 }}>Allocation Hint</th>
                 </tr>
               </thead>
               <tbody>
@@ -213,7 +285,7 @@ export default function ForecastsPage() {
                           <CropIcon type={c} className="w-4 h-4" />{c}
                         </span>
                       </td>
-                      <td style={{ textAlign: 'right', color: 'var(--ink-muted)' }} colSpan={4}>—</td>
+                      <td style={{ textAlign: 'right', color: 'var(--ink-muted)' }} colSpan={5}>-</td>
                     </tr>
                   )
                   const t = fc.weekly_pred_w2 > fc.weekly_pred_w1 * 1.03 ? 'up'
@@ -223,6 +295,17 @@ export default function ForecastsPage() {
                     : t === 'down'
                     ? { bg: 'var(--invert-bg)', text: 'var(--invert-ink)' }
                     : { bg: 'var(--surface-2)', text: 'var(--ink-muted)' }
+
+                  // Allocation hint: compare this region to all others for this crop
+                  const cropAllRows = forecasts.filter((f) => f.crop_type === c && !f.error)
+                  const maxRegion = cropAllRows.reduce((best, f) => f.weekly_pred_w1 > best.weekly_pred_w1 ? f : best, cropAllRows[0])
+                  const isHighestRegion = maxRegion?.region === region
+                  const hint = isHighestRegion
+                    ? `🔥 Highest demand area — prioritise allocation here`
+                    : maxRegion
+                    ? `→ Higher demand in ${maxRegion.region} (${Math.round(maxRegion.weekly_pred_w1).toLocaleString()} kg/wk)`
+                    : ''
+
                   return (
                     <tr key={c}>
                       <td>
@@ -243,6 +326,9 @@ export default function ForecastsPage() {
                         </span>
                       </td>
                       <td style={{ textAlign: 'right', color: 'var(--ink-muted)' }}>{fc.mape_pct.toFixed(1)}%</td>
+                      <td style={{ fontSize: 12, color: isHighestRegion ? 'var(--brand-ink)' : 'var(--ink-muted)', fontWeight: isHighestRegion ? 600 : 400 }}>
+                        {hint}
+                      </td>
                     </tr>
                   )
                 })}

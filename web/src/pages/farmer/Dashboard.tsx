@@ -16,7 +16,18 @@ import api from '../../lib/api'
 import type { ProduceListing, Order } from '../../types'
 
 interface ForecastDay { day: number; date: string; demand_kg: number }
-interface CropFc { crop_type: string; forecast: ForecastDay[]; weekly_pred_w1: number; mape_pct: number }
+interface CropFc {
+  crop_type: string; region: string; forecast: ForecastDay[];
+  weekly_pred_w1: number; mape_pct: number; fallback?: boolean
+}
+
+const REGION_DESC: Record<string, string> = {
+  'Aowin':        'plantain & pepper belt',
+  'Bibiani':      'cassava & maize hub',
+  'Juaboso':      'cassava/plantain surplus zone',
+  'Sefwi Wiawso': 'rice valley & veg area',
+  'Wasa Amenfi':  'maize & cassava area',
+}
 
 export default function FarmerDashboard() {
   const { user } = useAuth()
@@ -63,9 +74,18 @@ export default function FarmerDashboard() {
     fetchData()
   }
 
-  const activeFc = forecasts.find(fc => fc.crop_type === 'maize') ?? forecasts[0]
+  const activeFc = forecasts.find(fc => fc.crop_type === (listings[0]?.crop_type ?? 'maize')) ?? forecasts[0]
   const chartData = activeFc?.forecast.map(d => ({ day: d.date.slice(5), forecast: d.demand_kg })) ?? []
   const w1 = activeFc?.weekly_pred_w1 ?? 0
+
+  // Demand-by-region for the farmer's primary crop (all 5 areas)
+  const primaryCrop = listings[0]?.crop_type ?? activeFc?.crop_type ?? 'maize'
+  const regionDemand = ['Aowin', 'Bibiani', 'Juaboso', 'Sefwi Wiawso', 'Wasa Amenfi']
+    .map(r => {
+      const fc = forecasts.find(f => f.crop_type === primaryCrop && f.region === r)
+      return { region: r, demand: fc?.weekly_pred_w1 ?? 0 }
+    })
+    .sort((a, b) => b.demand - a.demand)
 
   return (
     <Layout>
@@ -77,7 +97,7 @@ export default function FarmerDashboard() {
         right={
           <div style={{ textAlign: 'right' }}>
             <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Region</p>
-            <p style={{ fontSize: 14, fontWeight: 700, color: '#ffffff', marginTop: 4 }}>{user?.region ?? '—'}</p>
+            <p style={{ fontSize: 14, fontWeight: 700, color: '#ffffff', marginTop: 4 }}>{user?.region ?? '-'}</p>
             {liveOrders > 0 && (
               <span style={{
                 display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 8,
@@ -115,12 +135,70 @@ export default function FarmerDashboard() {
         <MetricCard label="Confirmed Revenue" value={`GH₵ ${totalRevenue.toFixed(0)}`} sub="Confirmed + delivered" icon={<CoinSvg />} />
       </div>
 
+      {/* ── Where demand is highest ── */}
+      {!loading && regionDemand.some(r => r.demand > 0) && (
+        <div className="card" style={{ padding: 24, marginBottom: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
+            <div>
+              <h2 style={{ fontWeight: 700, fontSize: 15, color: 'var(--ink-strong)' }}>
+                📦 Where to Send Your{' '}
+                <span style={{ textTransform: 'capitalize' }}>{primaryCrop}</span>
+              </h2>
+              <p style={{ fontSize: 12, color: 'var(--ink-muted)', marginTop: 3 }}>
+                Weekly demand forecast by area — allocate more to high-demand markets
+              </p>
+            </div>
+            {user?.region && (
+              <span style={{ fontSize: 11, padding: '4px 12px', borderRadius: 9999, fontWeight: 700, background: 'var(--brand-soft)', color: 'var(--brand-ink)', border: '1px solid var(--edge)' }}>
+                Your area: {user.region}
+              </span>
+            )}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {regionDemand.map(({ region, demand }, i) => {
+              const maxDemand = regionDemand[0].demand
+              const barW = maxDemand > 0 ? Math.round((demand / maxDemand) * 100) : 0
+              const isTop = i === 0
+              const isMyArea = user?.region === region
+              return (
+                <div key={region} style={{
+                  padding: '10px 14px', borderRadius: 12,
+                  background: isTop ? 'rgba(11,46,20,0.06)' : 'var(--surface-2)',
+                  border: isTop ? '1px solid rgba(11,46,20,0.15)' : '1px solid transparent',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontWeight: 700, fontSize: 13, color: 'var(--ink-strong)' }}>{region}</span>
+                      {isTop && <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 9999, background: 'var(--brand)', color: '#fff' }}>🔥 Highest demand</span>}
+                      {isMyArea && !isTop && <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 9999, background: 'var(--brand-soft)', color: 'var(--brand-ink)' }}>Your area</span>}
+                      {isMyArea && isTop && <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 9999, background: 'var(--brand-soft)', color: 'var(--brand-ink)' }}>Your area</span>}
+                    </div>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: isTop ? 'var(--brand-ink)' : 'var(--ink-muted)' }}>
+                      {demand > 0 ? `${Math.round(demand).toLocaleString()} kg/wk` : '-'}
+                    </span>
+                  </div>
+                  <div style={{ height: 5, background: 'var(--surface)', borderRadius: 9999, overflow: 'hidden', marginBottom: 4 }}>
+                    <div style={{ height: '100%', width: `${barW}%`, background: isTop ? 'var(--chart-1)' : 'var(--ink-faint)', borderRadius: 9999, transition: 'width 0.4s ease' }} />
+                  </div>
+                  <p style={{ fontSize: 11, color: 'var(--ink-muted)' }}>{REGION_DESC[region]}</p>
+                </div>
+              )
+            })}
+          </div>
+          {regionDemand.length > 0 && regionDemand[0].demand > 0 && (
+            <p style={{ fontSize: 12, color: 'var(--brand-ink)', marginTop: 12, fontWeight: 600 }}>
+              💡 Consider listing your {primaryCrop} towards <strong>{regionDemand[0].region}</strong>. It has the highest forecast demand this week.
+            </p>
+          )}
+        </div>
+      )}
+
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, marginBottom: 24 }}>
         {/* Forecast chart */}
         <div className="card" style={{ padding: 24 }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
             <div>
-              <h2 style={{ fontWeight: 700, fontSize: 15, color: 'var(--ink-strong)' }}>Demand Forecast — Next 7 Days</h2>
+              <h2 style={{ fontWeight: 700, fontSize: 15, color: 'var(--ink-strong)' }}>Demand Forecast: Next 7 Days</h2>
               <p style={{ fontSize: 12, color: 'var(--ink-muted)', marginTop: 3 }}>
                 {activeFc ? `${activeFc.crop_type} · ${w1.toFixed(0)} kg/wk · ${activeFc.mape_pct.toFixed(1)}% MAPE` : 'kg demand per day'}
               </p>
@@ -160,7 +238,7 @@ export default function FarmerDashboard() {
               {orders.slice(0, 8).map((o) => (
                 <div key={o.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--edge)' }}>
                   <div>
-                    <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink-strong)' }}>{(o as Order & { produce_listings?: { crop_type: string } }).produce_listings?.crop_type ?? '—'}</p>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink-strong)' }}>{(o as Order & { produce_listings?: { crop_type: string } }).produce_listings?.crop_type ?? '-'}</p>
                     <p style={{ fontSize: 11, color: 'var(--ink-muted)', marginTop: 2 }}>{o.quantity_kg} kg · {new Date(o.created_at).toLocaleDateString()}</p>
                   </div>
                   <StatusBadge status={o.status} />

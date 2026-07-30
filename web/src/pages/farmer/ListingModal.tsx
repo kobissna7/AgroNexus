@@ -4,7 +4,15 @@ import api from '../../lib/api'
 import type { ProduceListing } from '../../types'
 
 const CROPS = ['Maize', 'Tomatoes', 'Plantain', 'Cassava', 'Pepper', 'Rice']
-const LOCATIONS = ['Tarkwa', 'Bogoso', 'Prestea', 'Takoradi', 'Cape Coast', 'Other']
+// Real Ghana Western Region farming/market areas (MOFA district reports)
+const LOCATIONS = [
+  'Aowin',
+  'Bibiani',
+  'Juaboso',
+  'Sefwi Wiawso',
+  'Wasa Amenfi',
+  'Other',
+]
 
 interface MoaCropData {
   national_avg: number

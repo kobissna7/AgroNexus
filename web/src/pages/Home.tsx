@@ -86,7 +86,7 @@ export default function Home() {
               <input
                 className="input-field"
                 style={{ flex: 1, minWidth: 0, borderRadius: 9999, padding: '11px 18px', fontSize: 14 }}
-                placeholder="Search produce — maize, tomatoes…"
+                placeholder="Search produce (maize, tomatoes…)"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 aria-label="Search produce"
@@ -178,7 +178,7 @@ export default function Home() {
           ) : listings.length === 0 ? (
             <div style={{ textAlign: 'center', padding: 'clamp(40px, 10vw, 80px) 20px', color: 'var(--ink-muted)' }}>
               <p style={{ fontSize: 17, fontWeight: 700, color: 'var(--ink)' }}>Nothing on the market for that filter yet</p>
-              <p style={{ fontSize: 14, marginTop: 8 }}>Try another crop or region — new produce is listed daily.</p>
+              <p style={{ fontSize: 14, marginTop: 8 }}>Try another crop or region. New produce is listed daily.</p>
             </div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(240px, 100%), 1fr))', gap: 16 }} className="animate-fade-in">

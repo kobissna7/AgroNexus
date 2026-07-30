@@ -91,7 +91,7 @@ export default function AdminDashboard() {
           <div style={{ textAlign: 'right' }}>
             <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700, marginBottom: 8 }}>Total Platform Revenue</p>
             <p style={{ fontSize: '2.6rem', fontWeight: 800, color: 'rgba(134,239,172,0.9)', letterSpacing: '-0.03em', lineHeight: 1 }}>
-              {loading || !stats ? '—' : <>GH₵ {stats.revenue_ghs.toLocaleString()}</>}
+              {loading || !stats ? '-' : <>GH₵ {stats.revenue_ghs.toLocaleString()}</>}
             </p>
             <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 6 }}>confirmed + in-transit + delivered orders</p>
           </div>

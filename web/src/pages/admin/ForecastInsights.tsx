@@ -26,7 +26,15 @@ interface RegionStat { farmers: number; consumers: number; transporters: number;
 interface LocationData { users: unknown[]; regions: Record<string, RegionStat> }
 
 const CROPS   = ['maize', 'tomatoes', 'plantain', 'cassava', 'pepper', 'rice']
-const REGIONS = ['Tarkwa', 'Bogoso', 'Prestea'] as const
+// Real Ghana Western Region farming/market towns (MOFA district reports)
+const REGIONS = ['Aowin', 'Bibiani', 'Juaboso', 'Sefwi Wiawso', 'Wasa Amenfi'] as const
+const REGION_DESC: Record<string, string> = {
+  'Aowin':        'plantain & pepper belt',
+  'Bibiani':      'cassava & maize hub',
+  'Juaboso':      'cassava/plantain surplus zone',
+  'Sefwi Wiawso': 'rice valley & veg area',
+  'Wasa Amenfi':  'maize & cassava area',
+}
 
 function SectionHeader({ children, sub }: { children: React.ReactNode; sub?: string }) {
   return (
@@ -178,7 +186,7 @@ export default function ForecastInsights() {
             }}>
               <span style={{ fontSize: 16, lineHeight: 1.4 }}>⚠️</span>
               <div>
-                <p style={{ fontSize: 13, fontWeight: 700, color: '#92400e', margin: 0 }}>ML service offline — showing MOFA baseline estimates</p>
+                <p style={{ fontSize: 13, fontWeight: 700, color: '#92400e', margin: 0 }}>ML service offline. Showing MOFA baseline estimates.</p>
                 <p style={{ fontSize: 12, color: '#b45309', margin: '2px 0 0' }}>
                   The Flask ML service is not reachable. Charts display statistical baseline figures from Ministry of Agriculture data, not live AI predictions.
                   Deploy the ML service on Render and set <code>FLASK_SERVICE_URL</code> in the backend env to restore live forecasts.
@@ -200,7 +208,7 @@ export default function ForecastInsights() {
                 icon={<TrendIcon />}
               />
               <MetricCard
-                label="Peak Day" value={peakDay?.label ?? '—'}
+                label="Peak Day" value={peakDay?.label ?? '-'}
                 sub={peakDay ? `${peakDay.total.toLocaleString()} kg across regions` : undefined}
                 icon={<CalendarIcon />}
               />
@@ -215,7 +223,7 @@ export default function ForecastInsights() {
 
           {/* ── Daily demand curve by region ── */}
           <section>
-            <SectionHeader sub="Total forecast demand per day, all crops combined — where and when volume lands next week">
+            <SectionHeader sub="Total forecast demand per day, all crops combined. Where and when volume lands next week.">
               Regional Demand · Next 7 Days
             </SectionHeader>
             <div className="card" style={{ padding: 24 }}>
@@ -246,7 +254,7 @@ export default function ForecastInsights() {
 
           {/* ── Crop × region grouped bars ── */}
           <section>
-            <SectionHeader sub="Week-1 forecast per crop, split by region — which markets want which crops">
+            <SectionHeader sub="Week-1 forecast per crop, split by region. Which markets want which crops.">
               Demand by Crop &amp; Region
             </SectionHeader>
             <div className="card" style={{ padding: 24 }}>
@@ -274,7 +282,7 @@ export default function ForecastInsights() {
           {/* ── Demand vs supply + week change, side by side ── */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
             <section style={{ flex: '1 1 380px', minWidth: 0 }}>
-              <SectionHeader sub="Week-1 forecast vs kg currently listed — gaps show where supply falls short">
+              <SectionHeader sub="Week-1 forecast vs kg currently listed. Gaps show where supply falls short.">
                 Forecast Demand vs Listed Supply
               </SectionHeader>
               <div className="card" style={{ padding: 24 }}>
@@ -307,7 +315,7 @@ export default function ForecastInsights() {
             </section>
 
             <section style={{ flex: '1 1 380px', minWidth: 0 }}>
-              <SectionHeader sub="Week-2 vs week-1 forecast, all regions combined — what's heating up or cooling off">
+              <SectionHeader sub="Week-2 vs week-1 forecast, all regions combined. What's heating up or cooling off.">
                 Week-over-Week Change by Crop
               </SectionHeader>
               <div className="card" style={{ padding: 24 }}>
@@ -344,9 +352,60 @@ export default function ForecastInsights() {
             </section>
           </div>
 
+
+          {/* ── Admin allocation intelligence ── */}
+          <section>
+            <SectionHeader sub="Based on forecast demand vs listed supply. Tells admin where produce allocations are needed.">
+              Area Allocation Intelligence
+            </SectionHeader>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {demandVsSupply
+                .map((d) => ({ ...d, coverage: d.demand > 0 ? d.supply / d.demand : 1 }))
+                .sort((a, b) => a.coverage - b.coverage)
+                .map((d) => {
+                  const pct = Math.round(d.coverage * 100)
+                  const isShort  = d.coverage < 0.5
+                  const isMed    = d.coverage >= 0.5 && d.coverage < 0.9
+                  const isGood   = d.coverage >= 0.9 && d.coverage < 1.3
+                  const status = isShort ? 'critical' : isMed ? 'low' : isGood ? 'balanced' : 'surplus'
+                  const colors = {
+                    critical: { bar: 'rgba(220,38,38,0.75)', bg: 'rgba(220,38,38,0.06)', border: 'rgba(220,38,38,0.25)', text: '#b91c1c' },
+                    low:      { bar: 'rgba(234,179,8,0.8)',  bg: 'rgba(234,179,8,0.06)',  border: 'rgba(234,179,8,0.3)',  text: '#92400e' },
+                    balanced: { bar: 'var(--chart-1)',       bg: 'rgba(11,46,20,0.05)',   border: 'rgba(11,46,20,0.12)', text: 'var(--brand-ink)' },
+                    surplus:  { bar: 'var(--ink-faint)',     bg: 'var(--surface-2)',      border: 'var(--edge)',         text: 'var(--ink-muted)' },
+                  }[status]
+                  const msg = {
+                    critical: `🚨 Critical shortage — send farmers to list produce here urgently. Only ${pct}% of demand covered.`,
+                    low:      `⚠ Supply running low — encourage more farmer listings in this area. ${pct}% covered.`,
+                    balanced: `✓ Supply and demand are balanced in this area (${pct}% covered). Monitor for changes.`,
+                    surplus:  `📦 Surplus area — supply exceeds demand by ${pct - 100}%. Redirect some produce to other areas.`,
+                  }[status]
+                  const width = Math.min(d.supply > 0 || d.demand > 0 ? pct : 0, 100)
+                  return (
+                    <div key={d.region} style={{ padding: '14px 18px', borderRadius: 14, background: colors.bg, border: `1px solid ${colors.border}` }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <div>
+                          <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--ink-strong)' }}>{d.region}</span>
+                          <span style={{ fontSize: 11, color: 'var(--ink-muted)', marginLeft: 8 }}>{REGION_DESC[d.region]}</span>
+                        </div>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: colors.text }}>{pct}% covered</span>
+                      </div>
+                      <div style={{ background: 'var(--surface)', borderRadius: 6, height: 6, overflow: 'hidden', marginBottom: 8 }}>
+                        <div style={{ width: `${width}%`, height: '100%', background: colors.bar, borderRadius: 6, transition: 'width 0.4s ease' }} />
+                      </div>
+                      <p style={{ fontSize: 12, color: colors.text, margin: 0 }}>{msg}</p>
+                      <p style={{ fontSize: 11, color: 'var(--ink-muted)', marginTop: 4 }}>
+                        Forecast: <strong>{d.demand.toLocaleString()} kg</strong> · Listed: <strong>{d.supply.toLocaleString()} kg</strong>
+                      </p>
+                    </div>
+                  )
+                })}
+            </div>
+          </section>
+
           {/* ── Table view (accessibility twin of the charts) ── */}
           <section>
-            <SectionHeader sub="Week-1 forecast in kg — the exact values behind the charts above">
+            <SectionHeader sub="Week-1 forecast in kg. The exact values behind the charts above.">
               Forecast Table · Week 1
             </SectionHeader>
             <div className="card" style={{ overflow: 'hidden' }}>
@@ -357,22 +416,29 @@ export default function ForecastInsights() {
                       <th style={{ textAlign: 'left', minWidth: 90 }}>Crop</th>
                       {REGIONS.map((r) => <th key={r} style={{ textAlign: 'right', minWidth: 80 }}>{r} (kg)</th>)}
                       <th style={{ textAlign: 'right', minWidth: 90 }}>Total (kg)</th>
+                      <th style={{ textAlign: 'left', minWidth: 140 }}>Highest Demand Area</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {tableRows.map(({ crop, cells, total }) => (
-                      <tr key={crop}>
-                        <td>
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontWeight: 600, color: 'var(--ink-strong)', textTransform: 'capitalize' }}>
-                            <CropIcon type={crop} className="w-4 h-4" />{crop}
-                          </span>
-                        </td>
-                        {cells.map((v, i) => (
-                          <td key={i} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{v.toLocaleString()}</td>
-                        ))}
-                        <td style={{ textAlign: 'right', fontWeight: 700, color: 'var(--ink-strong)', fontVariantNumeric: 'tabular-nums' }}>{total.toLocaleString()}</td>
-                      </tr>
-                    ))}
+                    {tableRows.map(({ crop, cells, total }) => {
+                      const maxIdx = cells.indexOf(Math.max(...cells))
+                      return (
+                        <tr key={crop}>
+                          <td>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontWeight: 600, color: 'var(--ink-strong)', textTransform: 'capitalize' }}>
+                              <CropIcon type={crop} className="w-4 h-4" />{crop}
+                            </span>
+                          </td>
+                          {cells.map((v, i) => (
+                            <td key={i} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: i === maxIdx ? 700 : 400, color: i === maxIdx ? 'var(--brand-ink)' : 'var(--ink)' }}>{v.toLocaleString()}</td>
+                          ))}
+                          <td style={{ textAlign: 'right', fontWeight: 700, color: 'var(--ink-strong)', fontVariantNumeric: 'tabular-nums' }}>{total.toLocaleString()}</td>
+                          <td style={{ fontSize: 12, color: 'var(--brand-ink)', fontWeight: 600 }}>
+                            🔥 {REGIONS[maxIdx]}
+                          </td>
+                        </tr>
+                      )
+                    })}
                   </tbody>
                 </table>
               </div>

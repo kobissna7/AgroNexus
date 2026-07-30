@@ -224,7 +224,7 @@ export default function AdminUsers() {
                     style={{ borderBottom: '1px solid var(--edge)', transition: 'background 0.12s' }}
                   >
                     <td style={{ padding: '1rem 1.5rem' }}>
-                      <p style={{ fontWeight: 600, color: 'var(--ink-strong)' }}>{u.full_name || '—'}</p>
+                      <p style={{ fontWeight: 600, color: 'var(--ink-strong)' }}>{u.full_name || '-'}</p>
                       <p style={{ fontSize: '0.75rem', color: 'var(--ink-muted)', marginTop: '0.125rem' }}>{u.email}</p>
                     </td>
                     <td style={{ padding: '1rem 1.5rem' }}>
@@ -250,8 +250,8 @@ export default function AdminUsers() {
                         ))}
                       </select>
                     </td>
-                    <td style={{ padding: '1rem 1.5rem', color: 'var(--ink-muted)' }}>{u.region ?? '—'}</td>
-                    <td style={{ padding: '1rem 1.5rem', color: 'var(--ink-muted)' }}>{u.phone ?? '—'}</td>
+                    <td style={{ padding: '1rem 1.5rem', color: 'var(--ink-muted)' }}>{u.region ?? '-'}</td>
+                    <td style={{ padding: '1rem 1.5rem', color: 'var(--ink-muted)' }}>{u.phone ?? '-'}</td>
                     <td style={{ padding: '1rem 1.5rem', color: 'var(--ink-muted)', fontSize: '0.75rem' }}>
                       {new Date(u.created_at).toLocaleDateString()}
                     </td>

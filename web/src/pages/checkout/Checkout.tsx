@@ -242,7 +242,7 @@ export default function Checkout() {
               {/* Transporter */}
               <div className="card" style={{ padding: 22 }}>
                 <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)', marginBottom: 10 }}>
-                  Delivery <span style={{ color: 'var(--ink-faint)', fontWeight: 400 }}>— optional</span>
+                  Delivery <span style={{ color: 'var(--ink-faint)', fontWeight: 400 }}>(optional)</span>
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 240, overflowY: 'auto' }}>
                   <TransporterOption
@@ -311,7 +311,7 @@ export default function Checkout() {
               <p style={{ fontSize: 12, color: 'var(--ink-faint)', textAlign: 'center', marginTop: 12 }}>
                 {config?.enabled
                   ? 'You will be redirected to Paystack to complete payment securely.'
-                  : 'Payment collection is coming soon — orders are confirmed directly for now.'}
+                  : 'Payment collection is coming soon. Orders are confirmed directly for now.'}
               </p>
             </div>
           </div>

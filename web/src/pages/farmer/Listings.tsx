@@ -35,7 +35,7 @@ export default function FarmerListings() {
     try {
       const { data } = await api.delete<{ message: string; archived?: boolean }>(`/api/v1/listings/${id}`)
       if (data?.archived) {
-        setError('Listing has linked orders — it has been archived instead of deleted.')
+        setError('Listing has linked orders. It has been archived instead of deleted.')
         setTimeout(() => setError(null), 5000)
       }
       fetchListings()

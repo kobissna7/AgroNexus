@@ -41,7 +41,7 @@ export default function TransporterFeed() {
       <DarkHero
         eyebrow="Transporter Dashboard"
         title="Delivery Requests"
-        sub="Open requests in your region — accept to claim"
+        sub="Open requests in your region. Accept to claim"
         right={
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -58,7 +58,7 @@ export default function TransporterFeed() {
         <MetricCard label="Open Requests" value={open.length} sub="Available in your region" icon={<BoxIcon />} />
         <MetricCard
           label="Newest Request"
-          value={open[0]?.crop_type ?? '—'}
+          value={open[0]?.crop_type ?? '-'}
           sub={open[0] ? `${open[0].quantity_kg} kg · ${open[0].pickup_location}` : 'No requests yet'}
           icon={<InboxIcon className="w-5 h-5" />}
         />

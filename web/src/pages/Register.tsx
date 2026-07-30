@@ -29,6 +29,7 @@ export default function Register() {
     email: '', password: '', full_name: '', role: '' as UserRole | '',
     phone: '',
   })
+  const [region, setRegion]           = useState('')
   const [coords, setCoords]         = useState<{ lat: number; lng: number } | null>(null)
   const [locLoading, setLocLoading] = useState(false)
   const [locError, setLocError]     = useState('')
@@ -46,7 +47,7 @@ export default function Register() {
         setLocLoading(false)
       },
       () => {
-        setLocError('Location unavailable — allow location access and retry, or continue without it')
+        setLocError('Location unavailable. Allow location access and retry, or continue without it')
         setLocLoading(false)
       },
       { timeout: 10000 },
@@ -62,13 +63,17 @@ export default function Register() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     if (!form.role) { setError('Please select a role'); return }
+    if (form.role === 'farmer' && !region) { setError('Please select your farming community'); return }
     setError('')
     setLoading(true)
     try {
-      const payload = { ...form, ...(coords ? { location_lat: coords.lat, location_lng: coords.lng } : {}) }
+      const payload = {
+        ...form,
+        ...(coords ? { location_lat: coords.lat, location_lng: coords.lng } : {}),
+        ...(form.role === 'farmer' && region ? { region } : {}),
+      }
       const { data } = await api.post<{ token: string; user: AuthUser }>('/api/v1/auth/register', payload)
       login(data.token, data.user)
-      // Only follow a checkout intent for roles that can actually buy
       const followNext = !buyingIntent || BUYER_ROLES.includes(data.user.role) ? next : null
       navigate(postAuthDestination(data.user.role, followNext))
     } catch (err: unknown) {
@@ -91,7 +96,7 @@ export default function Register() {
       <div style={{ marginBottom: '1rem' }}>
         <h2 style={{ fontSize: 'clamp(1.3rem, 2vw, 1.55rem)', fontWeight: 800, color: 'var(--ink-strong)', letterSpacing: '-0.03em' }}>Create your account</h2>
         <p style={{ color: 'var(--ink-muted)', marginTop: 4, fontSize: 13 }}>
-          {buyingIntent ? 'One quick step and your order continues right where you left it' : 'Free to join — start in under a minute'}
+          {buyingIntent ? 'One quick step and your order continues right where you left it' : 'Free to join. Start in under a minute'}
         </p>
       </div>
 
@@ -104,10 +109,36 @@ export default function Register() {
           <select id="role" className="input-field" value={form.role} onChange={set('role')} required>
             <option value="" disabled>Select your role</option>
             {roleOptions.map(({ value, label, desc }) => (
-              <option key={value} value={value}>{label} — {desc}</option>
+              <option key={value} value={value}>{label}: {desc}</option>
             ))}
           </select>
         </div>
+
+        {/* Farming community selector — only for farmers */}
+        {form.role === 'farmer' && (
+          <div>
+            <label htmlFor="farming_community" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ink-muted)', marginBottom: 6 }}>
+              Farming Community <span style={{ color: 'var(--brand-ink)' }}>*</span>
+            </label>
+            <select
+              id="farming_community"
+              className="input-field"
+              value={region}
+              onChange={(e) => setRegion(e.target.value)}
+              required
+            >
+              <option value="">Select your farming area</option>
+              <option value="Aowin">Aowin (plantain &amp; pepper belt)</option>
+              <option value="Bibiani">Bibiani (cassava &amp; maize hub)</option>
+              <option value="Juaboso">Juaboso (cassava/plantain surplus zone)</option>
+              <option value="Sefwi Wiawso">Sefwi Wiawso (rice valley &amp; veg area)</option>
+              <option value="Wasa Amenfi">Wasa Amenfi (maize &amp; cassava area)</option>
+            </select>
+            <p style={{ fontSize: 11, color: 'var(--ink-muted)', marginTop: 4 }}>
+              This links your produce listings to your local farming area so buyers and the forecast system can match you correctly.
+            </p>
+          </div>
+        )}
 
         {/* two-up rows keep the whole form inside one viewport */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '0.75rem' }}>
@@ -175,7 +206,7 @@ export default function Register() {
         {/* Location — detected automatically, region derived server-side */}
         <div>
           <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ink-muted)', marginBottom: 6 }}>
-            Location <span style={{ color: 'var(--ink-faint)', fontWeight: 400 }}>— detected automatically</span>
+            Location <span style={{ color: 'var(--ink-faint)', fontWeight: 400 }}>(detected automatically)</span>
           </label>
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',

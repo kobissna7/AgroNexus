@@ -5,16 +5,34 @@ import supabase, { supabaseAdmin } from '../services/supabase'
 const FLASK_URL    = process.env.FLASK_SERVICE_URL ?? 'http://localhost:5000'
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000  // 6 hours
 
+// ─── Real Ghana Western Region farming areas ──────────────────────────────────
+// These are actual mixed food-crop production zones per MOFA district reports.
+// Aowin       — plantain & pepper belt (Enchi corridor)
+// Bibiani     — cassava + maize hub (Bibiani-Anhwiaso-Bekwai district)
+// Juaboso     — cassava/plantain surplus (Juaboso district)
+// Sefwi Wiawso — rice valley + tomato/veg cultivation (district capital)
+// Wasa Amenfi  — maize & cassava (Wasa Amenfi East & West)
+export const FORECAST_REGIONS = [
+  'Aowin', 'Bibiani', 'Juaboso', 'Sefwi Wiawso', 'Wasa Amenfi',
+] as const
+export type ForecastRegion = typeof FORECAST_REGIONS[number]
+
 // ─── Baseline defaults (mirrors ml/ml_defaults.py) ────────────────────────────
 const MOFA_BASE_DEMAND: Record<string, number> = {
   maize: 320, tomatoes: 180, plantain: 420,
   cassava: 560, pepper: 90, rice: 210,
 }
+
+// Region demand scale (mirrors ml/ml_defaults.py REGION_DEMAND_SCALE)
+const REGION_DEMAND_SCALE: Record<string, number> = {
+  'Aowin': 0.90, 'Bibiani': 1.10, 'Juaboso': 0.85, 'Sefwi Wiawso': 1.05, 'Wasa Amenfi': 1.00,
+}
+
 const DOW_WEIGHTS = [0.12, 0.15, 0.16, 0.17, 0.15, 0.14, 0.11]
 
 /** Produce a simple 7-day estimate from MOFA baseline when ML is unreachable. */
-function buildFallbackForecast(crop_type: string, region: string) {
-  const baseWeeklyKg = MOFA_BASE_DEMAND[crop_type] ?? 300
+function buildFallbackForecast(crop_type: string, region: string, regionScale = 1.0) {
+  const baseWeeklyKg = (MOFA_BASE_DEMAND[crop_type] ?? 300) * regionScale
   const now = new Date()
   const forecast = DOW_WEIGHTS.map((w, i) => {
     const d = new Date(now)
@@ -33,8 +51,8 @@ function buildFallbackForecast(crop_type: string, region: string) {
     forecast,
     model_used:      'baseline',
     mape_pct:        null,
-    weekly_pred_w1:  baseWeeklyKg,
-    weekly_pred_w2:  baseWeeklyKg,
+    weekly_pred_w1:  Math.round(baseWeeklyKg),
+    weekly_pred_w2:  Math.round(baseWeeklyKg),
     generated_at:    now.toISOString().replace(/\.\d{3}Z$/, 'Z'),
     fallback:        true,
     fallback_reason: 'ML service offline — showing MOFA baseline estimates',
@@ -140,13 +158,15 @@ export async function getForecast(req: Request, res: Response): Promise<void> {
 
 // GET /api/v1/forecasts/summary  — all crops × regions in one call
 export async function getForecastSummary(req: Request, res: Response): Promise<void> {
-  const CROPS   = ['maize', 'tomatoes', 'plantain', 'cassava', 'pepper', 'rice']
-  const REGIONS = ['Tarkwa', 'Bogoso', 'Prestea']
+  const CROPS = ['maize', 'tomatoes', 'plantain', 'cassava', 'pepper', 'rice']
 
   try {
+    // Fetch regional supply volumes alongside forecasts
+    const regionalVolumes = await getRegionalVolumes().catch(() => ({}))
+
     const results = await Promise.all(
       CROPS.flatMap((crop) =>
-        REGIONS.map(async (region) => {
+        FORECAST_REGIONS.map(async (region) => {
           const key    = `${crop}|${region}`
           const cached = getCached(key)
           if (cached) return { crop_type: crop, region, ...(cached as object), cached: true }
@@ -155,12 +175,14 @@ export async function getForecastSummary(req: Request, res: Response): Promise<v
             const { data } = await axios.post(`${FLASK_URL}/predict`, {
               crop_type: crop,
               region,
+              regional_volumes: regionalVolumes,
             })
             setCache(key, data)
             return { ...data, cached: false }
           } catch {
-            // Return baseline instead of error so summary grid is always populated
-            const fallback = buildFallbackForecast(crop, region)
+            // Return region-scaled baseline so summary grid is always populated
+            const scale = REGION_DEMAND_SCALE[region] ?? 1.0
+            const fallback = buildFallbackForecast(crop, region, scale)
             setCache(key, fallback)
             return { ...fallback, cached: false }
           }

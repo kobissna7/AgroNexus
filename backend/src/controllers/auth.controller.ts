@@ -7,9 +7,9 @@ const signToken = (id: string, role: UserRole, email: string) =>
   jwt.sign({ id, role, email }, process.env.JWT_SECRET!, { expiresIn: '7d' })
 
 export async function register(req: Request, res: Response): Promise<void> {
-  // region is intentionally not accepted from the client — the users_auto_region
-  // DB trigger derives it from GPS coordinates (see migration_v2_roles_and_market.sql)
-  const { email, password, full_name, role, phone, location_lat, location_lng } = req.body as {
+  // For farmers, region is explicitly provided (their farming community).
+  // For other roles, region is derived from GPS by the users_auto_region DB trigger.
+  const { email, password, full_name, role, phone, location_lat, location_lng, region } = req.body as {
     email: string
     password: string
     full_name: string
@@ -17,6 +17,7 @@ export async function register(req: Request, res: Response): Promise<void> {
     phone: string
     location_lat?: number
     location_lng?: number
+    region?: string
   }
 
   if (!email || !password || !full_name || !role) {
@@ -42,9 +43,14 @@ export async function register(req: Request, res: Response): Promise<void> {
   }
 
   // Insert into users table using the Supabase Auth user's ID
+  const VALID_REGIONS = ['Aowin', 'Bibiani', 'Juaboso', 'Sefwi Wiawso', 'Wasa Amenfi']
   const profileData: Record<string, unknown> = { id: authData.user.id, email, role, full_name, phone }
   if (typeof location_lat === 'number') profileData.location_lat = location_lat
   if (typeof location_lng === 'number') profileData.location_lng = location_lng
+  // Farmers select their farming community explicitly; set region directly
+  if (role === 'farmer' && region && VALID_REGIONS.includes(region)) {
+    profileData.region = region
+  }
 
   const { data: userData, error: dbError } = await supabaseAdmin
     .from('users')
