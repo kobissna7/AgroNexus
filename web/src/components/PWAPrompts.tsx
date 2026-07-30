@@ -124,7 +124,7 @@ export function PWAUpdateToast() {
         fontSize: '0.9rem',
       }}
     >
-      <span>🔄 New version available</span>
+      <span>New version available</span>
       <button
         onClick={reloadForUpdate}
         style={{

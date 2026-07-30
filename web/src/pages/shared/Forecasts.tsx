@@ -142,9 +142,6 @@ export default function ForecastsPage() {
           border: '1px solid var(--edge)',
           display: 'flex', gap: 12, alignItems: 'flex-start',
         }}>
-          <span style={{ fontSize: 20, lineHeight: 1.2, marginTop: 2 }}>
-            {allocationInsight.type === 'gap' ? '📦' : '⚖️'}
-          </span>
           <div>
             <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-strong)', margin: 0, marginBottom: 4 }}>
               {allocationInsight.type === 'gap'
@@ -301,7 +298,7 @@ export default function ForecastsPage() {
                   const maxRegion = cropAllRows.reduce((best, f) => f.weekly_pred_w1 > best.weekly_pred_w1 ? f : best, cropAllRows[0])
                   const isHighestRegion = maxRegion?.region === region
                   const hint = isHighestRegion
-                    ? `🔥 Highest demand area — prioritise allocation here`
+                    ? `Highest demand area — prioritise allocation here`
                     : maxRegion
                     ? `→ Higher demand in ${maxRegion.region} (${Math.round(maxRegion.weekly_pred_w1).toLocaleString()} kg/wk)`
                     : ''
