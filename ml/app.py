@@ -165,6 +165,15 @@ def _predict_one(feature_row: np.ndarray) -> float:
 
 # ─── Routes ───────────────────────────────────────────────────────────────────
 
+@app.route('/', methods=['GET'])
+def index():
+    return jsonify({
+        'service': 'AgroNexus ML Forecast API',
+        'status': 'online' if MODEL_READY else 'loading/error',
+        'endpoints': ['/health', '/crops', '/predict']
+    })
+
+
 @app.route('/health', methods=['GET'])
 def health():
     if not MODEL_READY:
