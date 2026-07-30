@@ -168,6 +168,7 @@ export default function Layout({ children, title }: { children: ReactNode; title
         bottom: isMobile ? 0 : undefined,
         zIndex: isMobile ? 50 : undefined,
         transform: isMobile ? (sidebarVisible ? 'translateX(0)' : 'translateX(-100%)') : undefined,
+        pointerEvents: isMobile && !sidebarVisible ? 'none' : 'auto',
         overflow: 'hidden',
       }}>
         {/* Logo */}
