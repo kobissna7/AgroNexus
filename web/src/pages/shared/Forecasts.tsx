@@ -85,7 +85,7 @@ export default function ForecastsPage() {
           <div style={{ textAlign: 'right' }}>
             <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.50)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Model Accuracy</p>
             <p style={{ fontSize: '1.4rem', fontWeight: 800, color: 'rgba(134,239,172,0.9)', letterSpacing: '-0.02em', marginTop: 4 }}>
-              {selected.mape_pct.toFixed(1)}% MAPE
+              {typeof selected.mape_pct === 'number' ? selected.mape_pct.toFixed(1) : '-'}% MAPE
             </p>
           </div>
         )}
@@ -200,7 +200,7 @@ export default function ForecastsPage() {
             <div className="card" style={{ padding: 20 }}>
               <p style={{ fontSize: 11, color: 'var(--ink-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Model Info</p>
               <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink-strong)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{selected.model_used}</p>
-              <p style={{ fontSize: 12, color: 'var(--ink-muted)', marginTop: 4 }}>MAPE: {selected.mape_pct.toFixed(2)}%</p>
+              <p style={{ fontSize: 12, color: 'var(--ink-muted)', marginTop: 4 }}>MAPE: {typeof selected.mape_pct === 'number' ? selected.mape_pct.toFixed(2) : '-'}%</p>
               {selected.cached && <p style={{ fontSize: 11, color: 'var(--ink-muted)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 5 }}><span className="live-dot" style={{ background: 'var(--brand-ink)' } as React.CSSProperties} /> cached result</p>}
               {selected.fallback && (
                 <p style={{ fontSize: 11, color: '#b45309', marginTop: 4 }}>⚠ MOFA baseline (ML offline)</p>
@@ -325,7 +325,7 @@ export default function ForecastsPage() {
                           {t === 'up' ? '↑ Up' : t === 'down' ? '↓ Down' : '→ Stable'}
                         </span>
                       </td>
-                      <td style={{ textAlign: 'right', color: 'var(--ink-muted)' }}>{fc.mape_pct.toFixed(1)}%</td>
+                      <td style={{ textAlign: 'right', color: 'var(--ink-muted)' }}>{typeof fc.mape_pct === 'number' ? fc.mape_pct.toFixed(1) : '-'}%</td>
                       <td style={{ fontSize: 12, color: isHighestRegion ? 'var(--brand-ink)' : 'var(--ink-muted)', fontWeight: isHighestRegion ? 600 : 400 }}>
                         {hint}
                       </td>
