@@ -184,7 +184,6 @@ export default function ForecastInsights() {
               padding: '12px 16px', borderRadius: 12,
               background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.3)',
             }}>
-              <span style={{ fontSize: 16, lineHeight: 1.4 }}>⚠️</span>
               <div>
                 <p style={{ fontSize: 13, fontWeight: 700, color: '#92400e', margin: 0 }}>ML service offline. Showing MOFA baseline estimates.</p>
                 <p style={{ fontSize: 12, color: '#b45309', margin: '2px 0 0' }}>
@@ -306,7 +305,7 @@ export default function ForecastInsights() {
                 {worstCoverage && (
                   <div style={{ marginTop: 14, padding: '10px 14px', background: 'var(--brand-soft)', border: '1px solid var(--edge)', borderRadius: 10 }}>
                     <p style={{ fontSize: 12, color: 'var(--brand-ink)', margin: 0 }}>
-                      ⚠ {worstCoverage.region}: listed supply covers only{' '}
+                      {worstCoverage.region}: listed supply covers only{' '}
                       <strong>{Math.round(worstCoverage.coverage * 100)}%</strong> of next week's forecast demand.
                     </p>
                   </div>
@@ -375,10 +374,10 @@ export default function ForecastInsights() {
                     surplus:  { bar: 'var(--ink-faint)',     bg: 'var(--surface-2)',      border: 'var(--edge)',         text: 'var(--ink-muted)' },
                   }[status]
                   const msg = {
-                    critical: `🚨 Critical shortage — send farmers to list produce here urgently. Only ${pct}% of demand covered.`,
-                    low:      `⚠ Supply running low — encourage more farmer listings in this area. ${pct}% covered.`,
-                    balanced: `✓ Supply and demand are balanced in this area (${pct}% covered). Monitor for changes.`,
-                    surplus:  `📦 Surplus area — supply exceeds demand by ${pct - 100}%. Redirect some produce to other areas.`,
+                    critical: `Critical shortage — send farmers to list produce here urgently. Only ${pct}% of demand covered.`,
+                    low:      `Supply running low — encourage more farmer listings in this area. ${pct}% covered.`,
+                    balanced: `Supply and demand are balanced in this area (${pct}% covered). Monitor for changes.`,
+                    surplus:  `Surplus area — supply exceeds demand by ${pct - 100}%. Redirect some produce to other areas.`,
                   }[status]
                   const width = Math.min(d.supply > 0 || d.demand > 0 ? pct : 0, 100)
                   return (
