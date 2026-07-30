@@ -68,6 +68,7 @@ export function PWAInstallBanner() {
         >
           Install
         </button>
+        <button
           onClick={() => {
             setDismissed(true)
             localStorage.setItem('pwa_prompt_dismissed', 'true')
