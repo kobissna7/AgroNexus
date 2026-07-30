@@ -14,12 +14,17 @@ export default function ResetPassword() {
   const [tokenMissing, setTokenMissing] = useState(false)
 
   // Supabase appends the token as a hash fragment: #access_token=...&type=recovery
+  // Or if PKCE is enabled, it appends ?code=... in the query string.
+  const [debugInfo, setDebugInfo] = useState('')
   useEffect(() => {
-    const hash = window.location.hash
-    const params = new URLSearchParams(hash.replace('#', ''))
-    const token = params.get('access_token')
-    const type = params.get('type')
-    if (!token || type !== 'recovery') {
+    const hashParams = new URLSearchParams(window.location.hash.replace('#', ''))
+    const queryParams = new URLSearchParams(window.location.search)
+    
+    const token = hashParams.get('access_token') || queryParams.get('code') || hashParams.get('provider_token')
+    
+    setDebugInfo(`hash: ${window.location.hash} | search: ${window.location.search}`)
+    
+    if (!token) {
       setTokenMissing(true)
     } else {
       setAccessToken(token)
@@ -90,6 +95,9 @@ export default function ResetPassword() {
                 <p style={{ color: 'var(--ink-muted)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
                   This link is invalid or has expired. Please request a new one.
                 </p>
+                <div style={{ background: '#fee2e2', color: '#991b1b', padding: '8px', fontSize: '10px', wordBreak: 'break-all', marginBottom: '1rem', borderRadius: '4px' }}>
+                  Debug: {debugInfo}
+                </div>
                 <Link
                   to="/forgot-password"
                   style={{
